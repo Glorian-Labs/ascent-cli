@@ -1,45 +1,74 @@
-# Ascent CLI 🧬
-### The Elite Toolkit for x402 Agent Commerce on Aptos
+# 🥠 Ascent CLI
 
-**Ascent** is a production-grade CLI built to empower developers to forge x402 payment-enabled agents on the Aptos network. High velocity, lethal precision, local-first.
+**The elite toolkit for x402 payments on Aptos**
+
+> Built for Canteen x Aptos x402 Hackathon 2026
 
 ---
 
-## ⚡ Quick Start
+## 🎯 The Vision
+
+The future of commerce belongs to **autonomous machines**. API Keys are for humans; **x402 signatures** are for agents.
+
+**Ascent CLI** is the bridge. It provides the infrastructure for developers to build, test, and monitor self-monetizing agentic services on Aptos.
+
+---
+
+## ✨ Features
+
+- 🏗️ **Instant Scaffolding:** Forge x402 projects using Express, Next.js, or Hono.
+- ⚡ **Local Forge:** Integrated dev facilitator for offline verification testing.
+- 🧪 **Stress Testing:** Multi-wallet simulation using official hackathon assets.
+- 📊 **Trust Layer:** Agent Identity & Reputation (AAIS) tracking system.
+- 🔭 **Live Dashboard:** Web-based analytics with real-time leaderboard.
+- 🦀 **Move Ready:** Automated generation of payment verification modules.
+
+---
+
+## 🚀 Quick Start
 
 ```bash
-# Forge a new project
-ascent init my-agent
+# 1. Forge a new project
+ascent init my-agent-api
 
-# Launch development environment (includes local facilitator)
+# 2. Enter the forge
+cd my-agent-api && npm install
+
+# 3. Ignite development
 ascent dev
 
-# Simulate payment flows with stress-test wallets
+# 4. Stress test payments (in a new tab)
 ascent test --all-wallets
-
-# Monitor transactions in real-time
-ascent monitor
 ```
-
-## 🛠️ Commands
-
-| Command | Action |
-|---------|--------|
-| `init <name>` | Scaffold a new agent project (Express/Next/Hono) |
-| `dev` | Start dev server with local x402 verification |
-| `test` | Run simulated payment cycles using hackathon wallets |
-| `monitor` | Terminal-based real-time transaction analytics |
-| `move init` | Bootstrap an Aptos Move verification module |
-| `move inject` | Inject x402 validation logic into your Move project |
-
-## 🧬 Protocol Flow (x402)
-
-1. **Request**: Agent requests protected resource.
-2. **Challenge**: Server returns `402 Payment Required` + requirements.
-3. **Synthesis**: Client constructs and signs Aptos transaction.
-4. **Verification**: Facilitator verifies on-chain settlement.
-5. **Access**: Access granted to elite logic.
 
 ---
 
-*Forged by Hebx. Built for the Ascension Phase.* 🥷🏻
+## 📖 Documentation Suite
+
+Dive into the details of the Ascent ecosystem:
+
+- [🚀 Technical Guide](./docs/guide.md) - Full command reference & setup.
+- [🎯 Use Cases](./docs/use-cases.md) - Strategic scenarios for agentic commerce.
+- [📝 Deep-Dive Article](./docs/article.md) - The vision behind the build.
+- [🧵 X Announcement](./docs/x-thread.md) - Draft thread for the launch.
+
+---
+
+## 💰 Real-Data Resources (Aptos Testnet)
+
+| Resource | Value |
+| :--- | :--- |
+| **Network** | `aptos:2` |
+| **USDC Asset** | `0x69091fbab5f7d635ee7ac5098cf0c1efbe31d68fec0f2cd565e8d168daf52832` |
+| **Facilitator** | `https://x402-navy.vercel.app/facilitator/` |
+| **Explorer** | [Aptos Explorer](https://explorer.aptoslabs.com/?network=testnet) |
+
+---
+
+## 🏆 Hackathon Submission
+
+**Project:** Ascent CLI  
+**Track:** Infrastructure & Tooling / Identity & Reputation  
+**Bounties:** Easter Eggs #1 & #2 solved  
+
+Built with 💜 for the Aptos x402 ecosystem.
