@@ -171,13 +171,27 @@ program
 // Monitor command
 program
   .command('monitor')
-  .description('Monitor payment flows in real-time')
+  .description('Monitor payment flows in real-time (terminal)')
   .option('-i, --interval <ms>', 'Update interval', '3000')
   .action(async (options) => {
-    console.log(chalk.cyan('📊 Starting payment monitor...\n'));
+    console.log(chalk.cyan('📊 Starting terminal payment monitor...\n'));
     
     const monitor = require('./lib/monitor');
     await monitor.start({ interval: parseInt(options.interval) });
+  });
+
+// Dashboard command
+program
+  .command('dashboard')
+  .description('Start web analytics dashboard')
+  .option('-p, --port <port>', 'Dashboard port', '3456')
+  .option('-d, --db <path>', 'Database path', './payments.db')
+  .action(async (options) => {
+    const dashboard = require('./lib/dashboard');
+    await dashboard.start({ 
+      port: parseInt(options.port),
+      dbPath: options.db
+    });
   });
 
 // Deploy command
