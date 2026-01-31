@@ -2,6 +2,7 @@ node_modules/
 .env
 .env.local
 *.log
+e2e-forge/
 test-project/
 test-project2/
 .DS_Store

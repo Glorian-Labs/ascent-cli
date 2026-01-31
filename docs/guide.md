@@ -82,4 +82,14 @@ ascent move inject  # Inject payment verifier module
 
 ---
 
+## 🧪 6. E2E Validation & Stability
+
+The Ascent ecosystem is rigorously tested using a complete End-to-End (E2E) validation cycle. This ensures that the scaffolding, development environment, and protocol handshakes work seamlessly.
+
+### E2E Test Cycle:
+1. **Forge Validation**: Verifies project scaffolding and dependency resolution.
+2. **Ignition Test**: Confirms synchronous boot of the local Facilitator and Agent Server.
+3. **Protocol Handshake**: Validates the `402 Payment Required` challenge/response flow.
+4. **Stress Test**: Simulates multi-agent commerce using diverse wallet profiles.
+
 Built for the **Canteen x Aptos x402 Hackathon 2026**

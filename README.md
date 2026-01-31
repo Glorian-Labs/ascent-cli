@@ -21,6 +21,7 @@ The future of commerce belongs to **autonomous machines**. API Keys are for huma
 - 🧪 **Stress Testing:** Multi-wallet simulation using official hackathon assets.
 - 📊 **Trust Layer:** Agent Identity & Reputation (AAIS) tracking system.
 - 🔭 **Live Dashboard:** Web-based analytics with real-time leaderboard.
+- 🧪 **E2E Validated:** Rigorous end-to-end testing on every core feature.
 - 🦀 **Move Ready:** Automated generation of payment verification modules.
 
 ---

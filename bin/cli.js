@@ -154,6 +154,7 @@ program
   .option('-p, --private-key <key>', 'Wallet private key')
   .option('-a, --amount <amount>', 'Payment amount in USDC', '0.01')
   .option('-e, --endpoint <url>', 'API endpoint to test', 'http://localhost:3000/api/paid')
+  .option('-f, --facilitator <url>', 'Facilitator URL')
   .option('--all-wallets', 'Stress test with all 5 hackathon wallets')
   .action(async (options) => {
     console.log(`\n🧪 ${brandGradient('Running payment simulation...')}\n`);
@@ -163,7 +164,8 @@ program
         const multiTester = require('../lib/multi-wallet-tester');
         await multiTester.testAllWallets({
           amount: options.amount,
-          endpoint: options.endpoint
+          endpoint: options.endpoint,
+          facilitatorUrl: options.facilitator
         });
       } else {
         const multiTester = require('../lib/multi-wallet-tester');
@@ -171,7 +173,8 @@ program
           wallet: options.wallet,
           privateKey: options.privateKey,
           amount: options.amount,
-          endpoint: options.endpoint
+          endpoint: options.endpoint,
+          facilitatorUrl: options.facilitator
         });
       }
     } catch (error) {
