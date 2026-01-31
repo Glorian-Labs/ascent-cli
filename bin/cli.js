@@ -190,6 +190,78 @@ program
     await monitor.start({ interval: parseInt(options.interval) });
   });
 
+// Dashboard command
+program
+  .command('dashboard')
+  .description('Start web analytics dashboard')
+  .option('-p, --port <port>', 'Dashboard port', '3456')
+  .option('-d, --db <path>', 'Database path', './payments.db')
+  .action(async (options) => {
+    const dashboard = require('../lib/dashboard');
+    await dashboard.start({ 
+      port: parseInt(options.port),
+      dbPath: options.db
+    });
+  });
+
+// Identity command
+program
+  .command('identity <action>')
+  .description('Manage agent identity and reputation')
+  .option('-a, --address <address>', 'Agent wallet address')
+  .option('-n, --name <name>', 'Display name for the agent')
+  .option('-d, --db <path>', 'Database path', './payments.db')
+  .action(async (action, options) => {
+    const Database = require('better-sqlite3');
+    const db = new Database(options.db);
+    
+    switch (action) {
+      case 'register':
+        if (!options.address || !options.name) {
+          console.log(chalk.red('Error: Provide --address and --name'));
+          return;
+        }
+        db.prepare(`
+          INSERT INTO agent_identities (address, name)
+          VALUES (?, ?)
+          ON CONFLICT(address) DO UPDATE SET name = excluded.name
+        `).run(options.address, options.name);
+        console.log(chalk.green(`✓ Agent ${chalk.bold(options.name)} registered for ${options.address}`));
+        break;
+        
+      case 'list':
+        const allAgents = db.prepare('SELECT * FROM agent_identities ORDER BY reputation_score DESC').all();
+        console.log(`\n${chalk.bold('Agent Identity Registry')}`);
+        allAgents.forEach(a => {
+          const scoreColor = a.reputation_score > 70 ? chalk.green : (a.reputation_score > 40 ? chalk.yellow : chalk.red);
+          console.log(`  ${chalk.cyan(a.name.padEnd(20))} | ${a.address.slice(0, 10)}... | Score: ${scoreColor(a.reputation_score.toString().padStart(3))}`);
+        });
+        break;
+
+      case 'show':
+        if (!options.address) {
+          console.log(chalk.red('Error: Provide --address'));
+          return;
+        }
+        const agent = db.prepare('SELECT * FROM agent_identities WHERE address = ?').get(options.address);
+        if (!agent) {
+          console.log(chalk.yellow(`No identity found for ${options.address}`));
+          return;
+        }
+        console.log(`\n${chalk.bold('Agent Metrics: ' + agent.name)}`);
+        console.log(`  Address:    ${chalk.cyan(agent.address)}`);
+        console.log(`  Trust Score: ${agent.reputation_score > 70 ? chalk.green(agent.reputation_score) : chalk.red(agent.reputation_score)}/100`);
+        console.log(`  Total Spent: ${chalk.green(agent.total_spent.toFixed(2))} USDC`);
+        console.log(`  Success Rate: ${chalk.cyan(Math.round((agent.successful_txs / (agent.successful_txs + agent.failed_txs)) * 100))}%`);
+        break;
+        
+      default:
+        console.log(chalk.red(`Unknown action: ${action}`));
+        console.log(chalk.blue('Available: register, list, show'));
+    }
+    db.close();
+  });
+
 // Move command
 program
   .command('move <action>')

@@ -1,16 +1,16 @@
-# 📖 Aptos x402 CLI - Usage Guide
+# 📖 Ascent CLI - Usage Guide
 
 ## 🚀 Getting Started
 
 ### 1. Installation
 ```bash
-npm install -g aptos-x402-cli
+npm install -g ascent-cli
 ```
 
 ### 2. Scaffold a Project
 Choose between Express (default) or Next.js:
 ```bash
-aptos-x402 init my-agent-api --template express
+ascent init my-agent-api --template express
 cd my-agent-api
 ```
 
@@ -24,14 +24,36 @@ APTOS_PRIVATE_KEY=0xyour_private_key
 ### 4. Local Development
 Start your server and a local facilitator:
 ```bash
-aptos-x402 dev
+ascent dev
 ```
 - Server: `http://localhost:3000`
 - Facilitator: `http://localhost:4022`
 
 ### 5. Test Payment Flow
 ```bash
-aptos-x402 test -w 0xyour_wallet
+ascent test -w 0xyour_wallet
+```
+
+---
+
+## 🎭 Agent Identity & Reputation
+
+### 1. Register Agent Identity
+Link your wallet to a human-readable name for the global dashboard.
+```bash
+ascent identity register --address 0x489... --name "Hebx-Security-Bot"
+```
+
+### 2. Check Reputation & Metrics
+View real-time trust scores and payment history.
+```bash
+ascent identity show --address 0x489...
+```
+
+### 3. List Registry
+See all indexed agents ranked by their reputation score.
+```bash
+ascent identity list
 ```
 
 ---
@@ -46,7 +68,7 @@ Options:
 
 Example:
 ```bash
-aptos-x402 init my-api --template next
+ascent init my-api --template next
 ```
 
 ### `dev`
@@ -59,7 +81,7 @@ Options:
 
 Example:
 ```bash
-aptos-x402 dev --port 8080
+ascent dev --port 8080
 ```
 
 ### `test`
@@ -71,7 +93,7 @@ Options:
 
 Example:
 ```bash
-aptos-x402 test -w 0x489cbd8ade2279edc20ef18a52b894d5a983575c1c0979e901be60b73741fe5d
+ascent test -w 0x489cbd8ade2279edc20ef18a52b894d5a983575c1c0979e901be60b73741fe5d
 ```
 
 ### `monitor`
@@ -80,21 +102,27 @@ Monitor payment flows in real-time.
 Options:
 - `-i, --interval <ms>`: Update interval (default: 3000)
 
-### `deploy`
-Deploy to Vercel.
+### `dashboard`
+Start web analytics dashboard.
+
+Options:
+- `-p, --port <port>`: Dashboard port (default: 3456)
+- `-d, --db <path>`: Database path (default: ./payments.db)
+
+### `identity <action>`
+Manage agent identity and reputation.
+
+Actions:
+- `register`: Link address to name
+- `list`: Show all agents
+- `show`: Detailed metrics for one agent
 
 ### `move <action>`
-Move language helpers.
+Aptos Move language agent helpers.
 
 Actions:
 - `init`: Initialize Move project
-- `add-payment-logic`: Add payment verification module
-
-Example:
-```bash
-aptos-x402 move init
-aptos-x402 move add-payment-logic
-```
+- `inject`: Add payment verification module
 
 ### `config`
 Show current configuration.
@@ -127,34 +155,13 @@ Server settles with facilitator /settle
 200 OK + PAYMENT-RESPONSE + content
 ```
 
-### Template Structure
-
-**Express Template:**
-```
-my-api/
-├── server.js          # x402-enabled server
-├── package.json
-├── .env.example
-└── README.md
-```
-
-**Next.js Template:**
-```
-my-api/
-├── middleware.js      # x402 payment proxy
-├── app/
-├── package.json
-├── .env.example
-└── README.md
-```
-
 ---
 
 ## 🎯 Example: Complete Setup
 
 ```bash
 # 1. Create project
-aptos-x402 init fortune-api
+ascent init fortune-api
 cd fortune-api
 
 # 2. Install dependencies
@@ -165,24 +172,11 @@ export PAYMENT_RECIPIENT_ADDRESS="0xyour_address"
 export APTOS_PRIVATE_KEY="0xyour_private_key"
 
 # 4. Start dev environment
-aptos-x402 dev
+ascent dev
 
 # 5. In another terminal, test
-aptos-x402 test -w 0xyour_wallet
+ascent test -w 0xyour_wallet
 ```
-
----
-
-## 🐛 Troubleshooting
-
-### "Facilitator not configured"
-Set `APTOS_PRIVATE_KEY` in your environment.
-
-### "Expected 402, got 200"
-Your endpoint might not be protected. Check middleware configuration.
-
-### Payment fails
-Ensure wallet has testnet USDC at: https://faucet.circle.com/
 
 ---
 
