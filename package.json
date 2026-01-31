@@ -25,11 +25,14 @@
     "@rvk_rishikesh/aptos": "^2.1.0",
     "@rvk_rishikesh/core": "^2.2.0",
     "@rvk_rishikesh/fetch": "^2.2.0",
+    "better-sqlite3": "^12.6.2",
     "chalk": "^4.1.2",
     "commander": "^11.0.0",
     "fs-extra": "^11.1.1",
+    "inquirer": "^8.2.5",
     "node-fetch": "^2.7.0",
-    "ora": "^5.4.1"
+    "ora": "^5.4.1",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "eslint": "^8.45.0",

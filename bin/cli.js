@@ -31,32 +31,52 @@ program
 program
   .command('init <project-name>')
   .description('Scaffold a new x402 project')
-  .option('-t, --template <type>', 'Template: express|next|hono', 'express')
+  .option('-t, --template <type>', 'Template: express|next|hono')
+  .option('-i, --interactive', 'Interactive setup with prompts', true)
   .action(async (projectName, options) => {
-    const spinner = ora('Creating project...').start();
+    const targetDir = path.resolve(process.cwd(), projectName);
+    
+    if (fs.existsSync(targetDir)) {
+      console.log(chalk.red(`✖ Directory ${projectName} already exists`));
+      process.exit(1);
+    }
+    
+    fs.ensureDirSync(targetDir);
     
     try {
-      const targetDir = path.resolve(process.cwd(), projectName);
-      
-      if (fs.existsSync(targetDir)) {
-        spinner.fail(`Directory ${projectName} already exists`);
-        process.exit(1);
+      if (options.interactive) {
+        // Use interactive setup
+        const interactiveSetup = require('./lib/interactive-setup');
+        const config = await interactiveSetup.run(projectName, targetDir);
+        
+        console.log(chalk.green(`\n✔ Created ${chalk.bold(projectName)} with ${config.template} template`));
+        console.log(chalk.blue('\n📦 Project configured:'));
+        console.log(`  Network: ${chalk.cyan(config.network)}`);
+        console.log(`  Price: ${chalk.cyan(config.price)} USDC`);
+        console.log(`  Endpoint: ${chalk.cyan(config.endpoint)}`);
+        console.log(`  Dashboard: ${config.includeDashboard ? chalk.green('✓') : chalk.red('✗')}`);
+        
+        console.log(chalk.blue('\n🚀 Next steps:'));
+        console.log(`  cd ${projectName}`);
+        console.log('  npm install');
+        console.log('  aptos-x402 dev');
+        console.log(chalk.gray('\n  # Or test with multiple wallets:'));
+        console.log(chalk.gray('  aptos-x402 test --all-wallets'));
+      } else {
+        // Use simple template
+        const spinner = ora('Creating project...').start();
+        await createTemplate(targetDir, options.template || 'express', projectName);
+        spinner.succeed(`Created ${chalk.green(projectName)} with ${options.template || 'express'} template`);
+        
+        console.log(chalk.blue('\nNext steps:'));
+        console.log(`  cd ${projectName}`);
+        console.log('  npm install');
+        console.log('  aptos-x402 dev');
       }
       
-      fs.ensureDirSync(targetDir);
-      
-      // Create based on template
-      await createTemplate(targetDir, options.template, projectName);
-      
-      spinner.succeed(`Created ${chalk.green(projectName)} with ${options.template} template`);
-      
-      console.log(chalk.blue('\nNext steps:'));
-      console.log(`  cd ${projectName}`);
-      console.log('  npm install');
-      console.log('  aptos-x402 dev');
-      
     } catch (error) {
-      spinner.fail(`Failed: ${error.message}`);
+      console.log(chalk.red(`\n✖ Failed: ${error.message}`));
+      process.exit(1);
     }
   });
 
@@ -114,26 +134,37 @@ program
   .command('test')
   .description('Test payment flow with test wallet')
   .option('-w, --wallet <address>', 'Test wallet address')
+  .option('-p, --private-key <key>', 'Wallet private key')
   .option('-a, --amount <amount>', 'Payment amount in USDC', '0.01')
+  .option('-e, --endpoint <url>', 'API endpoint to test', 'http://localhost:3000/api/paid')
+  .option('--all-wallets', 'Test with all 5 hackathon wallets')
   .action(async (options) => {
-    const spinner = ora('Testing x402 payment flow...').start();
-    
     try {
-      const tester = require('./lib/tester');
-      const result = await tester.run({
-        wallet: options.wallet,
-        amount: options.amount
-      });
-      
-      if (result.success) {
-        spinner.succeed('Payment test passed!');
-        console.log(chalk.green(`\n✓ Transaction: ${result.transaction}`));
-        console.log(chalk.blue(`  View: https://explorer.aptoslabs.com/txn/${result.transaction}?network=testnet`));
+      if (options.allWallets) {
+        // Multi-wallet test
+        const multiTester = require('./lib/multi-wallet-tester');
+        await multiTester.testAllWallets({
+          amount: options.amount,
+          endpoint: options.endpoint
+        });
       } else {
-        spinner.fail(`Test failed: ${result.error}`);
+        // Single wallet test
+        if (!options.wallet && !options.privateKey) {
+          console.log(chalk.red('Error: Provide --wallet or --private-key, or use --all-wallets'));
+          process.exit(1);
+        }
+        
+        const multiTester = require('./lib/multi-wallet-tester');
+        await multiTester.testSingle({
+          wallet: options.wallet,
+          privateKey: options.privateKey,
+          amount: options.amount,
+          endpoint: options.endpoint
+        });
       }
     } catch (error) {
-      spinner.fail(`Error: ${error.message}`);
+      console.log(chalk.red(`Error: ${error.message}`));
+      process.exit(1);
     }
   });
 
