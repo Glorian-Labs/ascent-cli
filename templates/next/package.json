@@ -1,0 +1,18 @@
+{
+  "name": "my-x402-next-app",
+  "version": "1.0.0",
+  "description": "x402 payment-enabled Next.js app",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "@rvk_rishikesh/next": "^2.2.1",
+    "@rvk_rishikesh/core": "^2.2.0",
+    "@rvk_rishikesh/aptos": "^2.1.0"
+  }
+}
