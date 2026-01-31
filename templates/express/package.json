@@ -1,7 +1,7 @@
 {
   "name": "my-x402-app",
   "version": "1.0.0",
-  "description": "x402 payment-enabled API",
+  "description": "Ascent-powered x402 payment API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-// Aptos x402 Developer CLI
-// The missing toolkit for x402 payments on Aptos
+/**
+ * Ascent CLI - The elite toolkit for x402 payments on Aptos.
+ * Forging the Future of Agent Commerce.
+ */
 
 const { program } = require('commander');
 const chalk = require('chalk');
@@ -8,31 +10,55 @@ const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
 const ora = require('ora');
+const boxen = require('boxen').default;
+const gradient = require('gradient-string').default;
 
 const PACKAGE_VERSION = require(path.join(__dirname, '..', 'package.json')).version;
 
+// Branding Colors
+const brandPurple = '#9A4DFF';
+const brandTeal = '#00F5FF';
+const brandGradient = gradient(brandPurple, brandTeal);
+
 // Banner
-console.log(chalk.cyan(`
-╔════════════════════════════════════════════════════════════╗
-║                                                            ║
-║  🥠 ${chalk.bold('Aptos x402 CLI')} v${PACKAGE_VERSION}                          ║
-║                                                            ║
-║  The missing toolkit for x402 payments on Aptos            ║
-║                                                            ║
-╚════════════════════════════════════════════════════════════╝
-`));
+const bannerText = brandGradient.multiline([
+  '   ▄▄▄▄▀ ▄▄▄▄▄   ▄█▄    ▄███▄      ▄      ▄▄▄▄▀ ',
+  '▀▀▀ █   █     ▀▄ █▀ █   █▀   ▀      █  ▀▀▀ █    ',
+  '    █ ▄  ▀▀▀▀▀▀  █   █  ██▄▄    ██   █     █    ',
+  '   █   █         █▄ ▄█  █▄   ▄▀ █ █  █    █     ',
+  '  ▀   ▀           ▀█▀   ▀███▀   █  █ █   ▀      ',
+  '                                █   ██          '
+].join('\n'));
+
+const bannerContent = `
+${bannerText}
+
+${chalk.bold('ASCENT')} v${PACKAGE_VERSION}
+${chalk.italic('Aptos x402 Agent Forge')}
+
+Forging the Future of Agent Commerce.
+`;
+
+console.log(boxen(bannerContent, {
+  padding: 1,
+  margin: 1,
+  borderStyle: 'double',
+  borderColor: brandPurple,
+  float: 'center',
+  textAlignment: 'center'
+}));
 
 program
-  .name('aptos-x402')
-  .description('CLI for building x402 payment-enabled applications on Aptos')
+  .name('ascent')
+  .description('Elite CLI for building x402 payment-enabled applications on Aptos')
   .version(PACKAGE_VERSION);
 
 // Init command
 program
   .command('init <project-name>')
-  .description('Scaffold a new x402 project')
-  .option('-t, --template <type>', 'Template: express|next|hono')
-  .option('-i, --interactive', 'Interactive setup with prompts', true)
+  .description('Scaffold a new x402 agent project')
+  .option('-t, --template <type>', 'Template: express|next|hono', 'express')
+  .option('--no-interactive', 'Disable interactive setup')
   .action(async (projectName, options) => {
     const targetDir = path.resolve(process.cwd(), projectName);
     
@@ -41,41 +67,44 @@ program
       process.exit(1);
     }
     
-    fs.ensureDirSync(targetDir);
+    console.log(`\n🚀 ${brandGradient('Igniting project forge...')}\n`);
     
     try {
       if (options.interactive) {
-        // Use interactive setup
-        const interactiveSetup = require('./lib/interactive-setup');
+        const interactiveSetup = require('../lib/interactive-setup');
         const config = await interactiveSetup.run(projectName, targetDir);
         
-        console.log(chalk.green(`\n✔ Created ${chalk.bold(projectName)} with ${config.template} template`));
-        console.log(chalk.blue('\n📦 Project configured:'));
-        console.log(`  Network: ${chalk.cyan(config.network)}`);
-        console.log(`  Price: ${chalk.cyan(config.price)} USDC`);
-        console.log(`  Endpoint: ${chalk.cyan(config.endpoint)}`);
-        console.log(`  Dashboard: ${config.includeDashboard ? chalk.green('✓') : chalk.red('✗')}`);
+        console.log(chalk.green(`\n✔ Successfully forged ${chalk.bold(projectName)}`));
         
-        console.log(chalk.blue('\n🚀 Next steps:'));
-        console.log(`  cd ${projectName}`);
-        console.log('  npm install');
-        console.log('  aptos-x402 dev');
-        console.log(chalk.gray('\n  # Or test with multiple wallets:'));
-        console.log(chalk.gray('  aptos-x402 test --all-wallets'));
+        const details = [
+          `Network: ${chalk.cyan(config.network)}`,
+          `Price: ${chalk.cyan(config.price)} USDC`,
+          `Endpoint: ${chalk.cyan(config.endpoint)}`,
+          `Stack: ${chalk.magenta(config.template)}`
+        ].join('\n');
+        
+        console.log(boxen(details, {
+          title: 'Project Config',
+          padding: 1,
+          borderColor: brandTeal
+        }));
+        
+        console.log(chalk.blue('\n🛠️  Next Operations:'));
+        console.log(`  ${chalk.cyan('cd')} ${projectName}`);
+        console.log(`  ${chalk.cyan('npm install')}`);
+        console.log(`  ${chalk.cyan('ascent dev')}`);
+        
       } else {
-        // Use simple template
-        const spinner = ora('Creating project...').start();
-        await createTemplate(targetDir, options.template || 'express', projectName);
-        spinner.succeed(`Created ${chalk.green(projectName)} with ${options.template || 'express'} template`);
+        const spinner = ora(brandGradient('Scaffolding template...')).start();
+        await createTemplate(targetDir, options.template, projectName);
+        spinner.succeed(`Forged ${chalk.green(projectName)} using ${options.template} stack.`);
         
-        console.log(chalk.blue('\nNext steps:'));
-        console.log(`  cd ${projectName}`);
-        console.log('  npm install');
-        console.log('  aptos-x402 dev');
+        console.log(`\n  ${chalk.cyan('cd')} ${projectName}`);
+        console.log(`  ${chalk.cyan('ascent dev')}`);
       }
       
     } catch (error) {
-      console.log(chalk.red(`\n✖ Failed: ${error.message}`));
+      console.log(chalk.red(`\n✖ Forge failed: ${error.message}`));
       process.exit(1);
     }
   });
@@ -83,78 +112,61 @@ program
 // Dev command
 program
   .command('dev')
-  .description('Start development server with local facilitator')
+  .description('Start agent dev server with local facilitator')
   .option('-p, --port <port>', 'Server port', '3000')
   .option('-f, --facilitator-port <port>', 'Facilitator port', '4022')
   .option('--no-facilitator', 'Skip starting local facilitator')
   .action(async (options) => {
-    console.log(chalk.yellow('🚀 Starting x402 development environment...\n'));
+    console.log(`\n🔥 ${brandGradient('Ascent Development Environment starting...')}\n`);
     
     let facilitatorInstance = null;
     
-    // Start facilitator if requested
     if (options.facilitator) {
-      const facilitator = require('./lib/facilitator');
+      const facilitator = require('../lib/facilitator');
       facilitatorInstance = await facilitator.start({ port: options.facilitatorPort });
       
-      console.log(chalk.green(`✓ Local facilitator: http://localhost:${options.facilitatorPort}`));
-      console.log(chalk.gray('  Facilitator handles payment verification and settlement\n'));
-      
-      // Set env for server to use local facilitator
+      console.log(chalk.green(`✓ Local Facilitator active on port ${options.facilitatorPort}`));
       process.env.FACILITATOR_URL = `http://localhost:${options.facilitatorPort}`;
     } else {
-      console.log(chalk.blue('Using public facilitator: https://x402-navy.vercel.app/facilitator/\n'));
+      console.log(chalk.blue('📡 Using public facilitator: https://x402-navy.vercel.app/facilitator/'));
     }
     
-    console.log(chalk.blue('Starting your server...\n'));
+    console.log(chalk.yellow('🚀 Launching agent server...\n'));
     
-    // Handle graceful shutdown
     process.on('SIGINT', () => {
-      console.log(chalk.yellow('\n\nShutting down...'));
-      if (facilitatorInstance) {
-        facilitatorInstance.stop();
-        console.log(chalk.gray('✓ Facilitator stopped'));
-      }
+      console.log(`\n\n🛡️  ${chalk.yellow('Shutting down forge...')}`);
+      if (facilitatorInstance) facilitatorInstance.stop();
       process.exit(0);
     });
     
-    // Start dev server
     try {
       execSync('npm run dev', { stdio: 'inherit', env: process.env });
     } catch (e) {
-      // User exited or error
-      if (facilitatorInstance) {
-        facilitatorInstance.stop();
-      }
+      if (facilitatorInstance) facilitatorInstance.stop();
     }
   });
 
 // Test command
 program
   .command('test')
-  .description('Test payment flow with test wallet')
-  .option('-w, --wallet <address>', 'Test wallet address')
+  .description('Test x402 payment flow with simulated wallets')
+  .option('-w, --wallet <address>', 'Simulated wallet address')
   .option('-p, --private-key <key>', 'Wallet private key')
   .option('-a, --amount <amount>', 'Payment amount in USDC', '0.01')
   .option('-e, --endpoint <url>', 'API endpoint to test', 'http://localhost:3000/api/paid')
-  .option('--all-wallets', 'Test with all 5 hackathon wallets')
+  .option('--all-wallets', 'Stress test with all 5 hackathon wallets')
   .action(async (options) => {
+    console.log(`\n🧪 ${brandGradient('Running payment simulation...')}\n`);
+    
     try {
       if (options.allWallets) {
-        // Multi-wallet test
-        const multiTester = require('./lib/multi-wallet-tester');
+        const multiTester = require('../lib/multi-wallet-tester');
         await multiTester.testAllWallets({
           amount: options.amount,
           endpoint: options.endpoint
         });
       } else {
-        // Single wallet test
-        if (!options.wallet && !options.privateKey) {
-          console.log(chalk.red('Error: Provide --wallet or --private-key, or use --all-wallets'));
-          process.exit(1);
-        }
-        
-        const multiTester = require('./lib/multi-wallet-tester');
+        const multiTester = require('../lib/multi-wallet-tester');
         await multiTester.testSingle({
           wallet: options.wallet,
           privateKey: options.privateKey,
@@ -163,101 +175,44 @@ program
         });
       }
     } catch (error) {
-      console.log(chalk.red(`Error: ${error.message}`));
-      process.exit(1);
+      console.log(chalk.red(`Sim failure: ${error.message}`));
     }
   });
 
 // Monitor command
 program
   .command('monitor')
-  .description('Monitor payment flows in real-time (terminal)')
-  .option('-i, --interval <ms>', 'Update interval', '3000')
+  .description('Real-time payment flow monitoring')
+  .option('-i, --interval <ms>', 'Refresh rate', '3000')
   .action(async (options) => {
-    console.log(chalk.cyan('📊 Starting terminal payment monitor...\n'));
-    
-    const monitor = require('./lib/monitor');
+    console.log(chalk.magenta('🔭 Ascent Transaction Monitor active.\n'));
+    const monitor = require('../lib/monitor');
     await monitor.start({ interval: parseInt(options.interval) });
-  });
-
-// Dashboard command
-program
-  .command('dashboard')
-  .description('Start web analytics dashboard')
-  .option('-p, --port <port>', 'Dashboard port', '3456')
-  .option('-d, --db <path>', 'Database path', './payments.db')
-  .action(async (options) => {
-    const dashboard = require('./lib/dashboard');
-    await dashboard.start({ 
-      port: parseInt(options.port),
-      dbPath: options.db
-    });
-  });
-
-// Deploy command
-program
-  .command('deploy')
-  .description('Deploy to Vercel')
-  .action(async () => {
-    const spinner = ora('Deploying to Vercel...').start();
-    
-    try {
-      execSync('vercel --prod', { stdio: 'inherit' });
-      spinner.succeed('Deployed!');
-    } catch (error) {
-      spinner.fail('Deployment failed. Is Vercel CLI installed?');
-    }
   });
 
 // Move command
 program
   .command('move <action>')
-  .description('Move language helpers')
+  .description('Aptos Move language agent helpers')
   .action(async (action) => {
-    const moveHelper = require('./lib/move-helper');
-    
+    const moveHelper = require('../lib/move-helper');
     switch (action) {
-      case 'init':
-        await moveHelper.init();
-        break;
-      case 'add-payment-logic':
-        await moveHelper.addPaymentLogic();
-        break;
-      default:
-        console.log(chalk.red(`Unknown action: ${action}`));
-        console.log(chalk.blue('Available: init, add-payment-logic'));
+      case 'init': await moveHelper.init(); break;
+      case 'inject': await moveHelper.addPaymentLogic(); break;
+      default: console.log(chalk.red(`Unknown action: ${action}`));
     }
-  });
-
-// Config command
-program
-  .command('config')
-  .description('Show current configuration')
-  .action(() => {
-    const config = require('./lib/config');
-    config.show();
   });
 
 async function createTemplate(targetDir, template, projectName) {
   const templatesDir = path.join(__dirname, '..', 'templates', template);
-  
-  // Copy template files
   fs.copySync(templatesDir, targetDir);
   
-  // Update package.json
   const pkgPath = path.join(targetDir, 'package.json');
-  const pkg = require(pkgPath);
-  pkg.name = projectName;
-  fs.writeJsonSync(pkgPath, pkg, { spaces: 2 });
-  
-  // Create .env.example
-  const envContent = `# Aptos x402 Configuration
-PAYMENT_RECIPIENT_ADDRESS=0xyour_aptos_address
-APTOS_PRIVATE_KEY=0xyour_private_key
-FACILITATOR_URL=https://x402-navy.vercel.app/facilitator
-NETWORK=aptos-testnet
-`;
-  fs.writeFileSync(path.join(targetDir, '.env.example'), envContent);
+  if (fs.existsSync(pkgPath)) {
+    const pkg = require(pkgPath);
+    pkg.name = projectName;
+    fs.writeJsonSync(pkgPath, pkg, { spaces: 2 });
+  }
 }
 
 program.parse();

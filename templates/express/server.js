@@ -32,11 +32,13 @@ const routes = {
 
 // Protected endpoint
 app.post('/api/paid-endpoint', async (req, res) => {
-  // x402 middleware handles payment verification
-  res.json({ message: 'Payment received! Welcome to x402.' });
+  res.json({ 
+    message: 'Forge complete! Access granted to protected agent logic.',
+    poweredBy: 'Ascent'
+  });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`💰 Payment recipient: ${PAY_TO_ADDRESS}`);
+  console.log(`\n🚀 Ascent Agent Server running on port ${PORT}`);
+  console.log(`💰 Forging payments to: ${PAY_TO_ADDRESS}\n`);
 });

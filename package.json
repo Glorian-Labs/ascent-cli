@@ -1,10 +1,10 @@
 {
-  "name": "aptos-x402-cli",
+  "name": "@ascent/cli",
   "version": "1.0.0",
-  "description": "The missing toolkit for x402 payments on Aptos",
+  "description": "The elite toolkit for x402 payments on Aptos",
   "main": "bin/cli.js",
   "bin": {
-    "aptos-x402": "./bin/cli.js"
+    "ascent": "./bin/cli.js"
   },
   "scripts": {
     "test": "jest",
@@ -26,9 +26,12 @@
     "@rvk_rishikesh/core": "^2.2.0",
     "@rvk_rishikesh/fetch": "^2.2.0",
     "better-sqlite3": "^12.6.2",
+    "boxen": "^8.0.1",
     "chalk": "^4.1.2",
+    "cli-table3": "^0.6.5",
     "commander": "^11.0.0",
     "fs-extra": "^11.1.1",
+    "gradient-string": "^3.0.0",
     "inquirer": "^8.2.5",
     "node-fetch": "^2.7.0",
     "ora": "^5.4.1",
