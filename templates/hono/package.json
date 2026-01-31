@@ -1,0 +1,17 @@
+{
+  "name": "ascent-hono-agent",
+  "version": "1.0.0",
+  "description": "Ascent-powered Hono agent with x402 payments",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "x402-hono": "^1.0.0",
+    "@rvk_rishikesh/core": "^2.2.0",
+    "@rvk_rishikesh/aptos": "^2.1.0",
+    "dotenv": "^16.3.0"
+  }
+}
