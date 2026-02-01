@@ -49,12 +49,12 @@ export default function DashboardPage() {
   const recentTx = stats?.recentTransactions || [];
 
   return (
-    <main className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
-      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 py-4">
+    <main className="min-h-screen pt-24 px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 pt-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-display text-3xl font-bold">Dashboard</h1>
+            <h1 className="font-display text-3xl font-bold" style={{ color: '#f0f0f5' }}>Dashboard</h1>
             <p className="text-text-secondary mt-1">Real-time AgentMesh marketplace metrics</p>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full">

@@ -48,6 +48,7 @@ export default function Navigation() {
           background: 'rgba(5, 5, 8, 0.95)',
           backdropFilter: 'blur(24px)',
           borderBottom: '1px solid rgba(154, 77, 255, 0.15)',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.3)',
         }}
       >
         <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -80,10 +81,11 @@ export default function Navigation() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all no-underline"
                     style={{
                       background: isActive ? 'rgba(0, 245, 255, 0.1)' : 'transparent',
                       color: isActive ? '#00F5FF' : '#8b8b9b',
+                      textDecoration: 'none',
                     }}
                     onMouseEnter={(e) => {
                       if (!isActive) {
