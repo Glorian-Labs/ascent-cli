@@ -70,7 +70,10 @@ program
     console.log(`\n🚀 ${brandGradient('Igniting project forge...')}\n`);
     
     try {
-      if (options.interactive) {
+      const isTTY = typeof process.stdin.isTTY === 'boolean' && process.stdin.isTTY;
+      const useInteractive = options.interactive && isTTY;
+
+      if (useInteractive) {
         const interactiveSetup = require('../lib/interactive-setup');
         const config = await interactiveSetup.run(projectName, targetDir);
         
@@ -95,11 +98,16 @@ program
         console.log(`  ${chalk.cyan('ascent dev')}`);
         
       } else {
+        if (options.interactive && !isTTY) {
+          console.log(chalk.yellow('Terminal is not interactive; scaffolding with defaults.'));
+          console.log(chalk.gray('Run with --no-interactive to suppress this message. Edit .env.local after (see README).\n'));
+        }
         const spinner = ora(brandGradient('Scaffolding template...')).start();
         await createTemplate(targetDir, options.template, projectName);
         spinner.succeed(`Forged ${chalk.green(projectName)} using ${options.template} stack.`);
         
         console.log(`\n  ${chalk.cyan('cd')} ${projectName}`);
+        console.log(`  ${chalk.cyan('npm install')}`);
         console.log(`  ${chalk.cyan('ascent dev')}`);
       }
       
