@@ -379,6 +379,39 @@ app.get('/agents/:name', (req, res) => {
   });
 });
 
+// Development: Seed test data
+app.post('/seed', (req, res) => {
+  const { name, address, aa_score, total_transactions, successful_transactions } = req.body;
+  
+  try {
+    // Check if agent exists
+    const existing = db.prepare('SELECT * FROM agents WHERE name = ?').get(name);
+    
+    if (existing) {
+      // Update
+      db.prepare(`
+        UPDATE agents 
+        SET aa_score = ?, total_transactions = ?, successful_transactions = ?, address = ?
+        WHERE name = ?
+      `).run(aa_score, total_transactions, successful_transactions, address, name);
+    } else {
+      // Insert
+      db.prepare(`
+        INSERT INTO agents (name, address, aa_score, total_transactions, successful_transactions)
+        VALUES (?, ?, ?, ?, ?)
+      `).run(name, address, aa_score, total_transactions, successful_transactions);
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `Agent ${name} seeded with AAIS ${aa_score}`,
+      agent: { name, aa_score, tier: aa_score >= 90 ? 'Elite' : aa_score >= 70 ? 'Verified' : aa_score >= 50 ? 'Standard' : 'New' }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', agentmesh: 'live', min_aais: MIN_AAIS_TO_LIST });

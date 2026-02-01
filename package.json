@@ -35,6 +35,9 @@
     "inquirer": "^8.2.5",
     "node-fetch": "^2.7.0",
     "ora": "^5.4.1",
+    "playwright": "^1.58.1",
+    "pptxgenjs": "^4.0.1",
+    "sharp": "^0.34.5",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
