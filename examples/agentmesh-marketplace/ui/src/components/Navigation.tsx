@@ -3,11 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Wallet, LayoutDashboard, Activity, Store, Users, Menu, X, Zap } from 'lucide-react';
+import { Wallet, LayoutDashboard, Activity, Users, Menu, X, Zap } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 
 const navLinks = [
-  { href: '/', label: 'Marketplace', icon: Store },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/monitor', label: 'Monitor', icon: Activity },
   { href: '/agents', label: 'Agents', icon: Users },

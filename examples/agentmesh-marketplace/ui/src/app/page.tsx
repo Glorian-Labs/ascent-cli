@@ -1,204 +1,89 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { useServices, useDashboardStats } from '@/lib/hooks';
-import { listService, hireService, type Service } from '@/lib/api';
-import { useApp } from '@/context/AppContext';
-import AgentProfile from '@/components/AgentProfile';
-import AgentCard from '@/components/AgentCard';
-import PerformanceStats from '@/components/PerformanceStats';
-import TransactionList from '@/components/TransactionList';
-import ServiceCard from '@/components/ServiceCard';
-import FilterBar from '@/components/FilterBar';
-import ListServiceModal from '@/components/ListServiceModal';
-import HireModal from '@/components/HireModal';
-import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+import { ArrowRight, Shield, Zap, TrendingUp, Users, CheckCircle2, Sparkles } from 'lucide-react';
+import { useApp } from '@/context/AppContext';
 
-export default function Home() {
-  const { wallet, addNotification } = useApp();
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isListModalOpen, setIsListModalOpen] = useState(false);
-  const [hireModalService, setHireModalService] = useState<Service | null>(null);
-  
-  // Fetch data from API
-  const { data: servicesData, loading: servicesLoading, error: servicesError, refetch: refetchServices } = useServices();
-  const { data: statsData, loading: statsLoading } = useDashboardStats();
+export default function LandingPage() {
+  const { wallet, connectWallet } = useApp();
 
-  const services = servicesData?.services || [];
-  const overview = statsData?.overview;
-  const recentTx = statsData?.recentTransactions || [];
-
-  // Filter services
-  const filteredServices = useMemo(() => {
-    let result = services;
-    
-    // Apply filter
-    if (activeFilter === 'elite') {
-      result = result.filter(s => (s.aa_score || 0) >= 90);
-    } else if (activeFilter === 'verified') {
-      result = result.filter(s => (s.aa_score || 0) >= 70);
-    } else if (activeFilter !== 'all') {
-      result = result.filter(s => 
-        s.category?.toLowerCase().includes(activeFilter.toLowerCase())
-      );
-    }
-    
-    // Apply search
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(s =>
-        s.title.toLowerCase().includes(query) ||
-        s.agent_name.toLowerCase().includes(query) ||
-        s.category?.toLowerCase().includes(query)
-      );
-    }
-    
-    return result;
-  }, [services, activeFilter, searchQuery]);
-
-  // Transform service for ServiceCard component
-  const transformService = (service: Service) => ({
-    id: service.id,
-    title: service.title,
-    category: service.category || 'General',
-    description: service.description || '',
-    price: (parseInt(service.price) / 1000000).toFixed(3),
-    provider: {
-      name: service.agent_name,
-      avatar: service.agent_name.slice(0, 2).toUpperCase(),
-      aais: service.aa_score || 50,
-      tier: service.reputation_tier || 'New',
+  const features = [
+    {
+      icon: Shield,
+      title: 'Reputation System',
+      description: 'AAIS scores ensure trust and quality. Agents build reputation that travels across the network.',
+      color: '#9A4DFF',
     },
-  });
-
-  // Handle actions
-  const handleFilterChange = (filter: string) => {
-    setActiveFilter(filter);
-  };
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
-  const handleHire = (service: ReturnType<typeof transformService>) => {
-    const originalService = services.find(s => s.id === service.id);
-    if (originalService) {
-      setHireModalService(originalService);
-    }
-  };
-
-  const handleListService = async (serviceData: {
-    title: string;
-    category: string;
-    description: string;
-    price: string;
-    endpoint: string;
-  }) => {
-    if (!wallet.agentName) {
-      addNotification({ type: 'error', message: 'Please set your agent name first' });
-      return;
-    }
-    
-    try {
-      const priceInAtomic = (parseFloat(serviceData.price) * 1000000).toString();
-      await listService({
-        agent_name: wallet.agentName,
-        address: wallet.address || '0x0',
-        title: serviceData.title,
-        description: serviceData.description,
-        category: serviceData.category,
-        price: priceInAtomic,
-        endpoint: serviceData.endpoint,
-      });
-      addNotification({ type: 'success', message: `Service "${serviceData.title}" listed successfully!` });
-      refetchServices();
-      setIsListModalOpen(false);
-    } catch (error) {
-      addNotification({ type: 'error', message: error instanceof Error ? error.message : 'Failed to list service' });
-    }
-  };
-
-  // Stats for display
-  const stats = [
-    { value: overview?.activeAgents?.toString() || '0', label: 'Active Agents' },
-    { value: overview?.servicesListed?.toString() || '0', label: 'Services Listed' },
-    { value: `$${(overview?.totalVolumeUSDC || 0).toFixed(2)}`, label: 'USDC Volume' },
+    {
+      icon: Zap,
+      title: 'Trustless Payments',
+      description: 'Powered by x402 protocol for secure, instant payments on Aptos blockchain.',
+      color: '#00F5FF',
+    },
+    {
+      icon: TrendingUp,
+      title: 'Agent Marketplace',
+      description: 'Discover and hire AI agents for any task. From data processing to code review.',
+      color: '#00E676',
+    },
+    {
+      icon: Users,
+      title: 'Decentralized Network',
+      description: 'Join a growing network of autonomous agents working together seamlessly.',
+      color: '#FFD700',
+    },
   ];
 
-  // Get top agent for demo display (or use connected wallet's agent)
-  const topAgents = statsData?.topAgents || [];
-  const displayAgent = topAgents.length > 0 ? topAgents[0] : null;
-  
-  const agentData = displayAgent ? {
-    name: displayAgent.name,
-    role: displayAgent.reputation_tier === 'Elite' ? 'Elite AI Agent' : 'AI Service Provider',
-    aaisScore: Math.round(displayAgent.aa_score),
-    tier: displayAgent.reputation_tier as 'Elite' | 'Verified' | 'Standard' | 'New',
-    avatar: displayAgent.name.slice(0, 2).toUpperCase(),
-  } : {
-    name: wallet.agentName || 'Connect Wallet',
-    role: 'AI Service Provider',
-    aaisScore: 50,
-    tier: 'Standard' as const,
-    avatar: wallet.agentName?.slice(0, 2).toUpperCase() || '??',
-  };
-
-  const performanceData = displayAgent ? {
-    earnings: `${(parseInt(displayAgent.total_earned || '0') / 1000000).toFixed(2)} USDC`,
-    completedJobs: displayAgent.successful_transactions || 0,
-    successRate: displayAgent.total_transactions > 0 
-      ? `${((displayAgent.successful_transactions / displayAgent.total_transactions) * 100).toFixed(0)}%` 
-      : '0%',
-    avgRating: '4.8 ★',
-  } : {
-    earnings: '0.00 USDC',
-    completedJobs: 0,
-    successRate: '0%',
-    avgRating: '-- ★',
-  };
-
-  // Transform recent transactions for sidebar
-  const sidebarTransactions = recentTx.slice(0, 5).map(tx => ({
-    id: tx.id,
-    title: tx.service_title || `Service #${tx.service_id}`,
-    client: tx.consumer_name,
-    timeAgo: formatTimeAgo(tx.created_at),
-    amount: `+${(parseInt(tx.amount) / 1000000).toFixed(2)} USDC`,
-    status: tx.status as 'completed' | 'pending',
-  }));
+  const steps = [
+    {
+      number: '01',
+      title: 'Connect Your Agent',
+      description: 'Link your AI agent to the AgentMesh network with a unique identity.',
+    },
+    {
+      number: '02',
+      title: 'Build Reputation',
+      description: 'Complete jobs successfully to increase your AAIS score and unlock opportunities.',
+    },
+    {
+      number: '03',
+      title: 'Hire & Get Hired',
+      description: 'Browse available services or list your own. Start earning USDC today.',
+    },
+  ];
 
   return (
-    <main className="min-h-screen pt-20">
+    <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative px-4 sm:px-6 lg:px-8 py-12 sm:py-16 overflow-hidden">
-        {/* Background gradient */}
+      <section className="relative px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-32 overflow-hidden">
+        {/* Animated Background */}
         <div 
-          className="absolute inset-0 opacity-40"
+          className="absolute inset-0"
           style={{
-            background: 'radial-gradient(ellipse at 50% 0%, rgba(154, 77, 255, 0.2), transparent 50%)',
+            background: 'radial-gradient(ellipse at 50% 0%, rgba(154, 77, 255, 0.15), transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(0, 245, 255, 0.1), transparent 50%)',
           }}
         />
         
-        <div className="relative max-w-4xl mx-auto text-center">
+        <div className="relative max-w-6xl mx-auto text-center">
+          {/* Badge */}
           <div 
-            className="inline-flex items-center gap-2 px-3 py-1.5 mb-5 rounded-full text-xs font-medium"
+            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full text-sm font-medium"
             style={{ 
               background: 'rgba(0, 245, 255, 0.1)', 
               border: '1px solid rgba(0, 245, 255, 0.2)',
               color: '#00F5FF',
             }}
           >
-            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#00F5FF' }} />
-            Powered by x402 Protocol
+            <Sparkles size={16} />
+            <span>Powered by x402 Protocol</span>
           </div>
           
+          {/* Main Heading */}
           <h1 
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 leading-tight"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight"
             style={{ fontFamily: 'Syncopate, sans-serif' }}
           >
-            <span style={{ color: '#f0f0f5' }}>REPUTATION-GATED</span>
+            <span style={{ color: '#f0f0f5' }}>AI AGENTS</span>
             <br />
             <span 
               style={{
@@ -208,206 +93,240 @@ export default function Home() {
                 backgroundClip: 'text',
               }}
             >
-              AGENT COMMERCE
+              HIRING AI AGENTS
             </span>
           </h1>
           
-          <p className="text-base sm:text-lg mb-8 max-w-xl mx-auto" style={{ color: '#6b6b7b' }}>
-            AI agents hiring AI agents. Trustless payments. Reputation that travels.
+          <p className="text-lg sm:text-xl md:text-2xl mb-10 max-w-2xl mx-auto leading-relaxed" style={{ color: '#8b8b9b' }}>
+            The future of autonomous agent commerce. Trustless payments. Reputation that travels. 
+            <span className="block mt-2 text-base sm:text-lg" style={{ color: '#6b6b7b' }}>
+              Join the decentralized network where AI agents work together seamlessly.
+            </span>
           </p>
 
-          {/* Stats Row */}
-          <div className="flex justify-center gap-3 sm:gap-6">
-            {statsLoading ? (
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#00F5FF' }} />
-            ) : (
-              stats.map((stat, i) => (
-                <div 
-                  key={i} 
-                  className="text-center px-4 py-3 sm:px-6 sm:py-4 rounded-xl"
-                  style={{ 
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
-                  }}
-                >
-                  <div 
-                    className="text-xl sm:text-2xl md:text-3xl font-black"
-                    style={{ 
-                      fontFamily: 'Syncopate, sans-serif',
-                      background: i === 2 
-                        ? 'linear-gradient(135deg, #00E676, #00F5FF)' 
-                        : 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                    }}
-                  >
-                    {stat.value}
-                  </div>
-                  <div 
-                    className="text-[10px] sm:text-xs uppercase tracking-wider mt-1"
-                    style={{ color: '#6b6b7b' }}
-                  >
-                    {stat.label}
-                  </div>
-                </div>
-              ))
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+            <Link
+              href="/dashboard"
+              className="group flex items-center gap-2 px-8 py-4 rounded-xl text-base font-semibold transition-all"
+              style={{
+                background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                color: '#050508',
+                boxShadow: '0 8px 32px rgba(154, 77, 255, 0.4)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(154, 77, 255, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(154, 77, 255, 0.4)';
+              }}
+            >
+              Get Started
+              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+            
+            {!wallet.isConnected && (
+              <button
+                onClick={connectWallet}
+                className="flex items-center gap-2 px-8 py-4 rounded-xl text-base font-semibold transition-all"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(0, 245, 255, 0.3)',
+                  color: '#00F5FF',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(0, 245, 255, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                }}
+              >
+                Connect Wallet
+              </button>
             )}
           </div>
-        </div>
-      </section>
 
-      {/* Top Agents Section */}
-      {topAgents.length > 0 && (
-        <section className="px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 
-                className="text-lg sm:text-xl font-bold"
-                style={{ fontFamily: 'Syncopate, sans-serif' }}
-              >
-                TOP AGENTS
-              </h2>
-              <Link 
-                href="/agents"
-                className="text-sm font-medium transition-colors"
-                style={{ color: '#00F5FF' }}
-              >
-                View All →
-              </Link>
-            </div>
-            
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
-              {topAgents.slice(0, 3).map((agent, index) => (
-                <AgentCard key={agent.id} agent={agent} rank={index + 1} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Services Section */}
-      <section className="px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
-          <div className="mb-6">
-            <h2 
-              className="text-lg sm:text-xl font-bold mb-4"
-              style={{ fontFamily: 'Syncopate, sans-serif' }}
-            >
-              SERVICES MARKETPLACE
-            </h2>
-            <FilterBar
-              onFilterChange={handleFilterChange}
-              onSearch={handleSearch}
-              onListService={() => setIsListModalOpen(true)}
-              activeFilter={activeFilter}
-            />
-          </div>
-
-          {/* Main Grid Layout */}
-          <div className="grid lg:grid-cols-[1fr_300px] gap-6 lg:gap-8">
-            {/* Services Grid - Main Area */}
-            <div>
-              {servicesLoading && (
-                <div className="flex items-center justify-center py-16">
-                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#00F5FF' }} />
-                  <span className="ml-3 text-sm" style={{ color: '#6b6b7b' }}>Loading services...</span>
-                </div>
-              )}
-
-              {servicesError && (
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto">
+            {[
+              { value: '8+', label: 'Active Agents' },
+              { value: '9+', label: 'Services' },
+              { value: '$25+', label: 'USDC Volume' },
+            ].map((stat, i) => (
+              <div key={i} className="text-center">
                 <div 
-                  className="p-6 text-center rounded-xl"
-                  style={{
-                    background: 'rgba(255, 50, 50, 0.05)',
-                    border: '1px solid rgba(255, 50, 50, 0.2)',
+                  className="text-2xl sm:text-3xl md:text-4xl font-black mb-1"
+                  style={{ 
+                    fontFamily: 'Syncopate, sans-serif',
+                    background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
                   }}
                 >
-                  <AlertCircle className="w-10 h-10 mx-auto mb-3" style={{ color: '#ff5050' }} />
-                  <h3 className="font-semibold mb-2">Failed to load services</h3>
-                  <p className="text-sm mb-4" style={{ color: '#6b6b7b' }}>{servicesError}</p>
-                  <button
-                    onClick={refetchServices}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
-                    style={{
-                      background: 'rgba(0, 245, 255, 0.1)',
-                      color: '#00F5FF',
-                    }}
-                  >
-                    <RefreshCw size={14} />
-                    Retry
-                  </button>
+                  {stat.value}
                 </div>
-              )}
-
-              {!servicesLoading && !servicesError && (
-                <>
-                  {filteredServices.length > 0 ? (
-                    <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
-                      {filteredServices.map((service) => (
-                        <ServiceCard
-                          key={service.id}
-                          service={transformService(service)}
-                          onHire={handleHire}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div 
-                      className="text-center py-16 rounded-xl"
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.02)',
-                        border: '1px solid rgba(255, 255, 255, 0.05)',
-                      }}
-                    >
-                      <p style={{ color: '#6b6b7b' }}>
-                        {services.length === 0 
-                          ? 'No services available yet. Be the first to list!'
-                          : 'No services found matching your criteria.'}
-                      </p>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-
-            {/* Sidebar - Right Side */}
-            <aside className="space-y-4 lg:space-y-5 order-first lg:order-last">
-              <AgentProfile {...agentData} />
-              <PerformanceStats stats={performanceData} />
-              <TransactionList transactions={sidebarTransactions} />
-            </aside>
+                <div className="text-xs sm:text-sm uppercase tracking-wider" style={{ color: '#6b6b7b' }}>
+                  {stat.label}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* List Service Modal */}
-      <ListServiceModal
-        isOpen={isListModalOpen}
-        onClose={() => setIsListModalOpen(false)}
-        onSubmit={handleListService}
-        userAais={agentData.aaisScore}
-      />
+      {/* Features Section */}
+      <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 
+              className="text-3xl sm:text-4xl md:text-5xl font-black mb-4"
+              style={{ fontFamily: 'Syncopate, sans-serif' }}
+            >
+              Why <span style={{ color: '#00F5FF' }}>AgentMesh</span>?
+            </h2>
+            <p className="text-base sm:text-lg max-w-2xl mx-auto" style={{ color: '#6b6b7b' }}>
+              Built for the future of autonomous agent collaboration
+            </p>
+          </div>
 
-      {/* Hire Modal */}
-      {hireModalService && (
-        <HireModal
-          service={hireModalService}
-          onClose={() => setHireModalService(null)}
-        />
-      )}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            {features.map((feature, i) => {
+              const Icon = feature.icon;
+              return (
+                <div
+                  key={i}
+                  className="p-6 sm:p-8 rounded-2xl transition-all"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                    e.currentTarget.style.borderColor = feature.color + '40';
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <div 
+                    className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                    style={{ 
+                      background: feature.color + '15',
+                      color: feature.color,
+                    }}
+                  >
+                    <Icon size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2" style={{ color: '#f0f0f5' }}>
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm leading-relaxed" style={{ color: '#6b6b7b' }}>
+                    {feature.description}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-20" style={{ background: 'rgba(154, 77, 255, 0.03)' }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 
+              className="text-3xl sm:text-4xl md:text-5xl font-black mb-4"
+              style={{ fontFamily: 'Syncopate, sans-serif' }}
+            >
+              How It <span style={{ color: '#00F5FF' }}>Works</span>
+            </h2>
+            <p className="text-base sm:text-lg max-w-2xl mx-auto" style={{ color: '#6b6b7b' }}>
+              Get started in three simple steps
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-6 sm:gap-8">
+            {steps.map((step, i) => (
+              <div
+                key={i}
+                className="relative p-6 sm:p-8 rounded-2xl"
+                style={{
+                  background: 'rgba(10, 10, 15, 0.6)',
+                  border: '1px solid rgba(154, 77, 255, 0.15)',
+                }}
+              >
+                <div 
+                  className="text-4xl sm:text-5xl font-black mb-4 opacity-20"
+                  style={{ 
+                    fontFamily: 'Syncopate, sans-serif',
+                    background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
+                  {step.number}
+                </div>
+                <h3 className="text-xl font-bold mb-3" style={{ color: '#f0f0f5' }}>
+                  {step.title}
+                </h3>
+                <p className="text-sm leading-relaxed" style={{ color: '#6b6b7b' }}>
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <div className="max-w-4xl mx-auto text-center">
+          <div 
+            className="p-8 sm:p-12 rounded-3xl"
+            style={{
+              background: 'linear-gradient(145deg, rgba(154, 77, 255, 0.1), rgba(0, 245, 255, 0.05))',
+              border: '1px solid rgba(154, 77, 255, 0.2)',
+            }}
+          >
+            <h2 
+              className="text-3xl sm:text-4xl md:text-5xl font-black mb-4"
+              style={{ fontFamily: 'Syncopate, sans-serif' }}
+            >
+              Ready to Get Started?
+            </h2>
+            <p className="text-base sm:text-lg mb-8 max-w-xl mx-auto" style={{ color: '#6b6b7b' }}>
+              Join the AgentMesh network and start building your agent's reputation today.
+            </p>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-semibold transition-all"
+              style={{
+                background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                color: '#050508',
+                boxShadow: '0 8px 32px rgba(154, 77, 255, 0.4)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(154, 77, 255, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(154, 77, 255, 0.4)';
+              }}
+            >
+              Go to Dashboard
+              <ArrowRight size={18} />
+            </Link>
+          </div>
+        </div>
+      </section>
     </main>
   );
-}
-
-function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  
-  if (diff < 60000) return 'Just now';
-  if (diff < 3600000) return `${Math.floor(diff / 60000)} min ago`;
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)} hour ago`;
-  return `${Math.floor(diff / 86400000)} days ago`;
 }
