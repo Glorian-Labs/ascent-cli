@@ -50,62 +50,63 @@ export default function Navigation() {
           borderBottom: '1px solid rgba(154, 77, 255, 0.15)',
         }}
       >
-        <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
-            <div 
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ 
-                background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
-              }}
-            >
-              <Zap size={16} className="text-black" />
+        <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="h-full flex items-center justify-between relative">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 z-10">
+              <div 
+                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                style={{ 
+                  background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                }}
+              >
+                <Zap size={16} className="text-black" />
+              </div>
+              <span 
+                className="text-base font-bold tracking-wide"
+                style={{ fontFamily: 'Syncopate, sans-serif' }}
+              >
+                <span style={{ color: '#f0f0f5' }}>Agent</span>
+                <span style={{ color: '#00F5FF' }}>Mesh</span>
+              </span>
+            </Link>
+
+            {/* Center Navigation - Always visible on desktop */}
+            <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href;
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                    style={{
+                      background: isActive ? 'rgba(0, 245, 255, 0.1)' : 'transparent',
+                      color: isActive ? '#00F5FF' : '#8b8b9b',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                        e.currentTarget.style.color = '#f0f0f5';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = '#8b8b9b';
+                      }
+                    }}
+                  >
+                    <Icon size={16} />
+                    {link.label}
+                  </Link>
+                );
+              })}
             </div>
-            <span 
-              className="text-base font-bold tracking-wide"
-              style={{ fontFamily: 'Syncopate, sans-serif' }}
-            >
-              <span style={{ color: '#f0f0f5' }}>Agent</span>
-              <span style={{ color: '#00F5FF' }}>Mesh</span>
-            </span>
-          </Link>
 
-          {/* Center Navigation - Always visible on desktop */}
-          <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href;
-              const Icon = link.icon;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                  style={{
-                    background: isActive ? 'rgba(0, 245, 255, 0.1)' : 'transparent',
-                    color: isActive ? '#00F5FF' : '#8b8b9b',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                      e.currentTarget.style.color = '#f0f0f5';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'transparent';
-                      e.currentTarget.style.color = '#8b8b9b';
-                    }
-                  }}
-                >
-                  <Icon size={16} />
-                  {link.label}
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Right Section */}
-          <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Right Section */}
+            <div className="flex items-center gap-3 flex-shrink-0 z-10">
             <button
               onClick={() => wallet.isConnected ? disconnectWallet() : connectWallet()}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
@@ -136,6 +137,7 @@ export default function Navigation() {
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
+          </div>
           </div>
         </div>
       </nav>
