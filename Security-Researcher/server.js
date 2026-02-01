@@ -42,13 +42,13 @@ function createPaymentRequirements(url) {
 /**
  * Protected endpoint middleware
  */
-app.post('/api/paid', async (req, res) => {
+app.post('/api/paid-endpoint', async (req, res) => {
   const paymentSignature = req.headers['payment-signature'];
   
   if (!paymentSignature) {
     return res
       .status(402)
-      .set('PAYMENT-REQUIRED', createPaymentRequirements(`http://localhost:${PORT}/api/paid`))
+      .set('PAYMENT-REQUIRED', createPaymentRequirements(`http://localhost:${PORT}/api/paid-endpoint`))
       .json({ error: "Payment required" });
   }
   
@@ -66,7 +66,7 @@ app.post('/api/paid', async (req, res) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ paymentPayload, paymentRequirements }),
-      timeout: 30000 // 30s timeout
+      timeout: 300000 // 5 minutes for extremely high testnet lag
     });
     const verifyResult = await verifyRes.json();
     
@@ -76,7 +76,7 @@ app.post('/api/paid', async (req, res) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ paymentPayload, paymentRequirements }),
-      timeout: 30000 // 30s timeout
+      timeout: 300000 // 5 minutes
     });
     const settleResult = await settleRes.json();
     

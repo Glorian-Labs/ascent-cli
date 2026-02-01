@@ -48,7 +48,7 @@ app.post('/api/paid', async (req, res) => {
   if (!paymentSignature) {
     return res
       .status(402)
-      .set('PAYMENT-REQUIRED', createPaymentRequirements(`http://localhost:${PORT}/api/paid`))
+      .set('PAYMENT-REQUIRED', createPaymentRequirements(`http://localhost:${PORT}/api/paid-endpoint`))
       .json({ error: "Payment required" });
   }
   
@@ -65,8 +65,7 @@ app.post('/api/paid', async (req, res) => {
     const verifyRes = await fetch(`${facilitatorUrl}verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paymentPayload, paymentRequirements }),
-      timeout: 30000 // 30s timeout
+      body: JSON.stringify({ paymentPayload, paymentRequirements })
     });
     const verifyResult = await verifyRes.json();
     
@@ -75,8 +74,7 @@ app.post('/api/paid', async (req, res) => {
     const settleRes = await fetch(`${facilitatorUrl}settle`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paymentPayload, paymentRequirements }),
-      timeout: 30000 // 30s timeout
+      body: JSON.stringify({ paymentPayload, paymentRequirements })
     });
     const settleResult = await settleRes.json();
     
