@@ -389,7 +389,7 @@ app.get('/agents/:name', (req, res) => {
 
 // Development: Seed test data
 app.post('/seed', (req, res) => {
-  const { name, address, aa_score, total_transactions, successful_transactions } = req.body;
+  const { name, address, aa_score, total_transactions, successful_transactions, total_earned } = req.body;
   
   try {
     // Check if agent exists
@@ -399,21 +399,27 @@ app.post('/seed', (req, res) => {
       // Update
       db.prepare(`
         UPDATE agents 
-        SET aa_score = ?, total_transactions = ?, successful_transactions = ?, address = ?
+        SET aa_score = ?, total_transactions = ?, successful_transactions = ?, address = ?, total_earned = ?
         WHERE name = ?
-      `).run(aa_score, total_transactions, successful_transactions, address, name);
+      `).run(aa_score, total_transactions, successful_transactions, address, total_earned || '0', name);
     } else {
       // Insert
       db.prepare(`
-        INSERT INTO agents (name, address, aa_score, total_transactions, successful_transactions)
-        VALUES (?, ?, ?, ?, ?)
-      `).run(name, address, aa_score, total_transactions, successful_transactions);
+        INSERT INTO agents (name, address, aa_score, total_transactions, successful_transactions, total_earned)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `).run(name, address, aa_score, total_transactions, successful_transactions, total_earned || '0');
     }
     
+    const earnings = (parseInt(total_earned || '0') / 1000000).toFixed(2);
     res.json({ 
       success: true, 
-      message: `Agent ${name} seeded with AAIS ${aa_score}`,
-      agent: { name, aa_score, tier: aa_score >= 90 ? 'Elite' : aa_score >= 70 ? 'Verified' : aa_score >= 50 ? 'Standard' : 'New' }
+      message: `Agent ${name} seeded with AAIS ${aa_score}, Earned: $${earnings}`,
+      agent: { 
+        name, 
+        aa_score, 
+        total_earned: total_earned || '0',
+        tier: aa_score >= 90 ? 'Elite' : aa_score >= 70 ? 'Verified' : aa_score >= 50 ? 'Standard' : 'New' 
+      }
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

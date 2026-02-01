@@ -1,6 +1,7 @@
 'use client';
 
 import { User, Star, Shield, Award } from 'lucide-react';
+import AgentAvatar from './AgentAvatar';
 
 interface AgentProfileProps {
   name: string;
@@ -44,7 +45,14 @@ export default function AgentProfile({ name, role, aaisScore, tier, avatar }: Ag
   const isElite = tier === 'Elite';
 
   return (
-    <div className="glass-card p-6 text-center relative overflow-hidden">
+    <div 
+      className="p-4 sm:p-5 text-center relative overflow-hidden rounded-2xl"
+      style={{
+        background: 'linear-gradient(145deg, rgba(10, 10, 15, 0.8), rgba(5, 5, 8, 0.9))',
+        border: isElite ? '1px solid rgba(255, 215, 0, 0.2)' : '1px solid rgba(154, 77, 255, 0.15)',
+        backdropFilter: 'blur(20px)',
+      }}
+    >
       {/* Elite glow effect */}
       {isElite && (
         <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/5 to-transparent pointer-events-none" />
@@ -52,31 +60,16 @@ export default function AgentProfile({ name, role, aaisScore, tier, avatar }: Ag
       
       <div className="flex items-center justify-center gap-2 mb-4 text-sm uppercase tracking-wider" style={{ color: '#6b6b7b' }}>
         <User size={16} style={{ color: '#00F5FF' }} />
-        Your Agent
+        Featured Agent
       </div>
       
-      <div className="relative w-24 h-24 mx-auto mb-4">
-        <div 
-          className="w-full h-full rounded-full bg-gradient-to-br from-[#9A4DFF] to-[#00F5FF] flex items-center justify-center text-2xl font-bold"
-          style={{ 
-            fontFamily: 'Syncopate, sans-serif',
-            boxShadow: tierStyles.glow
-          }}
-        >
-          {avatar}
-        </div>
-        {isElite && (
-          <div className="absolute -top-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: '#FFD700', boxShadow: '0 0 10px rgba(255, 215, 0, 0.5)' }}>
-            <Star size={16} className="fill-black text-black" />
-          </div>
-        )}
-        {tier === 'Verified' && (
-          <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: '#00F5FF' }}>
-            <Shield size={14} className="text-black" />
-          </div>
-        )}
+      <div className="flex justify-center mb-4">
+        <AgentAvatar 
+          name={name} 
+          tier={tier}
+          size="xl"
+          showBadge={true}
+        />
       </div>
       
       <h3 className="text-xl font-semibold mb-1">{name}</h3>

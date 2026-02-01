@@ -2,6 +2,7 @@
 
 import { Star, Shield, Zap, TrendingUp, Activity, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import AgentAvatar from './AgentAvatar';
 
 interface Agent {
   id: number;
@@ -97,11 +98,11 @@ export default function AgentCard({ agent, rank }: AgentCardProps) {
           </div>
         )}
 
-        <div className="relative p-6">
+        <div className="relative p-5 sm:p-6">
           {/* Rank Badge */}
           {rank && rank <= 10 && (
             <div 
-              className="absolute -top-1 -left-1 w-10 h-10 flex items-center justify-center text-sm font-black rounded-full"
+              className="absolute -top-2 -left-2 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-xs sm:text-sm font-black rounded-full z-10"
               style={{ 
                 background: rankStyle.bg, 
                 color: rankStyle.color,
@@ -115,36 +116,12 @@ export default function AgentCard({ agent, rank }: AgentCardProps) {
 
           {/* Header: Avatar + Name + Tier */}
           <div className="flex items-start gap-4 mb-5">
-            {/* Avatar with glow */}
-            <div className="relative">
-              <div 
-                className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-black"
-                style={{
-                  background: isElite 
-                    ? 'linear-gradient(135deg, #FFD700, #FFA500)' 
-                    : 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
-                  fontFamily: 'Syncopate, sans-serif',
-                  boxShadow: isElite 
-                    ? '0 8px 32px rgba(255, 215, 0, 0.3)' 
-                    : '0 8px 32px rgba(154, 77, 255, 0.3)',
-                }}
-              >
-                {agent.name.slice(0, 2).toUpperCase()}
-              </div>
-              
-              {/* Status indicator */}
-              <div 
-                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center"
-                style={{
-                  background: isElite ? '#FFD700' : isVerified ? '#00F5FF' : '#9A4DFF',
-                  boxShadow: `0 0 12px ${isElite ? 'rgba(255, 215, 0, 0.5)' : isVerified ? 'rgba(0, 245, 255, 0.5)' : 'rgba(154, 77, 255, 0.5)'}`,
-                }}
-              >
-                {isElite ? <Star size={12} className="fill-black text-black" /> : 
-                 isVerified ? <Shield size={12} className="text-black" /> : 
-                 <Zap size={12} className="text-black" />}
-              </div>
-            </div>
+            {/* Avatar with unique identity */}
+            <AgentAvatar 
+              name={agent.name} 
+              tier={agent.reputation_tier}
+              size="lg"
+            />
 
             {/* Name and Tier */}
             <div className="flex-1 min-w-0">
@@ -262,11 +239,11 @@ export default function AgentCard({ agent, rank }: AgentCardProps) {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             <StatBox 
               icon={<Activity size={14} />} 
               value={agent.total_transactions.toString()} 
-              label="Transactions" 
+              label="TXs" 
             />
             <StatBox 
               icon={<TrendingUp size={14} />} 
@@ -279,6 +256,7 @@ export default function AgentCard({ agent, rank }: AgentCardProps) {
               value={`$${earnings}`} 
               label="Earned" 
               highlight={parseFloat(earnings) > 0}
+              isEarnings={true}
             />
           </div>
         </div>
@@ -291,37 +269,45 @@ function StatBox({
   icon, 
   value, 
   label, 
-  highlight = false 
+  highlight = false,
+  isEarnings = false
 }: { 
   icon: React.ReactNode; 
   value: string; 
   label: string;
   highlight?: boolean;
+  isEarnings?: boolean;
 }) {
+  const hasValue = isEarnings ? parseFloat(value.replace('$', '')) > 0 : false;
+  
   return (
     <div 
-      className="p-3 rounded-xl text-center"
+      className="p-2.5 sm:p-3 rounded-xl text-center"
       style={{ 
-        background: 'rgba(255, 255, 255, 0.02)',
-        border: '1px solid rgba(255, 255, 255, 0.03)',
+        background: isEarnings && hasValue 
+          ? 'rgba(0, 230, 118, 0.08)' 
+          : 'rgba(255, 255, 255, 0.02)',
+        border: isEarnings && hasValue 
+          ? '1px solid rgba(0, 230, 118, 0.2)' 
+          : '1px solid rgba(255, 255, 255, 0.03)',
       }}
     >
       <div 
-        className="flex items-center justify-center gap-1 mb-1"
-        style={{ color: highlight ? '#00F5FF' : '#6b6b7b' }}
+        className="flex items-center justify-center gap-1 mb-0.5"
+        style={{ color: isEarnings && hasValue ? '#00E676' : highlight ? '#00F5FF' : '#6b6b7b' }}
       >
         {icon}
       </div>
       <div 
-        className="text-base font-bold"
+        className="text-sm sm:text-base font-bold"
         style={{ 
           fontFamily: 'Space Grotesk, sans-serif',
-          color: highlight ? '#00F5FF' : '#f0f0f5',
+          color: isEarnings && hasValue ? '#00E676' : highlight ? '#00F5FF' : '#f0f0f5',
         }}
       >
         {value}
       </div>
-      <div className="text-[10px] uppercase tracking-wider" style={{ color: '#6b6b7b' }}>
+      <div className="text-[9px] sm:text-[10px] uppercase tracking-wider" style={{ color: '#6b6b7b' }}>
         {label}
       </div>
     </div>

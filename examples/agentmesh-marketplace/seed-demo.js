@@ -3,14 +3,70 @@ const fetch = require('node-fetch');
 const API_URL = 'http://localhost:3007';
 
 const agents = [
-  { name: 'SentimentPro', address: '0x489cbd8ade2279edc20ef18a52b894d5a983575c1c0979e901be60b73741fe5d', aa_score: 92, total_transactions: 156, successful_transactions: 148 },
-  { name: 'SecurityAgent', address: '0xaaefee8ba1e5f24ef88a74a3f445e0d2b810b90c1996466dae5ea9a0b85d42a0', aa_score: 95, total_transactions: 89, successful_transactions: 87 },
-  { name: 'DataPipe', address: '0xaaea48900c8f8045876505fe5fc5a623b1e423ef573a55b8b308cdecc749e6f4', aa_score: 78, total_transactions: 234, successful_transactions: 210 },
-  { name: 'QueryBot', address: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', aa_score: 88, total_transactions: 67, successful_transactions: 62 },
-  { name: 'VisionAgent', address: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890', aa_score: 71, total_transactions: 45, successful_transactions: 38 },
-  { name: 'IndexerX', address: '0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321', aa_score: 96, total_transactions: 312, successful_transactions: 305 },
-  { name: 'CodeReviewer', address: '0x11111111222222223333333344444444555555556666666677777777888888889', aa_score: 85, total_transactions: 178, successful_transactions: 165 },
-  { name: 'DataNewbie', address: '0x99999999aaaaaaabbbbbbbbccccccccddddddddeeeeeeeeffffffffgggggggg0', aa_score: 52, total_transactions: 12, successful_transactions: 8 },
+  { 
+    name: 'SentimentPro', 
+    address: '0x489cbd8ade2279edc20ef18a52b894d5a983575c1c0979e901be60b73741fe5d', 
+    aa_score: 92, 
+    total_transactions: 156, 
+    successful_transactions: 148,
+    total_earned: '1560000' // $1.56 USDC
+  },
+  { 
+    name: 'SecurityAgent', 
+    address: '0xaaefee8ba1e5f24ef88a74a3f445e0d2b810b90c1996466dae5ea9a0b85d42a0', 
+    aa_score: 95, 
+    total_transactions: 89, 
+    successful_transactions: 87,
+    total_earned: '4450000' // $4.45 USDC (higher value audits)
+  },
+  { 
+    name: 'DataPipe', 
+    address: '0xaaea48900c8f8045876505fe5fc5a623b1e423ef573a55b8b308cdecc749e6f4', 
+    aa_score: 78, 
+    total_transactions: 234, 
+    successful_transactions: 210,
+    total_earned: '4680000' // $4.68 USDC (high volume)
+  },
+  { 
+    name: 'QueryBot', 
+    address: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', 
+    aa_score: 88, 
+    total_transactions: 67, 
+    successful_transactions: 62,
+    total_earned: '1005000' // $1.01 USDC
+  },
+  { 
+    name: 'VisionAgent', 
+    address: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890', 
+    aa_score: 71, 
+    total_transactions: 45, 
+    successful_transactions: 38,
+    total_earned: '360000' // $0.36 USDC
+  },
+  { 
+    name: 'IndexerX', 
+    address: '0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321', 
+    aa_score: 96, 
+    total_transactions: 312, 
+    successful_transactions: 305,
+    total_earned: '9360000' // $9.36 USDC (top earner)
+  },
+  { 
+    name: 'CodeReviewer', 
+    address: '0x11111111222222223333333344444444555555556666666677777777888888889', 
+    aa_score: 85, 
+    total_transactions: 178, 
+    successful_transactions: 165,
+    total_earned: '4450000' // $4.45 USDC
+  },
+  { 
+    name: 'DataNewbie', 
+    address: '0x99999999aaaaaaabbbbbbbbccccccccddddddddeeeeeeeeffffffffgggggggg0', 
+    aa_score: 52, 
+    total_transactions: 12, 
+    successful_transactions: 8,
+    total_earned: '96000' // $0.10 USDC (new agent)
+  },
 ];
 
 const services = [

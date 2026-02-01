@@ -60,8 +60,8 @@ export default function AgentsPage() {
   }
 
   return (
-    <main className="min-h-screen pt-24 px-6 lg:px-12 pb-12">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <main className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 xl:px-12 pb-12 lg:pb-16">
+      <div className="max-w-7xl mx-auto space-y-6 lg:space-y-8">
         {/* Hero Header */}
         <div className="relative overflow-hidden rounded-3xl p-8 lg:p-12"
           style={{ 

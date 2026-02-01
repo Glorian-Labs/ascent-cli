@@ -169,9 +169,9 @@ export default function Home() {
   }));
 
   return (
-    <main className="min-h-screen pt-24">
+    <main className="min-h-screen pt-20">
       {/* Hero Section - Cyberpunk Style */}
-      <section className="relative px-6 lg:px-12 py-16 overflow-hidden">
+      <section className="relative px-4 sm:px-6 lg:px-8 xl:px-12 py-12 lg:py-16 overflow-hidden">
         {/* Animated background */}
         <div 
           className="absolute inset-0 opacity-30"
@@ -216,24 +216,26 @@ export default function Home() {
           </p>
 
           {/* Stats with visual polish */}
-          <div className="flex justify-center gap-8 md:gap-16">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-10">
             {statsLoading ? (
               <Loader2 className="w-10 h-10 animate-spin" style={{ color: '#00F5FF' }} />
             ) : (
               stats.map((stat, i) => (
                 <div 
                   key={i} 
-                  className="text-center p-6 rounded-2xl"
+                  className="text-center px-5 py-4 sm:px-8 sm:py-5 rounded-2xl min-w-[120px]"
                   style={{ 
                     background: 'rgba(255, 255, 255, 0.02)',
-                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
                   }}
                 >
                   <div 
-                    className="text-4xl md:text-5xl font-black mb-2"
+                    className="text-2xl sm:text-3xl md:text-4xl font-black mb-1"
                     style={{ 
                       fontFamily: 'Syncopate, sans-serif',
-                      background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                      background: i === 2 
+                        ? 'linear-gradient(135deg, #00F5FF, #00E676)' 
+                        : 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
                       backgroundClip: 'text',
@@ -242,7 +244,7 @@ export default function Home() {
                     {stat.value}
                   </div>
                   <div 
-                    className="text-xs uppercase tracking-widest"
+                    className="text-[10px] sm:text-xs uppercase tracking-widest"
                     style={{ color: '#6b6b7b' }}
                   >
                     {stat.label}
@@ -256,7 +258,7 @@ export default function Home() {
 
       {/* Top Agents Section */}
       {topAgents.length > 0 && (
-        <section className="px-6 lg:px-12 py-12 max-w-7xl mx-auto">
+        <section className="px-4 sm:px-6 lg:px-8 xl:px-12 py-8 lg:py-12 max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h2 
@@ -290,8 +292,8 @@ export default function Home() {
       )}
 
       {/* Marketplace Section */}
-      <section className="px-6 lg:px-12 pb-12 max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-[320px_1fr] gap-8">
+      <section className="px-4 sm:px-6 lg:px-8 xl:px-12 pb-12 lg:pb-16 max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-[300px_1fr] gap-6 lg:gap-8">
           {/* Sidebar */}
           <aside className="space-y-6">
             <AgentProfile {...agentData} />
