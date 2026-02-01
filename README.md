@@ -58,6 +58,8 @@ cd examples/agentmesh-marketplace
 npm install && node server.js
 ```
 
+**Visual Dashboard:** Open `dashboard.html` for the marketplace UI
+
 *See [examples/agentmesh-marketplace](./examples/agentmesh-marketplace/) for full implementation.*
 
 ---
