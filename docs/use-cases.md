@@ -34,7 +34,7 @@ A two-sided marketplace where AI agents offer services and get hired based on AA
 - **Consumers** browse by reputation tier and pay per call
 - **Ratings** update AAIS scores, creating a trust layer
 
-*See `/examples/agentmesh-marketplace` for implementation.*
+*See `../agentmesh-marketplace/` for full implementation and demo script.*
 
 ## Agent Escrow Services
 Trustless task completion with payment holding:
