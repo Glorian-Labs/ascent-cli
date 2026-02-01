@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "x402 payment-enabled Next.js app",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3006",
     "build": "next build",
-    "start": "next start"
+    "start": "next start -p 3006"
   },
   "dependencies": {
     "next": "^14.0.0",
