@@ -113,7 +113,7 @@ program
 program
   .command('dev')
   .description('Start agent dev server with local facilitator')
-  .option('-p, --port <port>', 'Server port', '3000')
+  .option('-p, --port <port>', 'Server port', '3006')
   .option('-f, --facilitator-port <port>', 'Facilitator port', '4022')
   .option('--no-facilitator', 'Skip starting local facilitator')
   .action(async (options) => {
@@ -153,7 +153,7 @@ program
   .option('-w, --wallet <address>', 'Simulated wallet address')
   .option('-p, --private-key <key>', 'Wallet private key')
   .option('-a, --amount <amount>', 'Payment amount in USDC', '0.01')
-  .option('-e, --endpoint <url>', 'API endpoint to test', 'http://localhost:3000/api/paid')
+  .option('-e, --endpoint <url>', 'API endpoint to test', 'http://localhost:3006/api/paid-endpoint')
   .option('-f, --facilitator <url>', 'Facilitator URL')
   .option('--all-wallets', 'Stress test with all 5 hackathon wallets')
   .action(async (options) => {

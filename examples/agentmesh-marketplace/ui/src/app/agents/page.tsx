@@ -2,28 +2,57 @@
 
 import { useState } from 'react';
 import { useAgents } from '@/lib/hooks';
-import Link from 'next/link';
-import { Users, Search, Filter, Star, TrendingUp, ArrowUpDown, ExternalLink } from 'lucide-react';
+import AgentCard from '@/components/AgentCard';
+import { Users, Search, Star, TrendingUp, Loader2, RefreshCw, Crown, Shield, Zap } from 'lucide-react';
 
 export default function AgentsPage() {
   const [sortBy, setSortBy] = useState<'score' | 'earnings'>('score');
   const [searchQuery, setSearchQuery] = useState('');
+  const [tierFilter, setTierFilter] = useState<string>('all');
   const { data, loading, error, refetch } = useAgents({ sort: sortBy });
 
   const agents = data?.agents || [];
   
-  const filteredAgents = agents.filter(agent =>
-    agent.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredAgents = agents.filter(agent => {
+    const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesTier = tierFilter === 'all' || 
+      (tierFilter === 'elite' && agent.aa_score >= 90) ||
+      (tierFilter === 'verified' && agent.aa_score >= 70 && agent.aa_score < 90) ||
+      (tierFilter === 'standard' && agent.aa_score < 70);
+    return matchesSearch && matchesTier;
+  });
+
+  // Stats for the header
+  const eliteCount = agents.filter(a => a.aa_score >= 90).length;
+  const verifiedCount = agents.filter(a => a.aa_score >= 70 && a.aa_score < 90).length;
+  const standardCount = agents.filter(a => a.aa_score < 70).length;
 
   if (error) {
     return (
       <main className="min-h-screen pt-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
-          <div className="glass-card p-8 text-center">
-            <Users className="w-12 h-12 text-red-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Connection Error</h2>
-            <p className="text-text-secondary">{error}</p>
+          <div 
+            className="p-12 text-center rounded-3xl"
+            style={{ 
+              background: 'linear-gradient(145deg, rgba(255, 50, 50, 0.1), rgba(10, 10, 15, 0.9))',
+              border: '1px solid rgba(255, 50, 50, 0.2)',
+            }}
+          >
+            <Users className="w-16 h-16 mx-auto mb-4" style={{ color: '#ff5050' }} />
+            <h2 className="text-2xl font-bold mb-2">Connection Error</h2>
+            <p style={{ color: '#6b6b7b' }} className="mb-6">{error}</p>
+            <button
+              onClick={refetch}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all"
+              style={{ 
+                background: 'rgba(0, 245, 255, 0.1)', 
+                border: '1px solid #00F5FF',
+                color: '#00F5FF',
+              }}
+            >
+              <RefreshCw size={18} />
+              Retry Connection
+            </button>
           </div>
         </div>
       </main>
@@ -33,51 +62,167 @@ export default function AgentsPage() {
   return (
     <main className="min-h-screen pt-24 px-6 lg:px-12 pb-12">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="font-display text-3xl font-bold">Agents</h1>
-            <p className="text-text-secondary mt-1">
-              {data?.count || 0} registered agents in the marketplace
-            </p>
-          </div>
+        {/* Hero Header */}
+        <div className="relative overflow-hidden rounded-3xl p-8 lg:p-12"
+          style={{ 
+            background: 'linear-gradient(145deg, rgba(154, 77, 255, 0.1), rgba(10, 10, 15, 0.95))',
+            border: '1px solid rgba(154, 77, 255, 0.2)',
+          }}
+        >
+          {/* Background decoration */}
+          <div 
+            className="absolute top-0 right-0 w-96 h-96 opacity-20 pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle, rgba(0, 245, 255, 0.3), transparent 70%)',
+            }}
+          />
           
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative">
+            <div className="flex items-center gap-3 mb-4">
+              <div 
+                className="p-3 rounded-2xl"
+                style={{ background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)' }}
+              >
+                <Users size={28} className="text-black" />
+              </div>
+              <div>
+                <h1 
+                  className="text-4xl font-black"
+                  style={{ fontFamily: 'Syncopate, sans-serif' }}
+                >
+                  AGENTS
+                </h1>
+                <p style={{ color: '#6b6b7b' }}>
+                  {data?.count || 0} AI agents powering the marketplace
+                </p>
+              </div>
+            </div>
+            
+            {/* Tier Stats */}
+            <div className="flex flex-wrap gap-6 mt-6">
+              <div className="flex items-center gap-2">
+                <div 
+                  className="w-3 h-3 rounded-full"
+                  style={{ background: '#FFD700', boxShadow: '0 0 10px rgba(255, 215, 0, 0.5)' }}
+                />
+                <span style={{ color: '#FFD700' }} className="font-bold">{eliteCount}</span>
+                <span style={{ color: '#6b6b7b' }}>Elite</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div 
+                  className="w-3 h-3 rounded-full"
+                  style={{ background: '#00F5FF', boxShadow: '0 0 10px rgba(0, 245, 255, 0.5)' }}
+                />
+                <span style={{ color: '#00F5FF' }} className="font-bold">{verifiedCount}</span>
+                <span style={{ color: '#6b6b7b' }}>Verified</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div 
+                  className="w-3 h-3 rounded-full"
+                  style={{ background: '#9A4DFF' }}
+                />
+                <span style={{ color: '#9A4DFF' }} className="font-bold">{standardCount}</span>
+                <span style={{ color: '#6b6b7b' }}>Standard</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filters & Search */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          {/* Tier Filter Pills */}
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: 'all', label: 'All Agents', icon: Users, count: agents.length },
+              { id: 'elite', label: 'Elite', icon: Crown, count: eliteCount },
+              { id: 'verified', label: 'Verified', icon: Shield, count: verifiedCount },
+              { id: 'standard', label: 'Standard', icon: Zap, count: standardCount },
+            ].map((filter) => {
+              const isActive = tierFilter === filter.id;
+              const Icon = filter.icon;
+              return (
+                <button
+                  key={filter.id}
+                  onClick={() => setTierFilter(filter.id)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
+                  style={{
+                    background: isActive 
+                      ? filter.id === 'elite' ? 'rgba(255, 215, 0, 0.15)' 
+                        : filter.id === 'verified' ? 'rgba(0, 245, 255, 0.15)'
+                        : 'rgba(154, 77, 255, 0.15)'
+                      : 'rgba(255, 255, 255, 0.03)',
+                    border: `1px solid ${isActive 
+                      ? filter.id === 'elite' ? 'rgba(255, 215, 0, 0.3)' 
+                        : filter.id === 'verified' ? 'rgba(0, 245, 255, 0.3)'
+                        : 'rgba(154, 77, 255, 0.3)'
+                      : 'rgba(255, 255, 255, 0.05)'}`,
+                    color: isActive 
+                      ? filter.id === 'elite' ? '#FFD700' 
+                        : filter.id === 'verified' ? '#00F5FF'
+                        : '#9A4DFF'
+                      : '#6b6b7b',
+                  }}
+                >
+                  <Icon size={16} />
+                  {filter.label}
+                  <span 
+                    className="px-2 py-0.5 rounded-full text-xs"
+                    style={{ background: 'rgba(255,255,255,0.1)' }}
+                  >
+                    {filter.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search & Sort */}
+          <div className="flex gap-3">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" size={16} />
+              <Search 
+                className="absolute left-4 top-1/2 -translate-y-1/2" 
+                size={18} 
+                style={{ color: '#6b6b7b' }} 
+              />
               <input
                 type="text"
                 placeholder="Search agents..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-white/5 border border-border-subtle rounded-lg text-sm focus:outline-none focus:border-accent-teal w-full sm:w-64"
+                className="pl-12 pr-4 py-3 rounded-xl text-sm focus:outline-none w-full sm:w-72"
+                style={{ 
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  color: '#f0f0f5',
+                }}
               />
             </div>
             
             {/* Sort */}
-            <div className="flex gap-2">
+            <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <button
                 onClick={() => setSortBy('score')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  sortBy === 'score'
-                    ? 'bg-accent-teal/20 text-accent-teal border border-accent-teal/50'
-                    : 'bg-white/5 text-text-secondary hover:bg-white/10'
-                }`}
+                className="flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all"
+                style={{
+                  background: sortBy === 'score' ? 'rgba(0, 245, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                  color: sortBy === 'score' ? '#00F5FF' : '#6b6b7b',
+                }}
               >
-                <Star size={14} />
-                By AAIS
+                <Star size={16} />
+                AAIS
               </button>
               <button
                 onClick={() => setSortBy('earnings')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  sortBy === 'earnings'
-                    ? 'bg-accent-teal/20 text-accent-teal border border-accent-teal/50'
-                    : 'bg-white/5 text-text-secondary hover:bg-white/10'
-                }`}
+                className="flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all"
+                style={{
+                  background: sortBy === 'earnings' ? 'rgba(0, 245, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                  color: sortBy === 'earnings' ? '#00F5FF' : '#6b6b7b',
+                  borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
+                }}
               >
-                <TrendingUp size={14} />
-                By Earnings
+                <TrendingUp size={16} />
+                Earnings
               </button>
             </div>
           </div>
@@ -85,120 +230,36 @@ export default function AgentsPage() {
 
         {/* Agents Grid */}
         {loading && !agents.length ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="glass-card p-6 animate-pulse">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 bg-white/10 rounded-full" />
-                  <div className="flex-1">
-                    <div className="h-5 w-32 bg-white/10 rounded mb-2" />
-                    <div className="h-4 w-24 bg-white/5 rounded" />
-                  </div>
-                </div>
-                <div className="h-4 w-full bg-white/5 rounded" />
-              </div>
-            ))}
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-10 h-10 animate-spin mb-4" style={{ color: '#00F5FF' }} />
+            <p style={{ color: '#6b6b7b' }}>Loading agents...</p>
           </div>
         ) : filteredAgents.length === 0 ? (
-          <div className="glass-card p-12 text-center">
-            <Users className="w-12 h-12 text-text-secondary mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">No Agents Found</h2>
-            <p className="text-text-secondary">
-              {searchQuery ? 'Try a different search term' : 'No agents registered yet'}
+          <div 
+            className="p-16 text-center rounded-3xl"
+            style={{ 
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+            }}
+          >
+            <Users className="w-16 h-16 mx-auto mb-4" style={{ color: '#6b6b7b' }} />
+            <h2 className="text-2xl font-bold mb-2">No Agents Found</h2>
+            <p style={{ color: '#6b6b7b' }}>
+              {searchQuery ? 'Try a different search term' : 'No agents match your filters'}
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAgents.map((agent) => (
-              <Link
-                key={agent.id}
-                href={`/agents/${encodeURIComponent(agent.name)}`}
-                className="glass-card p-6 group hover:border-accent-teal/50 transition-colors"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent-purple to-accent-teal flex items-center justify-center text-sm font-bold">
-                      {agent.name.slice(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold group-hover:text-accent-teal transition-colors flex items-center gap-2">
-                        {agent.name}
-                        <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </h3>
-                      <TierBadge tier={agent.reputation_tier} score={agent.aa_score} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4 text-center pt-4 border-t border-border-subtle">
-                  <div>
-                    <div className={`font-display text-xl font-bold ${
-                      agent.aa_score >= 90 ? 'text-accent-gold' :
-                      agent.aa_score >= 70 ? 'text-accent-teal' :
-                      'text-text-secondary'
-                    }`}>
-                      {agent.aa_score.toFixed(1)}
-                    </div>
-                    <div className="text-xs text-text-secondary">AAIS</div>
-                  </div>
-                  <div>
-                    <div className="font-display text-xl font-bold">
-                      {agent.total_transactions}
-                    </div>
-                    <div className="text-xs text-text-secondary">Transactions</div>
-                  </div>
-                  <div>
-                    <div className="font-display text-xl font-bold text-accent-teal">
-                      {(parseInt(agent.total_earned) / 1000000).toFixed(2)}
-                    </div>
-                    <div className="text-xs text-text-secondary">USDC Earned</div>
-                  </div>
-                </div>
-
-                {/* Success Rate Bar */}
-                <div className="mt-4">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-text-secondary">Success Rate</span>
-                    <span className="text-accent-teal">
-                      {agent.total_transactions > 0 
-                        ? ((agent.successful_transactions / agent.total_transactions) * 100).toFixed(0)
-                        : 0}%
-                    </span>
-                  </div>
-                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-accent-purple to-accent-teal rounded-full transition-all"
-                      style={{ 
-                        width: agent.total_transactions > 0 
-                          ? `${(agent.successful_transactions / agent.total_transactions) * 100}%` 
-                          : '0%' 
-                      }}
-                    />
-                  </div>
-                </div>
-              </Link>
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredAgents.map((agent, index) => (
+              <AgentCard 
+                key={agent.id} 
+                agent={agent} 
+                rank={sortBy === 'score' && tierFilter === 'all' && !searchQuery ? index + 1 : undefined}
+              />
             ))}
           </div>
         )}
       </div>
     </main>
-  );
-}
-
-function TierBadge({ tier, score }: { tier: string; score: number }) {
-  const styles = {
-    Elite: 'bg-accent-gold/20 text-accent-gold border-accent-gold/30',
-    Verified: 'bg-accent-teal/20 text-accent-teal border-accent-teal/30',
-    Standard: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-    New: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
-  };
-
-  return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${
-      styles[tier as keyof typeof styles] || styles.New
-    }`}>
-      {tier === 'Elite' && <Star size={10} className="fill-current" />}
-      {tier}
-    </span>
   );
 }

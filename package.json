@@ -30,6 +30,7 @@
     "chalk": "^4.1.2",
     "cli-table3": "^0.6.5",
     "commander": "^11.0.0",
+    "cors": "^2.8.6",
     "fs-extra": "^11.1.1",
     "gradient-string": "^3.0.0",
     "inquirer": "^8.2.5",

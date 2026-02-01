@@ -5,6 +5,7 @@ import { useServices, useDashboardStats } from '@/lib/hooks';
 import { listService, hireService, type Service } from '@/lib/api';
 import { useApp } from '@/context/AppContext';
 import AgentProfile from '@/components/AgentProfile';
+import AgentCard from '@/components/AgentCard';
 import PerformanceStats from '@/components/PerformanceStats';
 import TransactionList from '@/components/TransactionList';
 import ServiceCard from '@/components/ServiceCard';
@@ -125,16 +126,32 @@ export default function Home() {
     { value: `$${(overview?.totalVolumeUSDC || 0).toFixed(2)}`, label: 'USDC Volume' },
   ];
 
-  // Mock current user agent data (could be fetched based on wallet)
-  const agentData = {
+  // Get top agent for demo display (or use connected wallet's agent)
+  const topAgents = statsData?.topAgents || [];
+  const displayAgent = topAgents.length > 0 ? topAgents[0] : null;
+  
+  const agentData = displayAgent ? {
+    name: displayAgent.name,
+    role: displayAgent.reputation_tier === 'Elite' ? 'Elite AI Agent' : 'AI Service Provider',
+    aaisScore: Math.round(displayAgent.aa_score),
+    tier: displayAgent.reputation_tier as 'Elite' | 'Verified' | 'Standard' | 'New',
+    avatar: displayAgent.name.slice(0, 2).toUpperCase(),
+  } : {
     name: wallet.agentName || 'Connect Wallet',
     role: 'AI Service Provider',
-    aaisScore: 75,
-    tier: 'Verified' as const,
+    aaisScore: 50,
+    tier: 'Standard' as const,
     avatar: wallet.agentName?.slice(0, 2).toUpperCase() || '??',
   };
 
-  const performanceData = {
+  const performanceData = displayAgent ? {
+    earnings: `${(parseInt(displayAgent.total_earned || '0') / 1000000).toFixed(2)} USDC`,
+    completedJobs: displayAgent.successful_transactions || 0,
+    successRate: displayAgent.total_transactions > 0 
+      ? `${((displayAgent.successful_transactions / displayAgent.total_transactions) * 100).toFixed(0)}%` 
+      : '0%',
+    avgRating: '4.8 ★',
+  } : {
     earnings: '0.00 USDC',
     completedJobs: 0,
     successRate: '0%',
@@ -153,35 +170,126 @@ export default function Home() {
 
   return (
     <main className="min-h-screen pt-24">
-      {/* Hero Section */}
-      <section className="px-6 lg:px-12 py-12 text-center max-w-6xl mx-auto">
-        <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">
-          Reputation-Gated{' '}
-          <span className="gradient-text">Agent Commerce</span>
-        </h1>
-        <p className="text-lg text-text-secondary max-w-2xl mx-auto mb-10">
-          AI agents hiring AI agents. Trustless payments via x402. Reputation that travels.
-        </p>
+      {/* Hero Section - Cyberpunk Style */}
+      <section className="relative px-6 lg:px-12 py-16 overflow-hidden">
+        {/* Animated background */}
+        <div 
+          className="absolute inset-0 opacity-30"
+          style={{
+            background: 'radial-gradient(ellipse at 50% 0%, rgba(154, 77, 255, 0.15), transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(0, 245, 255, 0.1), transparent 50%)',
+          }}
+        />
+        
+        <div className="relative max-w-6xl mx-auto text-center">
+          <div 
+            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full text-sm"
+            style={{ 
+              background: 'rgba(0, 245, 255, 0.1)', 
+              border: '1px solid rgba(0, 245, 255, 0.2)',
+              color: '#00F5FF',
+            }}
+          >
+            <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#00F5FF' }} />
+            Powered by x402 Protocol
+          </div>
+          
+          <h1 
+            className="text-5xl md:text-7xl font-black mb-6 leading-tight"
+            style={{ fontFamily: 'Syncopate, sans-serif' }}
+          >
+            <span style={{ color: '#f0f0f5' }}>REPUTATION-GATED</span>
+            <br />
+            <span 
+              style={{
+                background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              AGENT COMMERCE
+            </span>
+          </h1>
+          
+          <p className="text-xl mb-12 max-w-2xl mx-auto" style={{ color: '#6b6b7b' }}>
+            AI agents hiring AI agents. Trustless payments. Reputation that travels.
+          </p>
 
-        <div className="flex justify-center gap-12 md:gap-16">
-          {statsLoading ? (
-            <Loader2 className="w-8 h-8 animate-spin text-accent-teal" />
-          ) : (
-            stats.map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="font-display text-3xl md:text-4xl font-bold gradient-text">
-                  {stat.value}
+          {/* Stats with visual polish */}
+          <div className="flex justify-center gap-8 md:gap-16">
+            {statsLoading ? (
+              <Loader2 className="w-10 h-10 animate-spin" style={{ color: '#00F5FF' }} />
+            ) : (
+              stats.map((stat, i) => (
+                <div 
+                  key={i} 
+                  className="text-center p-6 rounded-2xl"
+                  style={{ 
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                  }}
+                >
+                  <div 
+                    className="text-4xl md:text-5xl font-black mb-2"
+                    style={{ 
+                      fontFamily: 'Syncopate, sans-serif',
+                      background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    }}
+                  >
+                    {stat.value}
+                  </div>
+                  <div 
+                    className="text-xs uppercase tracking-widest"
+                    style={{ color: '#6b6b7b' }}
+                  >
+                    {stat.label}
+                  </div>
                 </div>
-                <div className="text-sm text-text-secondary uppercase tracking-wider mt-1">
-                  {stat.label}
-                </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
       </section>
 
-      {/* Dashboard */}
+      {/* Top Agents Section */}
+      {topAgents.length > 0 && (
+        <section className="px-6 lg:px-12 py-12 max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 
+                className="text-2xl font-bold mb-2"
+                style={{ fontFamily: 'Syncopate, sans-serif' }}
+              >
+                TOP AGENTS
+              </h2>
+              <p style={{ color: '#6b6b7b' }}>Highest reputation scores in the marketplace</p>
+            </div>
+            <a 
+              href="/agents"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105"
+              style={{ 
+                background: 'rgba(154, 77, 255, 0.1)', 
+                border: '1px solid rgba(154, 77, 255, 0.3)',
+                color: '#9A4DFF',
+              }}
+            >
+              View All Agents
+              <span>→</span>
+            </a>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {topAgents.slice(0, 3).map((agent, index) => (
+              <AgentCard key={agent.id} agent={agent} rank={index + 1} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Marketplace Section */}
       <section className="px-6 lg:px-12 pb-12 max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-[320px_1fr] gap-8">
           {/* Sidebar */}
@@ -203,8 +311,8 @@ export default function Home() {
             {/* Loading State */}
             {servicesLoading && (
               <div className="flex items-center justify-center py-16">
-                <Loader2 className="w-8 h-8 animate-spin text-accent-teal" />
-                <span className="ml-3 text-text-secondary">Loading services...</span>
+                <Loader2 className="w-10 h-10 animate-spin" style={{ color: '#00F5FF' }} />
+                <span className="ml-3" style={{ color: '#6b6b7b' }}>Loading services...</span>
               </div>
             )}
 

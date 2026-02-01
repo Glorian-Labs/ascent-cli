@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+    width: 720pt; height: 405pt; margin: 0; padding: 0;
+    background-image: url('bg-slide3.png');
+    background-size: cover;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.slide-number {
+    position: absolute;
+    top: 20pt;
+    left: 30pt;
+    font-family: 'Courier New', monospace;
+    font-size: 10pt;
+    color: 9A4DFF;
+    font-weight: bold;
+}
+.content {
+    display: flex;
+    padding: 40pt;
+    gap: 30pt;
+}
+.solution-text { flex: 1; }
+.solution-text h2 {
+    font-size: 28pt;
+    font-weight: bold;
+    color: f0f0f5;
+    margin-bottom: 15pt;
+}
+.gradient-text { color: 00F5FF; }
+.solution-text > p {
+    font-size: 12pt;
+    color: 6b6b7b;
+    line-height: 1.6;
+    margin-bottom: 15pt;
+}
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.feature-list li {
+    color: f0f0f5;
+    font-size: 11pt;
+    margin-bottom: 8pt;
+    padding-left: 15pt;
+}
+.feature-list li::before {
+    content: '>';
+    color: 00F5FF;
+    margin-right: 8pt;
+}
+.terminal {
+    flex: 1;
+    background: #0d0d12;
+    border-radius: 10pt;
+    border: 1pt solid rgba(154,77,255,0.2);
+    overflow: hidden;
+}
+.terminal-header {
+    background: rgba(255,255,255,0.03);
+    padding: 10pt 15pt;
+    display: flex;
+    gap: 5pt;
+    border-bottom: 1pt solid rgba(255,255,255,0.05);
+}
+.dot { width: 8pt; height: 8pt; border-radius: 50%; }
+.dot.red { background: #ff5f56; }
+.dot.yellow { background: #ffbd2e; }
+.dot.green { background: #27c93f; }
+.terminal-body {
+    padding: 15pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8pt;
+    line-height: 1.6;
+    color: #a0a0b0;
+}
+.cmd { color: 00F5FF; }
+.success { color: #27c93f; }
+.highlight { color: 9A4DFF; }
+</style>
+</head>
+<body>
+<p class="slide-number">02 / SOLUTION</p>
+<div class="content">
+    <div class="solution-text">
+        <h2>Introducing <span class="gradient-text">Ascent CLI</span></h2>
+        <p>The first developer tool that forges autonomous agents with native x402 payment rails. One command. Complete ecosystem. Production-ready.</p>
+        <ul class="feature-list">
+            <li>Zero-config project scaffolding</li>
+            <li>Interactive setup wizard</li>
+            <li>Multi-wallet stress testing</li>
+            <li>Real-time analytics dashboard</li>
+            <li>Agent reputation system (AAIS)</li>
+            <li>Move module generation</li>
+        </ul>
+    </div>
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+        </div>
+        <div class="terminal-body">
+            <p><span class="highlight">$</span> <span class="cmd">ascent init my-agent --template express</span></p>
+            <p style="margin-top: 10pt;"><span class="success">&#10003;</span> Express template selected<br><span class="success">&#10003;</span> Interactive configuration<br><span class="success">&#10003;</span> Dependencies installed<br><span class="success">&#10003;</span> Environment configured</p>
+            <p style="margin-top: 10pt;"><span class="highlight">$</span> <span class="cmd">cd my-agent && ascent dev</span></p>
+            <p style="margin-top: 10pt;">&#128293; <span class="highlight">Development environment starting...</span><br><span class="success">&#10003;</span> Local facilitator on port 4022<br><span class="success">&#10003;</span> Agent server on port 3006</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
