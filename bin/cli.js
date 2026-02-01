@@ -278,6 +278,46 @@ program
     db.close();
   });
 
+// Kill command - Kill stuck Ascent processes
+program
+  .command('kill')
+  .description('Kill all running Ascent server processes')
+  .option('-p, --port <port>', 'Kill specific port only')
+  .action(async (options) => {
+    const { execSync } = require('child_process');
+    
+    if (options.port) {
+      // Kill specific port
+      try {
+        execSync(`lsof -ti:${options.port} | xargs kill -9 2>/dev/null`, { stdio: 'ignore' });
+        console.log(chalk.green(`✓ Killed process on port ${options.port}`));
+      } catch {
+        console.log(chalk.yellow(`No process found on port ${options.port}`));
+      }
+    } else {
+      // Kill all common Ascent ports
+      const ports = ['3006', '4022', '3007', '3003', '3000'];
+      let killed = 0;
+      
+      for (const port of ports) {
+        try {
+          execSync(`lsof -ti:${port} | xargs kill -9 2>/dev/null`, { stdio: 'ignore' });
+          console.log(chalk.green(`✓ Killed process on port ${port}`));
+          killed++;
+        } catch {
+          // No process on this port
+        }
+      }
+      
+      if (killed === 0) {
+        console.log(chalk.blue('ℹ No Ascent processes found running'));
+      } else {
+        console.log(chalk.green(`\n✓ Killed ${killed} process(es)`));
+        console.log(chalk.gray('You can now start fresh with: ascent dev'));
+      }
+    }
+  });
+
 // Move command
 program
   .command('move <action>')
