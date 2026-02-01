@@ -42,7 +42,7 @@ function createPaymentRequirements(url) {
 /**
  * Protected endpoint middleware
  */
-app.post('/api/paid-endpoint', async (req, res) => {
+app.post('/api/paid', async (req, res) => {
   const paymentSignature = req.headers['payment-signature'];
   
   if (!paymentSignature) {
@@ -65,8 +65,7 @@ app.post('/api/paid-endpoint', async (req, res) => {
     const verifyRes = await fetch(`${facilitatorUrl}verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paymentPayload, paymentRequirements }),
-      timeout: 30000 // 30s timeout
+      body: JSON.stringify({ paymentPayload, paymentRequirements })
     });
     const verifyResult = await verifyRes.json();
     
@@ -75,8 +74,7 @@ app.post('/api/paid-endpoint', async (req, res) => {
     const settleRes = await fetch(`${facilitatorUrl}settle`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paymentPayload, paymentRequirements }),
-      timeout: 30000 // 30s timeout
+      body: JSON.stringify({ paymentPayload, paymentRequirements })
     });
     const settleResult = await settleRes.json();
     

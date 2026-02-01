@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+    width: 720pt; height: 405pt; margin: 0; padding: 0;
+    background-image: url('bg-slide5.png');
+    background-size: cover;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.slide-number {
+    position: absolute;
+    top: 20pt;
+    left: 30pt;
+    font-family: 'Courier New', monospace;
+    font-size: 10pt;
+    color: 9A4DFF;
+    font-weight: bold;
+}
+h2 {
+    font-size: 28pt;
+    font-weight: bold;
+    color: f0f0f5;
+    margin-bottom: 30pt;
+}
+.gradient-text { color: 00F5FF; }
+.flow-diagram {
+    display: flex;
+    align-items: center;
+    gap: 15pt;
+    margin-bottom: 30pt;
+}
+.flow-node {
+    background: rgba(255,255,255,0.03);
+    border: 1pt solid rgba(154,77,255,0.3);
+    padding: 15pt 20pt;
+    border-radius: 8pt;
+    text-align: center;
+    min-width: 100pt;
+}
+.flow-node h4 {
+    font-size: 10pt;
+    color: f0f0f5;
+    margin: 0 0 5pt 0;
+}
+.flow-node p {
+    font-size: 8pt;
+    color: 6b6b7b;
+    margin: 0;
+}
+.flow-arrow {
+    font-size: 18pt;
+    color: 00F5FF;
+}
+.tech-stack {
+    display: flex;
+    gap: 8pt;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 500pt;
+}
+.tech-badge {
+    background: rgba(154,77,255,0.1);
+    border: 1pt solid rgba(154,77,255,0.3);
+    padding: 5pt 12pt;
+    border-radius: 50pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8pt;
+    color: f0f0f5;
+}
+</style>
+</head>
+<body>
+<p class="slide-number">04 / ARCHITECTURE</p>
+<h2>x402 Protocol <span class="gradient-text">Integration</span></h2>
+<div class="flow-diagram">
+    <div class="flow-node">
+        <h4>&#129302; Agent Client</h4>
+        <p>Signs transactions<br>Aptos SDK</p>
+    </div>
+    <p class="flow-arrow">&#8594;</p>
+    <div class="flow-node">
+        <h4>&#9889; x402 Middleware</h4>
+        <p>402 Challenge<br>Payment Headers</p>
+    </div>
+    <p class="flow-arrow">&#8594;</p>
+    <div class="flow-node">
+        <h4>&#128269; Facilitator</h4>
+        <p>Verify & Settle<br>Aptos Testnet</p>
+    </div>
+    <p class="flow-arrow">&#8594;</p>
+    <div class="flow-node">
+        <h4>&#9989; Access Granted</h4>
+        <p>Protected Resource<br>Agent Service</p>
+    </div>
+</div>
+<div class="tech-stack">
+    <p class="tech-badge">Aptos SDK</p>
+    <p class="tech-badge">x402 Protocol</p>
+    <p class="tech-badge">Node.js</p>
+    <p class="tech-badge">Express.js</p>
+    <p class="tech-badge">SQLite</p>
+    <p class="tech-badge">Move</p>
+    <p class="tech-badge">USDC</p>
+    <p class="tech-badge">Testnet</p>
+</div>
+</body>
+</html>

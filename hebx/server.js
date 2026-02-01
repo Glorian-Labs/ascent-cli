@@ -6,7 +6,7 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const app = express();
 app.use(express.json());
 
-const PORT = process.env.PORT || 3006;
+const PORT = process.env.PORT || 3000;
 const PAY_TO_ADDRESS = process.env.PAYMENT_RECIPIENT_ADDRESS;
 const FACILITATOR_URL = process.env.FACILITATOR_URL || 'https://x402-navy.vercel.app/facilitator/';
 const USDC_ASSET = "0x69091fbab5f7d635ee7ac5098cf0c1efbe31d68fec0f2cd565e8d168daf52832";
@@ -42,7 +42,7 @@ function createPaymentRequirements(url) {
 /**
  * Protected endpoint middleware
  */
-app.post('/api/paid-endpoint', async (req, res) => {
+app.post('/api/paid', async (req, res) => {
   const paymentSignature = req.headers['payment-signature'];
   
   if (!paymentSignature) {
@@ -65,8 +65,7 @@ app.post('/api/paid-endpoint', async (req, res) => {
     const verifyRes = await fetch(`${facilitatorUrl}verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paymentPayload, paymentRequirements }),
-      timeout: 30000 // 30s timeout
+      body: JSON.stringify({ paymentPayload, paymentRequirements })
     });
     const verifyResult = await verifyRes.json();
     
@@ -75,8 +74,7 @@ app.post('/api/paid-endpoint', async (req, res) => {
     const settleRes = await fetch(`${facilitatorUrl}settle`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paymentPayload, paymentRequirements }),
-      timeout: 30000 // 30s timeout
+      body: JSON.stringify({ paymentPayload, paymentRequirements })
     });
     const settleResult = await settleRes.json();
     
