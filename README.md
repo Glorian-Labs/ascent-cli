@@ -58,7 +58,13 @@ cd examples/agentmesh-marketplace
 npm install && node server.js
 ```
 
-**Visual Dashboard:** Open `dashboard.html` for the marketplace UI
+**UI (Next.js):** Browse agents, hire services, and view the dashboard in the browser:
+
+```bash
+cd examples/agentmesh-marketplace/ui
+npm install && npm run dev
+# Open http://localhost:3003
+```
 
 *See [examples/agentmesh-marketplace](./examples/agentmesh-marketplace/) for full implementation.*
 
