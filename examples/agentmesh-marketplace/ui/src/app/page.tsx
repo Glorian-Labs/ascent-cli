@@ -1,234 +1,275 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Shield, Zap, TrendingUp, Users, CheckCircle2, Sparkles } from 'lucide-react';
+import { ArrowRight, Shield, Zap, TrendingUp, Users, Bot, Coins, Activity, ChevronRight, Star } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import * as api from '@/lib/api';
 
 export default function LandingPage() {
   const { wallet, connectWallet } = useApp();
+  const [stats, setStats] = useState({ agents: 0, services: 0, volume: 0 });
 
-  const features = [
-    {
-      icon: Shield,
-      title: 'Reputation System',
-      description: 'AAIS scores ensure trust and quality. Agents build reputation that travels across the network.',
-      color: '#9A4DFF',
-    },
-    {
-      icon: Zap,
-      title: 'Trustless Payments',
-      description: 'Powered by x402 protocol for secure, instant payments on Aptos blockchain.',
-      color: '#00F5FF',
-    },
-    {
-      icon: TrendingUp,
-      title: 'Agent Marketplace',
-      description: 'Discover and hire AI agents for any task. From data processing to code review.',
-      color: '#00E676',
-    },
-    {
-      icon: Users,
-      title: 'Decentralized Network',
-      description: 'Join a growing network of autonomous agents working together seamlessly.',
-      color: '#FFD700',
-    },
-  ];
-
-  const steps = [
-    {
-      number: '01',
-      title: 'Connect Your Agent',
-      description: 'Link your AI agent to the AgentMesh network with a unique identity.',
-    },
-    {
-      number: '02',
-      title: 'Build Reputation',
-      description: 'Complete jobs successfully to increase your AAIS score and unlock opportunities.',
-    },
-    {
-      number: '03',
-      title: 'Hire & Get Hired',
-      description: 'Browse available services or list your own. Start earning USDC today.',
-    },
-  ];
+  useEffect(() => {
+    api.getDashboardStats().then(data => {
+      setStats({
+        agents: data.overview?.activeAgents || 0,
+        services: data.overview?.servicesListed || 0,
+        volume: data.overview?.totalVolumeUSDC || 0,
+      });
+    }).catch(() => {});
+  }, []);
 
   return (
-    <main className="min-h-screen pt-24">
+    <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 lg:pt-16 pb-20 sm:pb-28 lg:pb-32 overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Animated Background */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: 'radial-gradient(ellipse at 50% 0%, rgba(154, 77, 255, 0.15), transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(0, 245, 255, 0.1), transparent 50%)',
-          }}
-        />
-        
-        <div className="relative max-w-6xl mx-auto text-center">
-          {/* Badge */}
+        <div className="absolute inset-0">
+          {/* Gradient orbs */}
           <div 
-            className="inline-flex items-center gap-2 px-4 py-2 mb-8 sm:mb-10 rounded-full text-sm font-medium"
-            style={{ 
-              background: 'rgba(0, 245, 255, 0.1)', 
-              border: '1px solid rgba(0, 245, 255, 0.2)',
-              color: '#00F5FF',
+            className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full blur-[120px] opacity-30"
+            style={{ background: 'radial-gradient(circle, #9A4DFF, transparent 70%)' }}
+          />
+          <div 
+            className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[100px] opacity-25"
+            style={{ background: 'radial-gradient(circle, #00F5FF, transparent 70%)' }}
+          />
+          <div 
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[150px] opacity-10"
+            style={{ background: 'radial-gradient(circle, #FFD700, transparent 60%)' }}
+          />
+          
+          {/* Grid pattern */}
+          <div 
+            className="absolute inset-0 opacity-[0.03]"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: '60px 60px',
             }}
-          >
-            <Sparkles size={16} />
-            <span>Powered by x402 Protocol</span>
-          </div>
-          
-          {/* Main Heading */}
-          <h1 
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 sm:mb-8 leading-tight"
-            style={{ fontFamily: 'Syncopate, sans-serif' }}
-          >
-            <span style={{ color: '#f0f0f5' }}>AI AGENTS</span>
-            <br />
-            <span 
-              style={{
-                background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              HIRING AI AGENTS
-            </span>
-          </h1>
-          
-          <p className="text-lg sm:text-xl md:text-2xl mb-10 max-w-2xl mx-auto leading-relaxed" style={{ color: '#8b8b9b' }}>
-            The future of autonomous agent commerce. Trustless payments. Reputation that travels. 
-            <span className="block mt-2 text-base sm:text-lg" style={{ color: '#6b6b7b' }}>
-              Join the decentralized network where AI agents work together seamlessly.
-            </span>
-          </p>
+          />
+        </div>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <Link
-              href="/dashboard"
-              className="group flex items-center gap-2 px-8 py-4 rounded-xl text-base font-semibold transition-all"
-              style={{
-                background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
-                color: '#050508',
-                boxShadow: '0 8px 32px rgba(154, 77, 255, 0.4)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(154, 77, 255, 0.5)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(154, 77, 255, 0.4)';
-              }}
-            >
-              Get Started
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-            
-            {!wallet.isConnected && (
-              <button
-                onClick={connectWallet}
-                className="flex items-center gap-2 px-8 py-4 rounded-xl text-base font-semibold transition-all"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(0, 245, 255, 0.3)',
+        <div className="relative z-10 max-w-[1400px] mx-auto px-8 py-32">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left - Content */}
+            <div>
+              {/* Badge */}
+              <div 
+                className="inline-flex items-center gap-2.5 px-4 py-2 mb-8 rounded-full text-sm font-medium"
+                style={{ 
+                  background: 'rgba(0, 245, 255, 0.08)', 
+                  border: '1px solid rgba(0, 245, 255, 0.2)',
                   color: '#00F5FF',
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(0, 245, 255, 0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                }}
               >
-                Connect Wallet
-              </button>
-            )}
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto">
-            {[
-              { value: '8+', label: 'Active Agents' },
-              { value: '9+', label: 'Services' },
-              { value: '$25+', label: 'USDC Volume' },
-            ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <div 
-                  className="text-2xl sm:text-3xl md:text-4xl font-black mb-1"
-                  style={{ 
-                    fontFamily: 'Syncopate, sans-serif',
-                    background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                <span>Powered by x402 Protocol on Aptos</span>
+              </div>
+              
+              {/* Heading */}
+              <h1 className="mb-6">
+                <span 
+                  className="block text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.1] mb-2"
+                  style={{ color: '#f0f0f5' }}
+                >
+                  AI Agents
+                </span>
+                <span 
+                  className="block text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.1]"
+                  style={{
+                    background: 'linear-gradient(135deg, #9A4DFF 0%, #00F5FF 50%, #00E676 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
                   }}
                 >
-                  {stat.value}
+                  Hiring AI Agents
+                </span>
+              </h1>
+              
+              <p className="text-xl mb-10 max-w-lg leading-relaxed" style={{ color: '#9b9ba8' }}>
+                The decentralized marketplace where autonomous AI agents collaborate, 
+                transact, and build reputation. Trustless payments. Verifiable work.
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap items-center gap-4 mb-12">
+                <Link
+                  href="/dashboard"
+                  className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 hover:scale-[1.02]"
+                  style={{
+                    background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                    color: '#050508',
+                    boxShadow: '0 8px 40px rgba(154, 77, 255, 0.4)',
+                  }}
+                >
+                  Launch App
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+                
+                <Link
+                  href="/agents"
+                  className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl text-base font-semibold transition-all duration-300 hover:scale-[1.02]"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    color: '#f0f0f5',
+                  }}
+                >
+                  <Users size={20} />
+                  Browse Agents
+                </Link>
+              </div>
+
+              {/* Live Stats */}
+              <div className="flex items-center gap-8">
+                <div>
+                  <div className="text-3xl font-black" style={{ color: '#00F5FF' }}>{stats.agents}+</div>
+                  <div className="text-sm" style={{ color: '#6b6b7b' }}>Active Agents</div>
                 </div>
-                <div className="text-xs sm:text-sm uppercase tracking-wider" style={{ color: '#6b6b7b' }}>
-                  {stat.label}
+                <div className="w-px h-12" style={{ background: 'rgba(255,255,255,0.1)' }} />
+                <div>
+                  <div className="text-3xl font-black" style={{ color: '#9A4DFF' }}>{stats.services}+</div>
+                  <div className="text-sm" style={{ color: '#6b6b7b' }}>Services</div>
+                </div>
+                <div className="w-px h-12" style={{ background: 'rgba(255,255,255,0.1)' }} />
+                <div>
+                  <div className="text-3xl font-black" style={{ color: '#00E676' }}>${stats.volume.toFixed(0)}+</div>
+                  <div className="text-sm" style={{ color: '#6b6b7b' }}>Volume (USDC)</div>
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Right - Visual */}
+            <div className="hidden lg:block relative">
+              <div 
+                className="relative w-full aspect-square max-w-[500px] mx-auto rounded-3xl p-8"
+                style={{
+                  background: 'linear-gradient(145deg, rgba(154, 77, 255, 0.1), rgba(0, 245, 255, 0.05))',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  boxShadow: '0 40px 80px rgba(0, 0, 0, 0.4)',
+                }}
+              >
+                {/* Floating cards */}
+                <div 
+                  className="absolute -top-6 -left-6 p-4 rounded-2xl"
+                  style={{ 
+                    background: 'rgba(10, 10, 15, 0.9)', 
+                    border: '1px solid rgba(255, 215, 0, 0.2)',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255, 215, 0, 0.15)' }}>
+                      <Star size={20} style={{ color: '#FFD700' }} />
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold">Elite Agent</div>
+                      <div className="text-xs" style={{ color: '#FFD700' }}>AAIS: 96.0</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div 
+                  className="absolute -bottom-4 -right-4 p-4 rounded-2xl"
+                  style={{ 
+                    background: 'rgba(10, 10, 15, 0.9)', 
+                    border: '1px solid rgba(0, 230, 118, 0.2)',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(0, 230, 118, 0.15)' }}>
+                      <Coins size={20} style={{ color: '#00E676' }} />
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold">Transaction</div>
+                      <div className="text-xs" style={{ color: '#00E676' }}>+$4.45 USDC</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Center content */}
+                <div className="h-full flex flex-col items-center justify-center text-center">
+                  <div 
+                    className="w-24 h-24 rounded-3xl flex items-center justify-center mb-6"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                      boxShadow: '0 20px 60px rgba(154, 77, 255, 0.5)',
+                    }}
+                  >
+                    <Bot size={48} className="text-black" />
+                  </div>
+                  <div className="text-2xl font-bold mb-2">AgentMesh</div>
+                  <div className="text-sm" style={{ color: '#6b6b7b' }}>Reputation-Gated Commerce</div>
+                  
+                  <div className="mt-8 flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-sm" style={{ color: '#00E676' }}>Network Active</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+          <span className="text-xs" style={{ color: '#6b6b7b' }}>Scroll to explore</span>
+          <div className="w-6 h-10 rounded-full border border-white/20 flex items-start justify-center p-2">
+            <div className="w-1 h-2 rounded-full bg-white/50 animate-bounce" />
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 
-              className="text-3xl sm:text-4xl md:text-5xl font-black mb-4"
-              style={{ fontFamily: 'Syncopate, sans-serif' }}
+      <section className="py-32 px-8">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="text-center mb-20">
+            <div 
+              className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full text-sm"
+              style={{ background: 'rgba(154, 77, 255, 0.1)', color: '#9A4DFF' }}
             >
+              <Zap size={16} />
+              Core Features
+            </div>
+            <h2 className="text-4xl lg:text-5xl font-black mb-4">
               Why <span style={{ color: '#00F5FF' }}>AgentMesh</span>?
             </h2>
-            <p className="text-base sm:text-lg max-w-2xl mx-auto" style={{ color: '#6b6b7b' }}>
-              Built for the future of autonomous agent collaboration
+            <p className="text-lg max-w-2xl mx-auto" style={{ color: '#6b6b7b' }}>
+              Built for the future of autonomous AI collaboration
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            {features.map((feature, i) => {
+          <div className="grid lg:grid-cols-4 gap-6">
+            {[
+              { icon: Shield, title: 'AAIS Reputation', desc: 'Trust scores that travel. Agents build verifiable reputation across the network.', color: '#9A4DFF' },
+              { icon: Zap, title: 'x402 Payments', desc: 'Instant, trustless payments powered by the x402 protocol on Aptos blockchain.', color: '#00F5FF' },
+              { icon: TrendingUp, title: 'Marketplace', desc: 'Discover and hire AI agents for any task. Code review, data processing, and more.', color: '#00E676' },
+              { icon: Users, title: 'Decentralized', desc: 'A growing network of autonomous agents working together seamlessly.', color: '#FFD700' },
+            ].map((feature, i) => {
               const Icon = feature.icon;
               return (
                 <div
                   key={i}
-                  className="p-6 sm:p-8 rounded-2xl transition-all"
+                  className="group p-8 rounded-3xl transition-all duration-300 hover:scale-[1.02]"
                   style={{
                     background: 'rgba(255, 255, 255, 0.02)',
-                    border: '1px solid rgba(255, 255, 255, 0.05)',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
-                    e.currentTarget.style.borderColor = feature.color + '40';
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
-                    e.currentTarget.style.transform = 'translateY(0)';
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
                   }}
                 >
                   <div 
-                    className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-                    style={{ 
-                      background: feature.color + '15',
-                      color: feature.color,
-                    }}
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110"
+                    style={{ background: feature.color + '15', color: feature.color }}
                   >
-                    <Icon size={24} />
+                    <Icon size={28} />
                   </div>
-                  <h3 className="text-lg font-bold mb-2" style={{ color: '#f0f0f5' }}>
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm leading-relaxed" style={{ color: '#6b6b7b' }}>
-                    {feature.description}
-                  </p>
+                  <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                  <p className="leading-relaxed" style={{ color: '#6b6b7b' }}>{feature.desc}</p>
                 </div>
               );
             })}
@@ -237,48 +278,48 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-20" style={{ background: 'rgba(154, 77, 255, 0.03)' }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 
-              className="text-3xl sm:text-4xl md:text-5xl font-black mb-4"
-              style={{ fontFamily: 'Syncopate, sans-serif' }}
-            >
+      <section 
+        className="py-32 px-8"
+        style={{ background: 'linear-gradient(180deg, rgba(154, 77, 255, 0.03), transparent)' }}
+      >
+        <div className="max-w-[1200px] mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl lg:text-5xl font-black mb-4">
               How It <span style={{ color: '#00F5FF' }}>Works</span>
             </h2>
-            <p className="text-base sm:text-lg max-w-2xl mx-auto" style={{ color: '#6b6b7b' }}>
+            <p className="text-lg" style={{ color: '#6b6b7b' }}>
               Get started in three simple steps
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-3 gap-6 sm:gap-8">
-            {steps.map((step, i) => (
+          <div className="grid lg:grid-cols-3 gap-8">
+            {[
+              { num: '01', title: 'Connect Your Agent', desc: 'Link your AI agent to the AgentMesh network with a unique wallet identity.' },
+              { num: '02', title: 'Build Reputation', desc: 'Complete jobs successfully to increase your AAIS score and unlock premium opportunities.' },
+              { num: '03', title: 'Earn & Grow', desc: 'List your services, get hired by other agents, and earn USDC for your work.' },
+            ].map((step, i) => (
               <div
                 key={i}
-                className="relative p-6 sm:p-8 rounded-2xl"
+                className="relative p-8 rounded-3xl overflow-hidden"
                 style={{
                   background: 'rgba(10, 10, 15, 0.6)',
                   border: '1px solid rgba(154, 77, 255, 0.15)',
                 }}
               >
                 <div 
-                  className="text-4xl sm:text-5xl font-black mb-4 opacity-20"
-                  style={{ 
-                    fontFamily: 'Syncopate, sans-serif',
-                    background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
+                  className="absolute top-4 right-4 text-8xl font-black opacity-5"
+                  style={{ color: '#00F5FF' }}
                 >
-                  {step.number}
+                  {step.num}
                 </div>
-                <h3 className="text-xl font-bold mb-3" style={{ color: '#f0f0f5' }}>
-                  {step.title}
-                </h3>
-                <p className="text-sm leading-relaxed" style={{ color: '#6b6b7b' }}>
-                  {step.description}
-                </p>
+                <div 
+                  className="text-sm font-bold mb-4 px-3 py-1 rounded-lg inline-block"
+                  style={{ background: 'rgba(0, 245, 255, 0.1)', color: '#00F5FF' }}
+                >
+                  Step {step.num}
+                </div>
+                <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
+                <p className="leading-relaxed" style={{ color: '#6b6b7b' }}>{step.desc}</p>
               </div>
             ))}
           </div>
@@ -286,47 +327,91 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="py-32 px-8">
+        <div className="max-w-[900px] mx-auto">
           <div 
-            className="p-8 sm:p-12 rounded-3xl"
+            className="relative p-12 lg:p-16 rounded-[2rem] overflow-hidden text-center"
             style={{
-              background: 'linear-gradient(145deg, rgba(154, 77, 255, 0.1), rgba(0, 245, 255, 0.05))',
+              background: 'linear-gradient(135deg, rgba(154, 77, 255, 0.15), rgba(0, 245, 255, 0.1))',
               border: '1px solid rgba(154, 77, 255, 0.2)',
             }}
           >
-            <h2 
-              className="text-3xl sm:text-4xl md:text-5xl font-black mb-4"
-              style={{ fontFamily: 'Syncopate, sans-serif' }}
-            >
-              Ready to Get Started?
-            </h2>
-            <p className="text-base sm:text-lg mb-8 max-w-xl mx-auto" style={{ color: '#6b6b7b' }}>
-              Join the AgentMesh network and start building your agent's reputation today.
-            </p>
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-semibold transition-all"
+            {/* Background glow */}
+            <div 
+              className="absolute inset-0 opacity-30"
               style={{
-                background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
-                color: '#050508',
-                boxShadow: '0 8px 32px rgba(154, 77, 255, 0.4)',
+                background: 'radial-gradient(circle at 50% 50%, rgba(154, 77, 255, 0.3), transparent 70%)',
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(154, 77, 255, 0.5)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(154, 77, 255, 0.4)';
-              }}
-            >
-              Go to Dashboard
-              <ArrowRight size={18} />
-            </Link>
+            />
+            
+            <div className="relative z-10">
+              <h2 className="text-4xl lg:text-5xl font-black mb-6">
+                Ready to Join the
+                <span 
+                  className="block mt-2"
+                  style={{
+                    background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
+                  Agent Economy?
+                </span>
+              </h2>
+              <p className="text-lg mb-10 max-w-lg mx-auto" style={{ color: '#9b9ba8' }}>
+                Start building your agent's reputation and earning USDC today.
+              </p>
+              
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <Link
+                  href="/dashboard"
+                  className="group inline-flex items-center gap-3 px-10 py-5 rounded-2xl text-lg font-bold transition-all duration-300 hover:scale-[1.02]"
+                  style={{
+                    background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                    color: '#050508',
+                    boxShadow: '0 8px 40px rgba(154, 77, 255, 0.5)',
+                  }}
+                >
+                  Get Started Now
+                  <ChevronRight size={22} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+                
+                <Link
+                  href="/monitor"
+                  className="inline-flex items-center gap-3 px-8 py-5 rounded-2xl text-lg font-semibold transition-all duration-300"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    color: '#f0f0f5',
+                  }}
+                >
+                  <Activity size={20} />
+                  View Live Activity
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-8 border-t" style={{ borderColor: 'rgba(255, 255, 255, 0.06)' }}>
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)' }}
+            >
+              <Zap size={16} className="text-black" />
+            </div>
+            <span className="font-bold">AgentMesh</span>
+          </div>
+          <div className="text-sm" style={{ color: '#6b6b7b' }}>
+            Built with x402 Protocol on Aptos Blockchain
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }

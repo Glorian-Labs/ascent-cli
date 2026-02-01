@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useLiveHealth, useLiveTransactions } from '@/lib/hooks';
 import { 
   Activity, Server, CheckCircle, AlertCircle, Clock, 
-  RefreshCw, Filter, Search, Shield, Zap, Database
+  RefreshCw, Search, Shield, Zap, Database, Loader2
 } from 'lucide-react';
 
 export default function MonitorPage() {
@@ -32,24 +32,33 @@ export default function MonitorPage() {
   };
 
   return (
-    <main className="min-h-screen pt-24 px-6 lg:px-12 pb-12">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <main className="min-h-screen pt-24 pb-12 px-8">
+      <div className="max-w-[1400px] mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="font-display text-3xl font-bold">System Monitor</h1>
-            <p className="text-text-secondary mt-1">Real-time health and transaction monitoring</p>
+            <h1 
+              className="text-4xl font-black mb-2"
+              style={{ fontFamily: 'Syncopate, sans-serif', color: '#f0f0f5' }}
+            >
+              MONITOR
+            </h1>
+            <p style={{ color: '#6b6b7b' }}>Real-time health and transaction monitoring</p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full">
-              <RefreshCw className="w-4 h-4 text-green-400 animate-spin" style={{ animationDuration: '3s' }} />
-              <span className="text-sm text-green-400">Auto-refresh</span>
-            </div>
+          <div 
+            className="flex items-center gap-3 px-5 py-3 rounded-full"
+            style={{ 
+              background: 'rgba(0, 230, 118, 0.08)',
+              border: '1px solid rgba(0, 230, 118, 0.2)',
+            }}
+          >
+            <RefreshCw className="w-4 h-4 animate-spin" style={{ color: '#00E676', animationDuration: '3s' }} />
+            <span className="text-sm font-medium" style={{ color: '#00E676' }}>Auto-refresh</span>
           </div>
         </div>
 
-        {/* System Health */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* System Health Cards */}
+        <div className="grid grid-cols-3 gap-6 mb-8">
           <HealthCard
             icon={Server}
             title="API Server"
@@ -70,44 +79,94 @@ export default function MonitorPage() {
           />
         </div>
 
-        {/* Transaction Monitor */}
-        <div className="glass-card p-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <h2 className="font-display text-xl font-semibold flex items-center gap-2">
-              <Activity className="text-accent-teal" size={20} />
-              Transaction Stream
-            </h2>
+        {/* Metrics Row */}
+        <div className="grid grid-cols-4 gap-6 mb-8">
+          <MetricCard
+            icon={Zap}
+            label="Total Transactions"
+            value={`${transactions.length}`}
+            color="#00F5FF"
+          />
+          <MetricCard
+            icon={CheckCircle}
+            label="Success Rate"
+            value={transactions.length > 0 ? 
+              `${((statusCounts.completed / transactions.length) * 100).toFixed(0)}%` : '0%'}
+            color="#00E676"
+          />
+          <MetricCard
+            icon={Clock}
+            label="Pending"
+            value={`${statusCounts.pending}`}
+            color="#FFD700"
+          />
+          <MetricCard
+            icon={AlertCircle}
+            label="Failed"
+            value={`${statusCounts.failed}`}
+            color="#ff5050"
+          />
+        </div>
+
+        {/* Transaction Stream */}
+        <div 
+          className="p-6 rounded-2xl"
+          style={{ 
+            background: 'rgba(255, 255, 255, 0.02)',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+          }}
+        >
+          <div className="flex items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl" style={{ background: 'rgba(0, 245, 255, 0.1)' }}>
+                <Activity size={20} style={{ color: '#00F5FF' }} />
+              </div>
+              <h2 className="text-lg font-bold">Transaction Stream</h2>
+            </div>
             
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex gap-4">
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" size={16} />
+                <Search 
+                  className="absolute left-4 top-1/2 -translate-y-1/2" 
+                  size={16} 
+                  style={{ color: '#6b6b7b' }} 
+                />
                 <input
                   type="text"
                   placeholder="Search transactions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 bg-white/5 border border-border-subtle rounded-lg text-sm focus:outline-none focus:border-accent-teal w-full sm:w-64"
+                  className="pl-11 pr-4 py-2.5 rounded-xl text-sm focus:outline-none w-64"
+                  style={{ 
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    color: '#f0f0f5',
+                  }}
                 />
               </div>
               
               {/* Status Filter */}
-              <div className="flex gap-2">
+              <div 
+                className="flex rounded-xl overflow-hidden"
+                style={{ border: '1px solid rgba(255, 255, 255, 0.08)' }}
+              >
                 {(['all', 'completed', 'pending', 'failed'] as const).map((status) => (
                   <button
                     key={status}
                     onClick={() => setStatusFilter(status)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                      statusFilter === status
-                        ? 'bg-accent-teal/20 text-accent-teal border border-accent-teal/50'
-                        : 'bg-white/5 text-text-secondary hover:bg-white/10'
-                    }`}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all"
+                    style={{
+                      background: statusFilter === status ? 'rgba(0, 245, 255, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+                      color: statusFilter === status ? '#00F5FF' : '#6b6b7b',
+                      borderLeft: status !== 'all' ? '1px solid rgba(255, 255, 255, 0.08)' : 'none',
+                    }}
                   >
-                    {status === 'completed' && <CheckCircle size={14} className="text-green-400" />}
-                    {status === 'pending' && <Clock size={14} className="text-yellow-400" />}
-                    {status === 'failed' && <AlertCircle size={14} className="text-red-400" />}
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                    <span className="text-xs opacity-70">({statusCounts[status]})</span>
+                    {status === 'completed' && <CheckCircle size={14} style={{ color: '#00E676' }} />}
+                    {status === 'pending' && <Clock size={14} style={{ color: '#FFD700' }} />}
+                    {status === 'failed' && <AlertCircle size={14} style={{ color: '#ff5050' }} />}
+                    {status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
+                    <span className="text-xs opacity-60">({statusCounts[status]})</span>
                   </button>
                 ))}
               </div>
@@ -118,57 +177,58 @@ export default function MonitorPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-sm text-text-secondary border-b border-border-subtle">
-                  <th className="pb-4 font-medium">ID</th>
-                  <th className="pb-4 font-medium">Service</th>
-                  <th className="pb-4 font-medium">Provider</th>
-                  <th className="pb-4 font-medium">Consumer</th>
-                  <th className="pb-4 font-medium">Amount</th>
-                  <th className="pb-4 font-medium">Status</th>
-                  <th className="pb-4 font-medium">Rating</th>
-                  <th className="pb-4 font-medium">Time</th>
+                <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                  <th className="pb-4 text-left text-sm font-medium" style={{ color: '#6b6b7b' }}>ID</th>
+                  <th className="pb-4 text-left text-sm font-medium" style={{ color: '#6b6b7b' }}>Service</th>
+                  <th className="pb-4 text-left text-sm font-medium" style={{ color: '#6b6b7b' }}>Provider</th>
+                  <th className="pb-4 text-left text-sm font-medium" style={{ color: '#6b6b7b' }}>Consumer</th>
+                  <th className="pb-4 text-left text-sm font-medium" style={{ color: '#6b6b7b' }}>Amount</th>
+                  <th className="pb-4 text-left text-sm font-medium" style={{ color: '#6b6b7b' }}>Status</th>
+                  <th className="pb-4 text-left text-sm font-medium" style={{ color: '#6b6b7b' }}>Rating</th>
+                  <th className="pb-4 text-left text-sm font-medium" style={{ color: '#6b6b7b' }}>Time</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody>
                 {txLoading && !transactions.length ? (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-text-secondary">
-                      <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />
-                      Loading transactions...
+                    <td colSpan={8} className="py-12 text-center">
+                      <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" style={{ color: '#00F5FF' }} />
+                      <p style={{ color: '#6b6b7b' }}>Loading transactions...</p>
                     </td>
                   </tr>
                 ) : filteredTransactions.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-text-secondary">
+                    <td colSpan={8} className="py-12 text-center" style={{ color: '#6b6b7b' }}>
                       No transactions found
                     </td>
                   </tr>
                 ) : (
                   filteredTransactions.map((tx) => (
-                    <tr key={tx.id} className="hover:bg-white/5 transition-colors">
-                      <td className="py-4 font-mono text-sm">#{tx.id}</td>
+                    <tr 
+                      key={tx.id} 
+                      className="transition-colors"
+                      style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}
+                    >
+                      <td className="py-4 font-mono text-sm" style={{ color: '#6b6b7b' }}>#{tx.id}</td>
                       <td className="py-4">
                         <div className="text-sm font-medium">{tx.service_title || `Service #${tx.service_id}`}</div>
-                        {tx.category && (
-                          <div className="text-xs text-text-secondary">{tx.category}</div>
-                        )}
                       </td>
                       <td className="py-4 text-sm">{tx.provider_name}</td>
                       <td className="py-4 text-sm">{tx.consumer_name}</td>
-                      <td className="py-4 text-sm font-semibold text-accent-teal">
-                        {(parseInt(tx.amount) / 1000000).toFixed(2)} USDC
+                      <td className="py-4 text-sm font-semibold" style={{ color: '#00F5FF' }}>
+                        ${(parseInt(tx.amount) / 1000000).toFixed(2)}
                       </td>
                       <td className="py-4">
                         <StatusBadge status={tx.status} />
                       </td>
                       <td className="py-4">
                         {tx.rating ? (
-                          <span className="text-accent-gold">{tx.rating} ★</span>
+                          <span style={{ color: '#FFD700' }}>{tx.rating} ★</span>
                         ) : (
-                          <span className="text-text-secondary">—</span>
+                          <span style={{ color: '#6b6b7b' }}>—</span>
                         )}
                       </td>
-                      <td className="py-4 text-sm text-text-secondary">
+                      <td className="py-4 text-sm" style={{ color: '#6b6b7b' }}>
                         {formatTime(tx.created_at)}
                       </td>
                     </tr>
@@ -177,35 +237,6 @@ export default function MonitorPage() {
               </tbody>
             </table>
           </div>
-        </div>
-
-        {/* System Metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <MetricCard
-            icon={Zap}
-            label="Throughput"
-            value={`${transactions.length}`}
-            unit="tx total"
-          />
-          <MetricCard
-            icon={CheckCircle}
-            label="Success Rate"
-            value={transactions.length > 0 ? 
-              `${((statusCounts.completed / transactions.length) * 100).toFixed(1)}` : '0'}
-            unit="%"
-          />
-          <MetricCard
-            icon={Clock}
-            label="Pending"
-            value={`${statusCounts.pending}`}
-            unit="transactions"
-          />
-          <MetricCard
-            icon={AlertCircle}
-            label="Failed"
-            value={`${statusCounts.failed}`}
-            unit="transactions"
-          />
         </div>
       </div>
     </main>
@@ -223,30 +254,37 @@ function HealthCard({
   status: 'healthy' | 'error' | 'unknown';
   detail: string;
 }) {
-  const statusColors = {
-    healthy: 'bg-green-500/10 border-green-500/30 text-green-400',
-    error: 'bg-red-500/10 border-red-500/30 text-red-400',
-    unknown: 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400',
+  const statusConfig = {
+    healthy: { bg: 'rgba(0, 230, 118, 0.05)', border: 'rgba(0, 230, 118, 0.15)', color: '#00E676' },
+    error: { bg: 'rgba(255, 80, 80, 0.05)', border: 'rgba(255, 80, 80, 0.15)', color: '#ff5050' },
+    unknown: { bg: 'rgba(255, 215, 0, 0.05)', border: 'rgba(255, 215, 0, 0.15)', color: '#FFD700' },
   };
 
+  const config = statusConfig[status];
+
   return (
-    <div className={`glass-card p-6 border ${statusColors[status]}`}>
+    <div 
+      className="p-5 rounded-2xl"
+      style={{ 
+        background: config.bg,
+        border: `1px solid ${config.border}`,
+      }}
+    >
       <div className="flex items-center gap-4">
-        <div className={`p-3 rounded-lg ${
-          status === 'healthy' ? 'bg-green-500/20' :
-          status === 'error' ? 'bg-red-500/20' :
-          'bg-yellow-500/20'
-        }`}>
-          <Icon size={24} />
+        <div 
+          className="p-3 rounded-xl"
+          style={{ background: config.color + '15' }}
+        >
+          <Icon size={24} style={{ color: config.color }} />
+        </div>
+        <div className="flex-1">
+          <h3 className="font-semibold mb-1">{title}</h3>
+          <p className="text-sm" style={{ color: '#6b6b7b' }}>{detail}</p>
         </div>
         <div>
-          <h3 className="font-semibold">{title}</h3>
-          <p className="text-sm opacity-80">{detail}</p>
-        </div>
-        <div className="ml-auto">
-          {status === 'healthy' && <CheckCircle className="text-green-400" size={20} />}
-          {status === 'error' && <AlertCircle className="text-red-400" size={20} />}
-          {status === 'unknown' && <Clock className="text-yellow-400" size={20} />}
+          {status === 'healthy' && <CheckCircle size={22} style={{ color: '#00E676' }} />}
+          {status === 'error' && <AlertCircle size={22} style={{ color: '#ff5050' }} />}
+          {status === 'unknown' && <Clock size={22} style={{ color: '#FFD700' }} />}
         </div>
       </div>
     </div>
@@ -254,16 +292,19 @@ function HealthCard({
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const styles = {
-    completed: 'bg-green-500/20 text-green-400 border-green-500/30',
-    pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    failed: 'bg-red-500/20 text-red-400 border-red-500/30',
+  const config = {
+    completed: { bg: 'rgba(0, 230, 118, 0.1)', color: '#00E676' },
+    pending: { bg: 'rgba(255, 215, 0, 0.1)', color: '#FFD700' },
+    failed: { bg: 'rgba(255, 80, 80, 0.1)', color: '#ff5050' },
   };
 
+  const style = config[status as keyof typeof config] || { bg: 'rgba(128, 128, 128, 0.1)', color: '#808080' };
+
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${
-      styles[status as keyof typeof styles] || 'bg-gray-500/20 text-gray-400'
-    }`}>
+    <span 
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium capitalize"
+      style={{ background: style.bg, color: style.color }}
+    >
       {status === 'completed' && <CheckCircle size={12} />}
       {status === 'pending' && <Clock size={12} />}
       {status === 'failed' && <AlertCircle size={12} />}
@@ -276,23 +317,26 @@ function MetricCard({
   icon: Icon,
   label,
   value,
-  unit,
+  color,
 }: {
   icon: React.ElementType;
   label: string;
   value: string;
-  unit: string;
+  color: string;
 }) {
   return (
-    <div className="glass-card p-4">
-      <div className="flex items-center gap-2 text-text-secondary mb-2">
+    <div 
+      className="p-5 rounded-2xl"
+      style={{ 
+        background: 'rgba(255, 255, 255, 0.02)',
+        border: '1px solid rgba(255, 255, 255, 0.06)',
+      }}
+    >
+      <div className="flex items-center gap-2 mb-3" style={{ color: '#6b6b7b' }}>
         <Icon size={16} />
         <span className="text-sm">{label}</span>
       </div>
-      <div className="flex items-baseline gap-2">
-        <span className="font-display text-2xl font-bold">{value}</span>
-        <span className="text-sm text-text-secondary">{unit}</span>
-      </div>
+      <div className="text-3xl font-black" style={{ color }}>{value}</div>
     </div>
   );
 }
