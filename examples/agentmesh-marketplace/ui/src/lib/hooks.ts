@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import * as api from './api';
 
 // Generic hook for data fetching
@@ -69,23 +69,27 @@ export function usePolling<T>(
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const fetcherRef = useRef(fetcher);
+
+  // Update ref when fetcher changes
+  useEffect(() => {
+    fetcherRef.current = fetcher;
+  }, [fetcher]);
 
   useEffect(() => {
     let mounted = true;
 
     const fetchData = async () => {
       try {
-        const result = await fetcher();
+        const result = await fetcherRef.current();
         if (mounted) {
           setData(result);
           setError(null);
+          setLoading(false);
         }
       } catch (err) {
         if (mounted) {
           setError(err instanceof Error ? err.message : 'An error occurred');
-        }
-      } finally {
-        if (mounted) {
           setLoading(false);
         }
       }
