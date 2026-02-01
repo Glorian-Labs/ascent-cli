@@ -338,3 +338,35 @@ a {
 .stagger-item:nth-child(7) { animation-delay: 0.4s; }
 .stagger-item:nth-child(8) { animation-delay: 0.45s; }
 .stagger-item:nth-child(9) { animation-delay: 0.5s; }
+
+/* Mobile Menu Animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
