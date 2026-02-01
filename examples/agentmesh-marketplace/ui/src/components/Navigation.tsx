@@ -3,77 +3,94 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Wallet, LayoutDashboard, Activity, Users, Menu, X, Zap } from 'lucide-react';
+import { Wallet, LayoutDashboard, Activity, Users, ChevronRight, Zap, X } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 
 const navLinks = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/monitor', label: 'Monitor', icon: Activity },
-  { href: '/agents', label: 'Agents', icon: Users },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, description: 'Overview & metrics' },
+  { href: '/monitor', label: 'Monitor', icon: Activity, description: 'Real-time activity' },
+  { href: '/agents', label: 'Agents', icon: Users, description: 'Browse agents' },
 ];
 
 export default function Navigation() {
   const pathname = usePathname();
   const { wallet, connectWallet, disconnectWallet } = useApp();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Prevent body scroll when menu is open
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [mobileMenuOpen]);
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [menuOpen]);
 
-  // Close menu on ESC key
+  // Close menu on route change
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
+    setMenuOpen(false);
+  }, [pathname]);
+
+  // Close on ESC
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
     };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [mobileMenuOpen]);
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
 
   return (
     <>
-      <nav 
-        className="fixed top-0 left-0 right-0 z-50 h-16"
+      {/* Main Navbar */}
+      <header 
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled ? 'py-2' : 'py-3'
+        }`}
         style={{
-          background: 'rgba(5, 5, 8, 0.95)',
-          backdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(154, 77, 255, 0.15)',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.3)',
+          background: scrolled 
+            ? 'rgba(5, 5, 8, 0.95)' 
+            : 'rgba(5, 5, 8, 0.8)',
+          backdropFilter: 'blur(20px)',
+          borderBottom: scrolled 
+            ? '1px solid rgba(154, 77, 255, 0.15)' 
+            : '1px solid transparent',
         }}
       >
-        <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-full flex items-center justify-between relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-12">
+            
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 z-10">
+            <Link href="/" className="flex items-center gap-2.5 group">
               <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
                 style={{ 
                   background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
+                  boxShadow: '0 4px 15px rgba(154, 77, 255, 0.3)',
                 }}
               >
-                <Zap size={16} className="text-black" />
+                <Zap size={18} className="text-black" />
               </div>
-              <span 
-                className="text-base font-bold tracking-wide"
-                style={{ fontFamily: 'Syncopate, sans-serif' }}
-              >
-                <span style={{ color: '#f0f0f5' }}>Agent</span>
-                <span style={{ color: '#00F5FF' }}>Mesh</span>
-              </span>
+              <div className="hidden sm:block">
+                <span 
+                  className="text-lg font-bold"
+                  style={{ fontFamily: 'Syncopate, sans-serif' }}
+                >
+                  <span className="text-white">Agent</span>
+                  <span style={{ color: '#00F5FF' }}>Mesh</span>
+                </span>
+              </div>
             </Link>
 
-            {/* Center Navigation - Always visible on desktop */}
-            <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-1">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;
                 const Icon = link.icon;
@@ -81,292 +98,195 @@ export default function Navigation() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all no-underline"
-                    style={{
-                      background: isActive ? 'rgba(0, 245, 255, 0.1)' : 'transparent',
-                      color: isActive ? '#00F5FF' : '#8b8b9b',
-                      textDecoration: 'none',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                        e.currentTarget.style.color = '#f0f0f5';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = 'transparent';
-                        e.currentTarget.style.color = '#8b8b9b';
-                      }
-                    }}
+                    className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      isActive 
+                        ? 'text-white' 
+                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    }`}
                   >
-                    <Icon size={16} />
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </div>
-
-            {/* Right Section */}
-            <div className="flex items-center gap-3 flex-shrink-0 z-10">
-            <button
-              onClick={() => wallet.isConnected ? disconnectWallet() : connectWallet()}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
-              style={{
-                background: wallet.isConnected 
-                  ? 'rgba(0, 230, 118, 0.15)' 
-                  : 'rgba(0, 245, 255, 0.1)',
-                border: wallet.isConnected 
-                  ? '1px solid rgba(0, 230, 118, 0.3)' 
-                  : '1px solid rgba(0, 245, 255, 0.25)',
-                color: wallet.isConnected ? '#00E676' : '#00F5FF',
-              }}
-            >
-              <Wallet size={16} />
-              <span className="hidden sm:inline">
-                {wallet.isConnected ? 'Connected' : 'Connect Wallet'}
-              </span>
-            </button>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg"
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                color: '#8b8b9b',
-              }}
-            >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile Menu - Slide from Right */}
-      {mobileMenuOpen && (
-        <div 
-          className="fixed inset-0 z-[60] md:hidden animate-fadeIn"
-        >
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/70 backdrop-blur-md animate-fadeIn"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          
-          {/* Menu Panel - Slides from right */}
-          <div 
-            className="absolute right-0 top-0 bottom-0 w-[85vw] max-w-sm h-full overflow-y-auto flex flex-col animate-slideInRight"
-            style={{
-              background: 'linear-gradient(180deg, rgba(10, 10, 15, 0.98) 0%, rgba(5, 5, 8, 0.98) 100%)',
-              borderLeft: '1px solid rgba(154, 77, 255, 0.2)',
-              boxShadow: '-10px 0 40px rgba(0, 0, 0, 0.5)',
-            }}
-          >
-            {/* Header with Logo */}
-            <div 
-              className="flex items-center justify-between p-6 border-b"
-              style={{ 
-                borderColor: 'rgba(154, 77, 255, 0.15)',
-                background: 'linear-gradient(135deg, rgba(154, 77, 255, 0.1), rgba(0, 245, 255, 0.05))',
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <div 
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ 
-                    background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
-                  }}
-                >
-                  <Zap size={20} className="text-black" />
-                </div>
-                <span 
-                  className="text-lg font-bold"
-                  style={{ fontFamily: 'Syncopate, sans-serif' }}
-                >
-                  <span style={{ color: '#f0f0f5' }}>Agent</span>
-                  <span style={{ color: '#00F5FF' }}>Mesh</span>
-                </span>
-              </div>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-2 rounded-xl transition-all"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  color: '#8b8b9b',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                  e.currentTarget.style.color = '#f0f0f5';
-                  e.currentTarget.style.transform = 'rotate(90deg)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                  e.currentTarget.style.color = '#8b8b9b';
-                  e.currentTarget.style.transform = 'rotate(0deg)';
-                }}
-              >
-                <X size={22} />
-              </button>
-            </div>
-
-            {/* Navigation Links */}
-            <div className="p-4 space-y-2">
-              {navLinks.map((link, index) => {
-                const isActive = pathname === link.href;
-                const Icon = link.icon;
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-4 px-5 py-4 rounded-2xl text-base font-semibold transition-all relative group"
-                    style={{
-                      background: isActive 
-                        ? 'linear-gradient(135deg, rgba(0, 245, 255, 0.15), rgba(154, 77, 255, 0.1))' 
-                        : 'rgba(255, 255, 255, 0.02)',
-                      border: isActive 
-                        ? '1px solid rgba(0, 245, 255, 0.3)' 
-                        : '1px solid rgba(255, 255, 255, 0.05)',
-                      color: isActive ? '#00F5FF' : '#8b8b9b',
-                      animationDelay: `${index * 0.05}s`,
-                      animation: 'fadeInUp 0.3s ease-out both',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
-                        e.currentTarget.style.borderColor = 'rgba(154, 77, 255, 0.2)';
-                        e.currentTarget.style.color = '#f0f0f5';
-                        e.currentTarget.style.transform = 'translateX(4px)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
-                        e.currentTarget.style.color = '#8b8b9b';
-                        e.currentTarget.style.transform = 'translateX(0)';
-                      }
-                    }}
-                  >
-                    <div 
-                      className="p-2.5 rounded-xl"
-                      style={{
-                        background: isActive 
-                          ? 'rgba(0, 245, 255, 0.2)' 
-                          : 'rgba(255, 255, 255, 0.03)',
-                      }}
-                    >
-                      <Icon size={22} />
-                    </div>
-                    <span className="flex-1">{link.label}</span>
+                    <Icon size={16} className={isActive ? 'text-cyan-400' : ''} />
+                    <span>{link.label}</span>
                     {isActive && (
                       <div 
-                        className="w-1.5 h-1.5 rounded-full"
-                        style={{ background: '#00F5FF' }}
+                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full"
+                        style={{ background: 'linear-gradient(90deg, #9A4DFF, #00F5FF)' }}
                       />
                     )}
                   </Link>
                 );
               })}
-            </div>
+            </nav>
 
-            {/* Wallet Section */}
-            <div className="p-4 pt-6 mt-4 border-t" style={{ borderColor: 'rgba(154, 77, 255, 0.15)' }}>
-              <div className="mb-3 px-2">
-                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#6b6b7b' }}>
-                  Wallet
-                </span>
-              </div>
+            {/* Right Section */}
+            <div className="flex items-center gap-3">
+              {/* Wallet Button - Desktop */}
               <button
-                onClick={() => {
-                  wallet.isConnected ? disconnectWallet() : connectWallet();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full flex items-center justify-center gap-3 px-5 py-4 rounded-2xl text-base font-semibold transition-all relative overflow-hidden group"
+                onClick={() => wallet.isConnected ? disconnectWallet() : connectWallet()}
+                className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
                 style={{
                   background: wallet.isConnected 
-                    ? 'linear-gradient(135deg, rgba(0, 230, 118, 0.15), rgba(0, 230, 118, 0.08))' 
-                    : 'linear-gradient(135deg, rgba(0, 245, 255, 0.15), rgba(154, 77, 255, 0.1))',
+                    ? 'rgba(0, 230, 118, 0.1)' 
+                    : 'linear-gradient(135deg, rgba(154, 77, 255, 0.2), rgba(0, 245, 255, 0.2))',
                   border: wallet.isConnected 
                     ? '1px solid rgba(0, 230, 118, 0.3)' 
                     : '1px solid rgba(0, 245, 255, 0.3)',
                   color: wallet.isConnected ? '#00E676' : '#00F5FF',
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.02)';
-                  e.currentTarget.style.boxShadow = wallet.isConnected
-                    ? '0 8px 24px rgba(0, 230, 118, 0.2)'
-                    : '0 8px 24px rgba(0, 245, 255, 0.2)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
               >
-                <Wallet size={20} />
-                <span>{wallet.isConnected ? 'Disconnect Wallet' : 'Connect Wallet'}</span>
+                <Wallet size={16} />
+                <span>{wallet.isConnected ? 'Connected' : 'Connect'}</span>
                 {wallet.isConnected && (
-                  <div 
-                    className="absolute top-2 right-2 w-2 h-2 rounded-full animate-pulse"
-                    style={{ background: '#00E676' }}
-                  />
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                 )}
               </button>
-            </div>
 
-            {/* Footer */}
-            <div className="p-6 pt-4 mt-auto border-t" style={{ borderColor: 'rgba(154, 77, 255, 0.15)' }}>
-              <div className="text-center">
-                <div 
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs"
-                  style={{
-                    background: 'rgba(0, 245, 255, 0.1)',
-                    color: '#00F5FF',
-                  }}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#00F5FF' }} />
-                  Powered by x402
+              {/* Mobile Menu Toggle */}
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="lg:hidden relative w-10 h-10 flex items-center justify-center rounded-xl transition-all"
+                style={{
+                  background: menuOpen ? 'rgba(154, 77, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                }}
+                aria-label="Toggle menu"
+              >
+                <div className="relative w-5 h-4 flex flex-col justify-between">
+                  <span 
+                    className={`block h-0.5 rounded-full bg-white transition-all duration-300 ${
+                      menuOpen ? 'rotate-45 translate-y-[7px]' : ''
+                    }`}
+                  />
+                  <span 
+                    className={`block h-0.5 rounded-full bg-white transition-all duration-300 ${
+                      menuOpen ? 'opacity-0 scale-0' : ''
+                    }`}
+                  />
+                  <span 
+                    className={`block h-0.5 rounded-full bg-white transition-all duration-300 ${
+                      menuOpen ? '-rotate-45 -translate-y-[7px]' : ''
+                    }`}
+                  />
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         </div>
-      )}
+      </header>
 
-      <style jsx>{`
-        @keyframes slideInRight {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
+      {/* Mobile Menu Overlay */}
+      <div 
+        className={`fixed inset-0 z-40 lg:hidden transition-all duration-300 ${
+          menuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+        }`}
+      >
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          onClick={() => setMenuOpen(false)}
+        />
+        
+        {/* Menu Content */}
+        <div 
+          className={`absolute top-0 right-0 w-full max-w-xs h-full transition-transform duration-300 ease-out ${
+            menuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+          style={{
+            background: 'linear-gradient(180deg, #0a0a0f 0%, #050508 100%)',
+            borderLeft: '1px solid rgba(154, 77, 255, 0.2)',
+          }}
+        >
+          {/* Menu Header */}
+          <div className="flex items-center justify-between p-5 border-b border-white/10">
+            <div className="flex items-center gap-2">
+              <div 
+                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                style={{ background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)' }}
+              >
+                <Zap size={16} className="text-black" />
+              </div>
+              <span className="font-bold text-white" style={{ fontFamily: 'Syncopate, sans-serif' }}>
+                Menu
+              </span>
+            </div>
+            <button
+              onClick={() => setMenuOpen(false)}
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <X size={18} />
+            </button>
+          </div>
 
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
+          {/* Navigation Links */}
+          <div className="p-4 space-y-2">
+            {navLinks.map((link, index) => {
+              const isActive = pathname === link.href;
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-200 ${
+                    isActive 
+                      ? 'bg-gradient-to-r from-purple-500/20 to-cyan-500/10 border border-cyan-500/30' 
+                      : 'bg-white/[0.02] border border-transparent hover:bg-white/5 hover:border-white/10'
+                  }`}
+                  style={{
+                    transitionDelay: `${index * 50}ms`,
+                  }}
+                >
+                  <div 
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center ${
+                      isActive ? 'bg-cyan-500/20' : 'bg-white/5'
+                    }`}
+                  >
+                    <Icon size={20} className={isActive ? 'text-cyan-400' : 'text-gray-400'} />
+                  </div>
+                  <div className="flex-1">
+                    <div className={`font-semibold ${isActive ? 'text-white' : 'text-gray-300'}`}>
+                      {link.label}
+                    </div>
+                    <div className="text-xs text-gray-500">{link.description}</div>
+                  </div>
+                  <ChevronRight size={16} className={isActive ? 'text-cyan-400' : 'text-gray-600'} />
+                </Link>
+              );
+            })}
+          </div>
 
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
+          {/* Wallet Section */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
+            <button
+              onClick={() => {
+                wallet.isConnected ? disconnectWallet() : connectWallet();
+                setMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl font-semibold transition-all duration-200"
+              style={{
+                background: wallet.isConnected 
+                  ? 'rgba(0, 230, 118, 0.1)' 
+                  : 'linear-gradient(135deg, rgba(154, 77, 255, 0.15), rgba(0, 245, 255, 0.15))',
+                border: wallet.isConnected 
+                  ? '1px solid rgba(0, 230, 118, 0.3)' 
+                  : '1px solid rgba(0, 245, 255, 0.3)',
+                color: wallet.isConnected ? '#00E676' : '#00F5FF',
+              }}
+            >
+              <Wallet size={18} />
+              <span>{wallet.isConnected ? 'Disconnect Wallet' : 'Connect Wallet'}</span>
+              {wallet.isConnected && (
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              )}
+            </button>
+            
+            {/* Footer Badge */}
+            <div className="mt-4 text-center">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs bg-white/5 text-gray-500">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
+                Powered by x402
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
