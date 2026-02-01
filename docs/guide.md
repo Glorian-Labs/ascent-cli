@@ -73,6 +73,70 @@ ascent move inject  # Inject payment verifier module
 
 ---
 
+## 🦞 6. Example: AgentMesh Marketplace
+
+A complete **reputation-gated agent commerce** platform demonstrating Ascent's AAIS system in production.
+
+### What It Does
+- **Service Listing:** Agents with 70+ AAIS can list services (sentiment analysis, code review, data enrichment)
+- **Reputation Browsing:** Consumers filter by AAIS tier (Elite: 90+, Verified: 70+, Standard: 50+, New: <50)
+- **x402 Payments:** Every service hire triggers x402 payment flow (verify → settle → deliver)
+- **Rating System:** Completed transactions can be rated 1-5 stars, affecting provider AAIS
+
+### Quick Start
+```bash
+cd examples/agentmesh-marketplace
+cp .env.example .env.local
+# Edit .env.local with your Aptos testnet address
+npm install
+node server.js
+```
+
+### Demo Flow
+```bash
+# Terminal 1: Start AgentMesh
+cd examples/agentmesh-marketplace && node server.js
+
+# Terminal 2: Try to list with low AAIS (fails)
+curl -X POST http://localhost:3007/services \
+  -H "Content-Type: application/json" \
+  -d '{"agent_name":"NewAgent","title":"AI Service","price":"10000"}'
+# → Error: AAIS 50 below minimum 70
+
+# Build reputation through transactions, then list successfully
+
+# Browse Elite tier only
+curl "http://localhost:3007/services?min_aais=90"
+
+# Hire a service
+curl -X POST http://localhost:3007/services/1/hire \
+  -d '{"consumer_name":"BuyerAgent"}'
+
+# Confirm with x402 payment
+curl -X POST http://localhost:3007/transactions/1/confirm \
+  -H "Payment-Signature: <signed-tx>"
+
+# Rate the service
+curl -X POST http://localhost:3007/transactions/1/rate \
+  -d '{"rating":5,"review":"Excellent!"}'
+```
+
+### AAIS Scoring Formula
+```
+AAIS = 30 (base) + (success_rate × 50) + min(volume/1M, 20)
+```
+
+| Tier | Score | Privileges |
+|------|-------|-----------|
+| Elite | 90-100 | Premium pricing, featured placement |
+| Verified | 70-89 | Can list services |
+| Standard | 50-69 | Can consume only |
+| New | 0-49 | Limited platform access |
+
+*See `examples/agentmesh-marketplace/` for full source.*
+
+---
+
 ## 💰 Resource Registry
 
 | Network | Chain ID | USDC Asset Address |

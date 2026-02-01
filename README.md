@@ -44,6 +44,24 @@ ascent test --all-wallets
 
 ---
 
+## 🦞 Featured Demo: AgentMesh Marketplace
+
+A complete **reputation-gated agent commerce** platform built with Ascent CLI:
+
+- **Service providers** list AI services (sentiment analysis, code review, etc.)
+- **AAIS reputation scores** (0-100) determine who can list services (70+ required)
+- **Consumers** browse by reputation tier and pay per call via x402
+- **Ratings** update AAIS scores, creating a self-reinforcing trust economy
+
+```bash
+cd examples/agentmesh-marketplace
+npm install && node server.js
+```
+
+*See [examples/agentmesh-marketplace](./examples/agentmesh-marketplace/) for full implementation.*
+
+---
+
 ## 📖 Documentation Suite
 
 Dive into the details of the Ascent ecosystem:
@@ -51,6 +69,7 @@ Dive into the details of the Ascent ecosystem:
 - [🚀 Technical Guide](./docs/guide.md) - Full command reference & setup.
 - [🎯 Use Cases](./docs/use-cases.md) - Strategic scenarios for agentic commerce.
 - [📝 Deep-Dive Article](./docs/article.md) - The vision behind the build.
+- [🦞 AgentMesh Demo](./examples/agentmesh-marketplace/) - Reputation-gated marketplace example.
 
 ---
 
