@@ -218,6 +218,19 @@ program
     const Database = require('better-sqlite3');
     const db = new Database(options.db);
     
+    // Ensure table exists
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS agent_identities (
+        address TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        reputation_score REAL DEFAULT 50,
+        total_spent REAL DEFAULT 0,
+        successful_txs INTEGER DEFAULT 0,
+        failed_txs INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    
     switch (action) {
       case 'register':
         if (!options.address || !options.name) {
