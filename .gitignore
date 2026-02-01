@@ -1,6 +1,7 @@
 node_modules/
 .env
 .env.local
+.env.ascent-dev
 *.log
 e2e-forge/
 test-project/
@@ -11,3 +12,5 @@ test-project2/
 dist/
 build/
 coverage/
+*.db
+payments.db
