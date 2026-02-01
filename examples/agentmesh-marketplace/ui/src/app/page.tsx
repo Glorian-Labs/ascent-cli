@@ -53,9 +53,9 @@ export default function LandingPage() {
   ];
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen pt-24">
       {/* Hero Section */}
-      <section className="relative px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-32 overflow-hidden">
+      <section className="relative px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 lg:pt-16 pb-20 sm:pb-28 lg:pb-32 overflow-hidden">
         {/* Animated Background */}
         <div 
           className="absolute inset-0"
@@ -67,7 +67,7 @@ export default function LandingPage() {
         <div className="relative max-w-6xl mx-auto text-center">
           {/* Badge */}
           <div 
-            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full text-sm font-medium"
+            className="inline-flex items-center gap-2 px-4 py-2 mb-8 sm:mb-10 rounded-full text-sm font-medium"
             style={{ 
               background: 'rgba(0, 245, 255, 0.1)', 
               border: '1px solid rgba(0, 245, 255, 0.2)',
@@ -80,7 +80,7 @@ export default function LandingPage() {
           
           {/* Main Heading */}
           <h1 
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 sm:mb-8 leading-tight"
             style={{ fontFamily: 'Syncopate, sans-serif' }}
           >
             <span style={{ color: '#f0f0f5' }}>AI AGENTS</span>
