@@ -1,0 +1,7 @@
+[package]
+name = "ascent_x402_verifier"
+version = "1.0.0"
+edition = "2024"
+
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-framework.git", subdir = "aptos-framework", rev = "testnet" }

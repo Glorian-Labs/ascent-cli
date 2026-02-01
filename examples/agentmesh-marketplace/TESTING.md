@@ -71,18 +71,65 @@ If it responds with `{"status":"ok"}`, **you can skip to Step 3** - the facilita
 
 **Option B: Start Facilitator Only (If Not Running)**
 
-If no facilitator is running, you can start just the facilitator without the agent server:
+If no facilitator is running (or if it's hung), you can start a fresh facilitator:
 
-**Open Terminal 1:**
+**First, configure fee payer (optional but recommended):**
 ```bash
 cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli
+
+# Create .env.local if it doesn't exist
+if [ ! -f .env.local ]; then
+  cp .env.local.example .env.local 2>/dev/null || echo "APTOS_PRIVATE_KEY=0xYOUR_PRIVATE_KEY_HERE" > .env.local
+fi
+
+# Edit .env.local and add your Aptos private key
+# APTOS_PRIVATE_KEY=0x1234567890abcdef...
+```
+
+**Then kill any hung processes:**
+```bash
+# Find and kill any process on port 4022
+lsof -i :4022 | grep LISTEN | awk '{print $2}' | xargs kill -9 2>/dev/null
+```
+
+**Start facilitator:**
+
+**Option B1: Using the helper script (Easiest - loads .env.local automatically)**
+```bash
+cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli/examples/agentmesh-marketplace
+./start-facilitator.sh
+```
+
+**Option B2: Using Node.js directly (with environment variable)**
+```bash
+cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli
+
+# Load .env.local if it exists
+export $(grep -v '^#' .env.local | xargs 2>/dev/null)
+
 node -e "
 const facilitator = require('./lib/facilitator');
-facilitator.start({ port: 4022 }).then(() => {
+facilitator.start({ port: 4022 }).then((instance) => {
   console.log('✅ Facilitator running on http://localhost:4022');
   console.log('Press Ctrl+C to stop');
+  process.on('SIGINT', () => {
+    instance.stop();
+    process.exit(0);
+  });
+  setInterval(() => {}, 1000);
 });
 "
+```
+
+**Verify it's working:**
+```bash
+# Should return immediately with JSON response
+curl http://localhost:4022/health
+
+# If fee payer is configured, you'll see:
+# {"status":"ok","network":"aptos:2","feePayer":"0x..."}
+# Otherwise:
+# {"status":"ok","network":"aptos:2","feePayer":"not configured"}
 ```
 
 **Option C: Start Full Dev Environment (Requires Project Directory)**
@@ -712,16 +759,26 @@ node -e "require('./lib/facilitator').start({ port: 4023 });"
 # FACILITATOR_URL=http://localhost:4023/
 ```
 
-### Issue: "Cannot connect to facilitator"
+### Issue: "Cannot connect to facilitator" or curl hangs
+
+**Symptoms:** `curl http://localhost:4022/health` hangs or returns nothing
 
 **Solution:**
 ```bash
-# Check if facilitator is running
-curl http://localhost:4022/health
+# 1. Kill any hung facilitator processes
+lsof -i :4022 | grep LISTEN | awk '{print $2}' | xargs kill -9 2>/dev/null
 
-# If not, restart Ascent CLI dev environment
-# In Terminal 1:
-ascent dev
+# 2. Start a fresh facilitator
+cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli/examples/agentmesh-marketplace
+./start-facilitator.sh
+
+# 3. Verify it responds (should return immediately)
+curl http://localhost:4022/health
+```
+
+**Expected response:**
+```json
+{"status":"ok","network":"aptos:2","feePayer":"..."}
 ```
 
 ### Issue: "AAIS not updating"

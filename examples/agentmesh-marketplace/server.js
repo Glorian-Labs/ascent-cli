@@ -1,10 +1,18 @@
 // AgentMesh Marketplace - Reputation-Gated Agent Commerce
 const express = require('express');
+const cors = require('cors');
 const Database = require('better-sqlite3');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 require('dotenv').config({ path: '.env.local' });
 
 const app = express();
+
+// CORS configuration for frontend
+app.use(cors({
+  origin: ['http://localhost:3003', 'http://localhost:3000', 'http://127.0.0.1:3003'],
+  credentials: true
+}));
+
 app.use(express.json());
 
 const PORT = process.env.PORT || 3007;
@@ -381,7 +389,7 @@ app.get('/agents/:name', (req, res) => {
 
 // Development: Seed test data
 app.post('/seed', (req, res) => {
-  const { name, address, aa_score, total_transactions, successful_transactions } = req.body;
+  const { name, address, aa_score, total_transactions, successful_transactions, total_earned } = req.body;
   
   try {
     // Check if agent exists
@@ -391,25 +399,130 @@ app.post('/seed', (req, res) => {
       // Update
       db.prepare(`
         UPDATE agents 
-        SET aa_score = ?, total_transactions = ?, successful_transactions = ?, address = ?
+        SET aa_score = ?, total_transactions = ?, successful_transactions = ?, address = ?, total_earned = ?
         WHERE name = ?
-      `).run(aa_score, total_transactions, successful_transactions, address, name);
+      `).run(aa_score, total_transactions, successful_transactions, address, total_earned || '0', name);
     } else {
       // Insert
       db.prepare(`
-        INSERT INTO agents (name, address, aa_score, total_transactions, successful_transactions)
-        VALUES (?, ?, ?, ?, ?)
-      `).run(name, address, aa_score, total_transactions, successful_transactions);
+        INSERT INTO agents (name, address, aa_score, total_transactions, successful_transactions, total_earned)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `).run(name, address, aa_score, total_transactions, successful_transactions, total_earned || '0');
     }
     
+    const earnings = (parseInt(total_earned || '0') / 1000000).toFixed(2);
     res.json({ 
       success: true, 
-      message: `Agent ${name} seeded with AAIS ${aa_score}`,
-      agent: { name, aa_score, tier: aa_score >= 90 ? 'Elite' : aa_score >= 70 ? 'Verified' : aa_score >= 50 ? 'Standard' : 'New' }
+      message: `Agent ${name} seeded with AAIS ${aa_score}, Earned: $${earnings}`,
+      agent: { 
+        name, 
+        aa_score, 
+        total_earned: total_earned || '0',
+        tier: aa_score >= 90 ? 'Elite' : aa_score >= 70 ? 'Verified' : aa_score >= 50 ? 'Standard' : 'New' 
+      }
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// 7. Get all agents (for dashboard)
+app.get('/agents', (req, res) => {
+  const { min_aais, sort } = req.query;
+  
+  let query = 'SELECT * FROM agents';
+  const params = [];
+  
+  if (min_aais) {
+    query += ' WHERE aa_score >= ?';
+    params.push(parseFloat(min_aais));
+  }
+  
+  if (sort === 'score') {
+    query += ' ORDER BY aa_score DESC';
+  } else if (sort === 'earnings') {
+    query += ' ORDER BY CAST(total_earned AS INTEGER) DESC';
+  } else {
+    query += ' ORDER BY created_at DESC';
+  }
+  
+  const agents = db.prepare(query).all(...params);
+  
+  res.json({
+    count: agents.length,
+    agents: agents.map(a => ({
+      ...a,
+      reputation_tier: a.aa_score >= 90 ? 'Elite' : a.aa_score >= 70 ? 'Verified' : a.aa_score >= 50 ? 'Standard' : 'New'
+    }))
+  });
+});
+
+// 8. Get all transactions (for monitor)
+app.get('/transactions', (req, res) => {
+  const { status, limit } = req.query;
+  
+  let query = `
+    SELECT t.*, s.title as service_title, s.category
+    FROM transactions t
+    LEFT JOIN services s ON t.service_id = s.id
+  `;
+  const params = [];
+  
+  if (status) {
+    query += ' WHERE t.status = ?';
+    params.push(status);
+  }
+  
+  query += ' ORDER BY t.created_at DESC';
+  
+  if (limit) {
+    query += ' LIMIT ?';
+    params.push(parseInt(limit));
+  }
+  
+  const transactions = db.prepare(query).all(...params);
+  
+  res.json({
+    count: transactions.length,
+    transactions
+  });
+});
+
+// 9. Dashboard stats
+app.get('/stats', (req, res) => {
+  const agentCount = db.prepare('SELECT COUNT(*) as count FROM agents').get().count;
+  const serviceCount = db.prepare('SELECT COUNT(*) as count FROM services WHERE active = 1').get().count;
+  const txCount = db.prepare('SELECT COUNT(*) as count FROM transactions').get().count;
+  const completedTxCount = db.prepare('SELECT COUNT(*) as count FROM transactions WHERE status = ?').get('completed').count;
+  const pendingTxCount = db.prepare('SELECT COUNT(*) as count FROM transactions WHERE status = ?').get('pending').count;
+  const totalVolume = db.prepare('SELECT SUM(CAST(total_earned AS INTEGER)) as total FROM agents').get().total || 0;
+  
+  // Top agents by AAIS
+  const topAgents = db.prepare('SELECT * FROM agents ORDER BY aa_score DESC LIMIT 5').all();
+  
+  // Recent transactions
+  const recentTx = db.prepare(`
+    SELECT t.*, s.title as service_title 
+    FROM transactions t 
+    LEFT JOIN services s ON t.service_id = s.id 
+    ORDER BY t.created_at DESC LIMIT 10
+  `).all();
+  
+  res.json({
+    overview: {
+      activeAgents: agentCount,
+      servicesListed: serviceCount,
+      totalTransactions: txCount,
+      completedTransactions: completedTxCount,
+      pendingTransactions: pendingTxCount,
+      totalVolumeUSDC: totalVolume / 1000000 // Convert from atomic units
+    },
+    topAgents: topAgents.map(a => ({
+      ...a,
+      reputation_tier: a.aa_score >= 90 ? 'Elite' : a.aa_score >= 70 ? 'Verified' : a.aa_score >= 50 ? 'Standard' : 'New'
+    })),
+    recentTransactions: recentTx
+  });
 });
 
 // Health check

@@ -113,7 +113,7 @@ program
 program
   .command('dev')
   .description('Start agent dev server with local facilitator')
-  .option('-p, --port <port>', 'Server port', '3000')
+  .option('-p, --port <port>', 'Server port', '3006')
   .option('-f, --facilitator-port <port>', 'Facilitator port', '4022')
   .option('--no-facilitator', 'Skip starting local facilitator')
   .action(async (options) => {
@@ -153,7 +153,7 @@ program
   .option('-w, --wallet <address>', 'Simulated wallet address')
   .option('-p, --private-key <key>', 'Wallet private key')
   .option('-a, --amount <amount>', 'Payment amount in USDC', '0.01')
-  .option('-e, --endpoint <url>', 'API endpoint to test', 'http://localhost:3000/api/paid')
+  .option('-e, --endpoint <url>', 'API endpoint to test', 'http://localhost:3006/api/paid')
   .option('-f, --facilitator <url>', 'Facilitator URL')
   .option('--all-wallets', 'Stress test with all 5 hackathon wallets')
   .action(async (options) => {
@@ -218,6 +218,19 @@ program
     const Database = require('better-sqlite3');
     const db = new Database(options.db);
     
+    // Ensure table exists
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS agent_identities (
+        address TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        reputation_score REAL DEFAULT 50,
+        total_spent REAL DEFAULT 0,
+        successful_txs INTEGER DEFAULT 0,
+        failed_txs INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    
     switch (action) {
       case 'register':
         if (!options.address || !options.name) {
@@ -263,6 +276,46 @@ program
         console.log(chalk.blue('Available: register, list, show'));
     }
     db.close();
+  });
+
+// Kill command - Kill stuck Ascent processes
+program
+  .command('kill')
+  .description('Kill all running Ascent server processes')
+  .option('-p, --port <port>', 'Kill specific port only')
+  .action(async (options) => {
+    const { execSync } = require('child_process');
+    
+    if (options.port) {
+      // Kill specific port
+      try {
+        execSync(`lsof -ti:${options.port} | xargs kill -9 2>/dev/null`, { stdio: 'ignore' });
+        console.log(chalk.green(`✓ Killed process on port ${options.port}`));
+      } catch {
+        console.log(chalk.yellow(`No process found on port ${options.port}`));
+      }
+    } else {
+      // Kill all common Ascent ports
+      const ports = ['3006', '4022', '3007', '3003', '3000'];
+      let killed = 0;
+      
+      for (const port of ports) {
+        try {
+          execSync(`lsof -ti:${port} | xargs kill -9 2>/dev/null`, { stdio: 'ignore' });
+          console.log(chalk.green(`✓ Killed process on port ${port}`));
+          killed++;
+        } catch {
+          // No process on this port
+        }
+      }
+      
+      if (killed === 0) {
+        console.log(chalk.blue('ℹ No Ascent processes found running'));
+      } else {
+        console.log(chalk.green(`\n✓ Killed ${killed} process(es)`));
+        console.log(chalk.gray('You can now start fresh with: ascent dev'));
+      }
+    }
   });
 
 // Move command
