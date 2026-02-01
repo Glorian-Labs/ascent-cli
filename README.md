@@ -51,7 +51,6 @@ Dive into the details of the Ascent ecosystem:
 - [🚀 Technical Guide](./docs/guide.md) - Full command reference & setup.
 - [🎯 Use Cases](./docs/use-cases.md) - Strategic scenarios for agentic commerce.
 - [📝 Deep-Dive Article](./docs/article.md) - The vision behind the build.
-- [🧵 X Announcement](./docs/x-thread.md) - Draft thread for the launch.
 
 ---
 
