@@ -147,28 +147,21 @@ export default function Navigation() {
       {/* Mobile Menu - Slide from Right */}
       {mobileMenuOpen && (
         <div 
-          className="fixed inset-0 z-[60] md:hidden"
-          style={{
-            animation: 'fadeIn 0.2s ease-out',
-          }}
+          className="fixed inset-0 z-[60] md:hidden animate-fadeIn"
         >
           {/* Backdrop */}
           <div 
-            className="absolute inset-0 bg-black/70 backdrop-blur-md"
+            className="absolute inset-0 bg-black/70 backdrop-blur-md animate-fadeIn"
             onClick={() => setMobileMenuOpen(false)}
-            style={{
-              animation: 'fadeIn 0.2s ease-out',
-            }}
           />
           
           {/* Menu Panel - Slides from right */}
           <div 
-            className="absolute right-0 top-0 bottom-0 w-[85vw] max-w-sm h-full overflow-y-auto"
+            className="absolute right-0 top-0 bottom-0 w-[85vw] max-w-sm h-full overflow-y-auto flex flex-col animate-slideInRight"
             style={{
               background: 'linear-gradient(180deg, rgba(10, 10, 15, 0.98) 0%, rgba(5, 5, 8, 0.98) 100%)',
               borderLeft: '1px solid rgba(154, 77, 255, 0.2)',
               boxShadow: '-10px 0 40px rgba(0, 0, 0, 0.5)',
-              animation: 'slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
             {/* Header with Logo */}
