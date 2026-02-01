@@ -8,13 +8,13 @@ export default function DashboardPage() {
 
   if (loading && !stats) {
     return (
-      <main className="min-h-screen pt-16 lg:pt-18 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto py-8">
-          <div className="animate-pulse space-y-8">
-            <div className="h-12 w-64 bg-white/5 rounded-lg" />
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <main className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto py-6">
+          <div className="animate-pulse space-y-6">
+            <div className="h-10 w-48 bg-white/5 rounded-lg" />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-32 bg-white/5 rounded-2xl" />
+                <div key={i} className="h-28 bg-white/5 rounded-xl" />
               ))}
             </div>
           </div>
@@ -25,19 +25,19 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <main className="min-h-screen pt-16 lg:pt-18 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto py-8">
+      <main className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto py-6">
           <div 
-            className="p-8 text-center rounded-2xl"
+            className="p-6 text-center rounded-xl"
             style={{
               background: 'rgba(255, 50, 50, 0.05)',
               border: '1px solid rgba(255, 50, 50, 0.2)',
             }}
           >
-            <Activity className="w-12 h-12 mx-auto mb-4" style={{ color: '#ff5050' }} />
-            <h2 className="text-xl font-semibold mb-2">Connection Error</h2>
-            <p style={{ color: '#6b6b7b' }}>{error}</p>
-            <p className="text-sm mt-2" style={{ color: '#6b6b7b' }}>Make sure the AgentMesh server is running on port 3007</p>
+            <Activity className="w-10 h-10 mx-auto mb-3" style={{ color: '#ff5050' }} />
+            <h2 className="text-lg font-semibold mb-2">Connection Error</h2>
+            <p className="text-sm" style={{ color: '#6b6b7b' }}>{error}</p>
+            <p className="text-xs mt-2" style={{ color: '#6b6b7b' }}>Make sure the AgentMesh server is running on port 3007</p>
           </div>
         </div>
       </main>
@@ -49,8 +49,8 @@ export default function DashboardPage() {
   const recentTx = stats?.recentTransactions || [];
 
   return (
-    <main className="min-h-screen pt-16 lg:pt-18 px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16 lg:pb-20">
-      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 lg:space-y-10 py-6 sm:py-8">
+    <main className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 py-4">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>

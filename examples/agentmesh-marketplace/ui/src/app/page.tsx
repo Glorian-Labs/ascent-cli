@@ -170,32 +170,32 @@ export default function Home() {
   }));
 
   return (
-    <main className="min-h-screen pt-16 lg:pt-18">
-      {/* Hero Section - Cyberpunk Style */}
-      <section className="relative px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-20 overflow-hidden">
-        {/* Animated background */}
+    <main className="min-h-screen pt-20">
+      {/* Hero Section */}
+      <section className="relative px-4 sm:px-6 lg:px-8 py-12 sm:py-16 overflow-hidden">
+        {/* Background gradient */}
         <div 
-          className="absolute inset-0 opacity-30"
+          className="absolute inset-0 opacity-40"
           style={{
-            background: 'radial-gradient(ellipse at 50% 0%, rgba(154, 77, 255, 0.15), transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(0, 245, 255, 0.1), transparent 50%)',
+            background: 'radial-gradient(ellipse at 50% 0%, rgba(154, 77, 255, 0.2), transparent 50%)',
           }}
         />
         
-        <div className="relative max-w-6xl mx-auto text-center">
+        <div className="relative max-w-4xl mx-auto text-center">
           <div 
-            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full text-sm"
+            className="inline-flex items-center gap-2 px-3 py-1.5 mb-5 rounded-full text-xs font-medium"
             style={{ 
               background: 'rgba(0, 245, 255, 0.1)', 
               border: '1px solid rgba(0, 245, 255, 0.2)',
               color: '#00F5FF',
             }}
           >
-            <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#00F5FF' }} />
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#00F5FF' }} />
             Powered by x402 Protocol
           </div>
           
           <h1 
-            className="text-5xl md:text-7xl font-black mb-6 leading-tight"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 leading-tight"
             style={{ fontFamily: 'Syncopate, sans-serif' }}
           >
             <span style={{ color: '#f0f0f5' }}>REPUTATION-GATED</span>
@@ -212,30 +212,30 @@ export default function Home() {
             </span>
           </h1>
           
-          <p className="text-xl mb-12 max-w-2xl mx-auto" style={{ color: '#6b6b7b' }}>
+          <p className="text-base sm:text-lg mb-8 max-w-xl mx-auto" style={{ color: '#6b6b7b' }}>
             AI agents hiring AI agents. Trustless payments. Reputation that travels.
           </p>
 
-          {/* Stats with visual polish */}
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-10">
+          {/* Stats Row */}
+          <div className="flex justify-center gap-3 sm:gap-6">
             {statsLoading ? (
-              <Loader2 className="w-10 h-10 animate-spin" style={{ color: '#00F5FF' }} />
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#00F5FF' }} />
             ) : (
               stats.map((stat, i) => (
                 <div 
                   key={i} 
-                  className="text-center px-5 py-4 sm:px-8 sm:py-5 rounded-2xl min-w-[120px]"
+                  className="text-center px-4 py-3 sm:px-6 sm:py-4 rounded-xl"
                   style={{ 
-                    background: 'rgba(255, 255, 255, 0.02)',
+                    background: 'rgba(255, 255, 255, 0.03)',
                     border: '1px solid rgba(255, 255, 255, 0.06)',
                   }}
                 >
                   <div 
-                    className="text-2xl sm:text-3xl md:text-4xl font-black mb-1"
+                    className="text-xl sm:text-2xl md:text-3xl font-black"
                     style={{ 
                       fontFamily: 'Syncopate, sans-serif',
                       background: i === 2 
-                        ? 'linear-gradient(135deg, #00F5FF, #00E676)' 
+                        ? 'linear-gradient(135deg, #00E676, #00F5FF)' 
                         : 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
@@ -245,7 +245,7 @@ export default function Home() {
                     {stat.value}
                   </div>
                   <div 
-                    className="text-[10px] sm:text-xs uppercase tracking-widest"
+                    className="text-[10px] sm:text-xs uppercase tracking-wider mt-1"
                     style={{ color: '#6b6b7b' }}
                   >
                     {stat.label}
@@ -259,33 +259,25 @@ export default function Home() {
 
       {/* Top Agents Section */}
       {topAgents.length > 0 && (
-        <section className="px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-14">
+        <section className="px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
           <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10">
-              <div>
-                <h2 
-                  className="text-xl sm:text-2xl font-bold mb-1"
-                  style={{ fontFamily: 'Syncopate, sans-serif' }}
-                >
-                  TOP AGENTS
-                </h2>
-                <p className="text-sm" style={{ color: '#6b6b7b' }}>Highest reputation scores in the marketplace</p>
-              </div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 
+                className="text-lg sm:text-xl font-bold"
+                style={{ fontFamily: 'Syncopate, sans-serif' }}
+              >
+                TOP AGENTS
+              </h2>
               <Link 
                 href="/agents"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105"
-                style={{ 
-                  background: 'rgba(154, 77, 255, 0.1)', 
-                  border: '1px solid rgba(154, 77, 255, 0.3)',
-                  color: '#9A4DFF',
-                }}
+                className="text-sm font-medium transition-colors"
+                style={{ color: '#00F5FF' }}
               >
-                View All Agents
-                <span>→</span>
+                View All →
               </Link>
             </div>
             
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
               {topAgents.slice(0, 3).map((agent, index) => (
                 <AgentCard key={agent.id} agent={agent} rank={index + 1} />
               ))}
@@ -294,77 +286,76 @@ export default function Home() {
         </section>
       )}
 
-      {/* Marketplace Section */}
-      <section className="px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16 lg:pb-20">
+      {/* Services Section */}
+      <section className="px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-[280px_1fr] gap-6 lg:gap-10">
-            {/* Sidebar */}
-            <aside className="space-y-5 lg:space-y-6">
-              <AgentProfile {...agentData} />
-              <PerformanceStats stats={performanceData} />
-              <TransactionList transactions={sidebarTransactions} />
-            </aside>
+          {/* Section Header */}
+          <div className="mb-6">
+            <h2 
+              className="text-lg sm:text-xl font-bold mb-4"
+              style={{ fontFamily: 'Syncopate, sans-serif' }}
+            >
+              SERVICES MARKETPLACE
+            </h2>
+            <FilterBar
+              onFilterChange={handleFilterChange}
+              onSearch={handleSearch}
+              onListService={() => setIsListModalOpen(true)}
+              activeFilter={activeFilter}
+            />
+          </div>
 
-            {/* Main Content */}
-            <div className="space-y-6 lg:space-y-8">
-              <FilterBar
-                onFilterChange={handleFilterChange}
-                onSearch={handleSearch}
-                onListService={() => setIsListModalOpen(true)}
-                activeFilter={activeFilter}
-              />
-
-              {/* Loading State */}
+          {/* Main Grid Layout */}
+          <div className="grid lg:grid-cols-[1fr_300px] gap-6 lg:gap-8">
+            {/* Services Grid - Main Area */}
+            <div>
               {servicesLoading && (
-                <div className="flex items-center justify-center py-20">
-                  <Loader2 className="w-10 h-10 animate-spin" style={{ color: '#00F5FF' }} />
-                  <span className="ml-3" style={{ color: '#6b6b7b' }}>Loading services...</span>
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#00F5FF' }} />
+                  <span className="ml-3 text-sm" style={{ color: '#6b6b7b' }}>Loading services...</span>
                 </div>
               )}
 
-              {/* Error State */}
               {servicesError && (
                 <div 
-                  className="p-8 text-center rounded-2xl"
+                  className="p-6 text-center rounded-xl"
                   style={{
                     background: 'rgba(255, 50, 50, 0.05)',
                     border: '1px solid rgba(255, 50, 50, 0.2)',
                   }}
                 >
-                  <AlertCircle className="w-12 h-12 mx-auto mb-4" style={{ color: '#ff5050' }} />
-                  <h3 className="text-lg font-semibold mb-2">Failed to load services</h3>
-                  <p className="mb-4" style={{ color: '#6b6b7b' }}>{servicesError}</p>
+                  <AlertCircle className="w-10 h-10 mx-auto mb-3" style={{ color: '#ff5050' }} />
+                  <h3 className="font-semibold mb-2">Failed to load services</h3>
+                  <p className="text-sm mb-4" style={{ color: '#6b6b7b' }}>{servicesError}</p>
                   <button
                     onClick={refetchServices}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
                     style={{
                       background: 'rgba(0, 245, 255, 0.1)',
-                      border: '1px solid rgba(0, 245, 255, 0.3)',
                       color: '#00F5FF',
                     }}
                   >
-                    <RefreshCw size={16} />
+                    <RefreshCw size={14} />
                     Retry
                   </button>
                 </div>
               )}
 
-              {/* Services Grid */}
               {!servicesLoading && !servicesError && (
                 <>
-                  <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 lg:gap-7">
-                    {filteredServices.map((service) => (
-                      <ServiceCard
-                        key={service.id}
-                        service={transformService(service)}
-                        onHire={handleHire}
-                      />
-                    ))}
-                  </div>
-
-                  {filteredServices.length === 0 && (
+                  {filteredServices.length > 0 ? (
+                    <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
+                      {filteredServices.map((service) => (
+                        <ServiceCard
+                          key={service.id}
+                          service={transformService(service)}
+                          onHire={handleHire}
+                        />
+                      ))}
+                    </div>
+                  ) : (
                     <div 
-                      className="text-center py-20 rounded-2xl"
+                      className="text-center py-16 rounded-xl"
                       style={{
                         background: 'rgba(255, 255, 255, 0.02)',
                         border: '1px solid rgba(255, 255, 255, 0.05)',
@@ -380,6 +371,13 @@ export default function Home() {
                 </>
               )}
             </div>
+
+            {/* Sidebar - Right Side */}
+            <aside className="space-y-4 lg:space-y-5 order-first lg:order-last">
+              <AgentProfile {...agentData} />
+              <PerformanceStats stats={performanceData} />
+              <TransactionList transactions={sidebarTransactions} />
+            </aside>
           </div>
         </div>
       </section>
