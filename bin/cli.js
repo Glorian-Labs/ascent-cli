@@ -8,7 +8,7 @@ const { program } = require('commander');
 const chalk = require('chalk');
 const fs = require('fs-extra');
 const path = require('path');
-const { execSync } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const ora = require('ora');
 const boxen = require('boxen').default;
 const gradient = require('gradient-string').default;
@@ -109,41 +109,71 @@ program
     }
   });
 
-// Dev command
+// Dev command (run from x402 project directory: ascent dev)
 program
   .command('dev')
-  .description('Start agent dev server with local facilitator')
+  .description('Start agent dev server with local facilitator (run from project directory)')
   .option('-p, --port <port>', 'Server port', '3006')
   .option('-f, --facilitator-port <port>', 'Facilitator port', '4022')
   .option('--no-facilitator', 'Skip starting local facilitator')
   .action(async (options) => {
+    // Load project .env.local so facilitator gets APTOS_PRIVATE_KEY etc. (run from project directory)
+    const projectEnv = path.join(process.cwd(), '.env.local');
+    if (fs.existsSync(projectEnv)) {
+      const content = fs.readFileSync(projectEnv, 'utf8');
+      content.split('\n').forEach((line) => {
+        const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/);
+        if (m) {
+          const val = m[2].replace(/^["']|["']$/g, '').trim();
+          if (val) process.env[m[1]] = val;
+        }
+      });
+    }
     console.log(`\n🔥 ${brandGradient('Ascent Development Environment starting...')}\n`);
-    
+    console.log(chalk.gray(`   CWD: ${process.cwd()}\n`));
     let facilitatorInstance = null;
-    
     if (options.facilitator) {
       const facilitator = require('../lib/facilitator');
       facilitatorInstance = await facilitator.start({ port: options.facilitatorPort });
-      
+      const localFacilitatorUrl = `http://localhost:${options.facilitatorPort}`;
       console.log(chalk.green(`✓ Local Facilitator active on port ${options.facilitatorPort}`));
-      process.env.FACILITATOR_URL = `http://localhost:${options.facilitatorPort}`;
+      process.env.FACILITATOR_URL = localFacilitatorUrl;
+      // Write .env.ascent-dev so the server (npm run dev) uses local facilitator even if env isn't inherited
+      const ascentDevEnv = path.join(process.cwd(), '.env.ascent-dev');
+      fs.writeFileSync(ascentDevEnv, `FACILITATOR_URL=${localFacilitatorUrl}\n`, 'utf8');
     } else {
       console.log(chalk.blue('📡 Using public facilitator: https://x402-navy.vercel.app/facilitator/'));
     }
-    
     console.log(chalk.yellow('🚀 Launching agent server...\n'));
-    
+    const ascentDevEnv = path.join(process.cwd(), '.env.ascent-dev');
+    const removeEnv = () => {
+      if (fs.existsSync(ascentDevEnv)) try { fs.unlinkSync(ascentDevEnv); } catch (_) {}
+    };
+    const stopAndExit = (code) => {
+      if (facilitatorInstance) {
+        facilitatorInstance.stop(() => {
+          removeEnv();
+          process.exit(code ?? 0);
+        });
+      } else {
+        removeEnv();
+        process.exit(code ?? 0);
+      }
+    };
+    const child = spawn('npm', ['run', 'dev'], {
+      stdio: 'inherit',
+      env: process.env,
+      shell: true,
+      cwd: process.cwd()
+    });
+    child.on('exit', (code) => {
+      stopAndExit(code ?? 0);
+    });
     process.on('SIGINT', () => {
       console.log(`\n\n🛡️  ${chalk.yellow('Shutting down forge...')}`);
-      if (facilitatorInstance) facilitatorInstance.stop();
-      process.exit(0);
+      child.kill('SIGINT');
+      stopAndExit(0);
     });
-    
-    try {
-      execSync('npm run dev', { stdio: 'inherit', env: process.env });
-    } catch (e) {
-      if (facilitatorInstance) facilitatorInstance.stop();
-    }
   });
 
 // Test command
@@ -162,24 +192,48 @@ program
     try {
       if (options.allWallets) {
         const multiTester = require('../lib/multi-wallet-tester');
-        await multiTester.testAllWallets({
+        const results = await multiTester.testAllWallets({
           amount: options.amount,
           endpoint: options.endpoint,
           facilitatorUrl: options.facilitator
         });
+        const passed = results.filter(r => r.success).length;
+        if (results.length === 0 || passed === 0) {
+          process.exit(1);
+        }
       } else {
         const multiTester = require('../lib/multi-wallet-tester');
-        await multiTester.testSingle({
+        const result = await multiTester.testSingle({
           wallet: options.wallet,
           privateKey: options.privateKey,
           amount: options.amount,
           endpoint: options.endpoint,
           facilitatorUrl: options.facilitator
         });
+        if (!result || !result.success) {
+          process.exit(1);
+        }
       }
     } catch (error) {
       console.log(chalk.red(`Sim failure: ${error.message}`));
+      process.exit(1);
     }
+  });
+
+// Logs command – where to see output
+program
+  .command('logs')
+  .description('Show where dev server and facilitator logs appear')
+  .action(() => {
+    console.log(chalk.cyan('\n📋 Ascent logs\n'));
+    console.log('When you run ');
+    console.log(chalk.cyan('  ascent dev'));
+    console.log(' from a project folder, all output goes to that same terminal:\n');
+    console.log('  • ' + chalk.gray('[facilitator]') + ' POST /verify, POST /settle – local facilitator requests');
+    console.log('  • ' + chalk.gray('[api/paid]') + ' Payment received, verify, settle – API server handling payments\n');
+    console.log('There is no separate log file. Keep the terminal where ');
+    console.log(chalk.cyan('ascent dev'));
+    console.log(' is running open to watch logs.\n');
   });
 
 // Monitor command
