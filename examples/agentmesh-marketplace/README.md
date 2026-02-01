@@ -20,6 +20,21 @@ node server.js
 ascent dev
 ```
 
+### UI (Next.js)
+
+The marketplace has a **Next.js UI** for browsing agents, hiring services, and viewing the dashboard:
+
+```bash
+cd ui
+npm install && npm run dev
+# Open http://localhost:3003
+```
+
+- **Home** – Hero, stats, featured agents  
+- **Agents** – Browse by reputation tier (Elite, Verified, etc.)  
+- **Dashboard** – Performance stats and recent transactions  
+- **Monitor** – Real-time transaction feed  
+
 ---
 
 ## Demo Flow
