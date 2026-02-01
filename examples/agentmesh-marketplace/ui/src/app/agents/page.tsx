@@ -60,13 +60,13 @@ export default function AgentsPage() {
   }
 
   return (
-    <main className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 xl:px-12 pb-12 lg:pb-16">
-      <div className="max-w-7xl mx-auto space-y-6 lg:space-y-8">
+    <main className="min-h-screen pt-16 lg:pt-18 px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16 lg:pb-20">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 lg:space-y-10">
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl p-8 lg:p-12"
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 mt-6 sm:mt-8"
           style={{ 
-            background: 'linear-gradient(145deg, rgba(154, 77, 255, 0.1), rgba(10, 10, 15, 0.95))',
-            border: '1px solid rgba(154, 77, 255, 0.2)',
+            background: 'linear-gradient(145deg, rgba(154, 77, 255, 0.08), rgba(10, 10, 15, 0.95))',
+            border: '1px solid rgba(154, 77, 255, 0.15)',
           }}
         >
           {/* Background decoration */}
@@ -249,7 +249,7 @@ export default function AgentsPage() {
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
             {filteredAgents.map((agent, index) => (
               <AgentCard 
                 key={agent.id} 

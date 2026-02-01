@@ -13,6 +13,7 @@ import FilterBar from '@/components/FilterBar';
 import ListServiceModal from '@/components/ListServiceModal';
 import HireModal from '@/components/HireModal';
 import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Home() {
   const { wallet, addNotification } = useApp();
@@ -169,9 +170,9 @@ export default function Home() {
   }));
 
   return (
-    <main className="min-h-screen pt-20">
+    <main className="min-h-screen pt-16 lg:pt-18">
       {/* Hero Section - Cyberpunk Style */}
-      <section className="relative px-4 sm:px-6 lg:px-8 xl:px-12 py-12 lg:py-16 overflow-hidden">
+      <section className="relative px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-20 overflow-hidden">
         {/* Animated background */}
         <div 
           className="absolute inset-0 opacity-30"
@@ -258,104 +259,127 @@ export default function Home() {
 
       {/* Top Agents Section */}
       {topAgents.length > 0 && (
-        <section className="px-4 sm:px-6 lg:px-8 xl:px-12 py-8 lg:py-12 max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 
-                className="text-2xl font-bold mb-2"
-                style={{ fontFamily: 'Syncopate, sans-serif' }}
+        <section className="px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-14">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10">
+              <div>
+                <h2 
+                  className="text-xl sm:text-2xl font-bold mb-1"
+                  style={{ fontFamily: 'Syncopate, sans-serif' }}
+                >
+                  TOP AGENTS
+                </h2>
+                <p className="text-sm" style={{ color: '#6b6b7b' }}>Highest reputation scores in the marketplace</p>
+              </div>
+              <Link 
+                href="/agents"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105"
+                style={{ 
+                  background: 'rgba(154, 77, 255, 0.1)', 
+                  border: '1px solid rgba(154, 77, 255, 0.3)',
+                  color: '#9A4DFF',
+                }}
               >
-                TOP AGENTS
-              </h2>
-              <p style={{ color: '#6b6b7b' }}>Highest reputation scores in the marketplace</p>
+                View All Agents
+                <span>→</span>
+              </Link>
             </div>
-            <a 
-              href="/agents"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105"
-              style={{ 
-                background: 'rgba(154, 77, 255, 0.1)', 
-                border: '1px solid rgba(154, 77, 255, 0.3)',
-                color: '#9A4DFF',
-              }}
-            >
-              View All Agents
-              <span>→</span>
-            </a>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {topAgents.slice(0, 3).map((agent, index) => (
-              <AgentCard key={agent.id} agent={agent} rank={index + 1} />
-            ))}
+            
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
+              {topAgents.slice(0, 3).map((agent, index) => (
+                <AgentCard key={agent.id} agent={agent} rank={index + 1} />
+              ))}
+            </div>
           </div>
         </section>
       )}
 
       {/* Marketplace Section */}
-      <section className="px-4 sm:px-6 lg:px-8 xl:px-12 pb-12 lg:pb-16 max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-[300px_1fr] gap-6 lg:gap-8">
-          {/* Sidebar */}
-          <aside className="space-y-6">
-            <AgentProfile {...agentData} />
-            <PerformanceStats stats={performanceData} />
-            <TransactionList transactions={sidebarTransactions} />
-          </aside>
+      <section className="px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16 lg:pb-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-[280px_1fr] gap-6 lg:gap-10">
+            {/* Sidebar */}
+            <aside className="space-y-5 lg:space-y-6">
+              <AgentProfile {...agentData} />
+              <PerformanceStats stats={performanceData} />
+              <TransactionList transactions={sidebarTransactions} />
+            </aside>
 
-          {/* Main Content */}
-          <div className="space-y-6">
-            <FilterBar
-              onFilterChange={handleFilterChange}
-              onSearch={handleSearch}
-              onListService={() => setIsListModalOpen(true)}
-              activeFilter={activeFilter}
-            />
+            {/* Main Content */}
+            <div className="space-y-6 lg:space-y-8">
+              <FilterBar
+                onFilterChange={handleFilterChange}
+                onSearch={handleSearch}
+                onListService={() => setIsListModalOpen(true)}
+                activeFilter={activeFilter}
+              />
 
-            {/* Loading State */}
-            {servicesLoading && (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="w-10 h-10 animate-spin" style={{ color: '#00F5FF' }} />
-                <span className="ml-3" style={{ color: '#6b6b7b' }}>Loading services...</span>
-              </div>
-            )}
-
-            {/* Error State */}
-            {servicesError && (
-              <div className="glass-card p-8 text-center">
-                <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Failed to load services</h3>
-                <p className="text-text-secondary mb-4">{servicesError}</p>
-                <button
-                  onClick={refetchServices}
-                  className="flex items-center gap-2 mx-auto px-4 py-2 bg-accent-teal/20 text-accent-teal rounded-lg hover:bg-accent-teal/30 transition-colors"
-                >
-                  <RefreshCw size={16} />
-                  Retry
-                </button>
-              </div>
-            )}
-
-            {/* Services Grid */}
-            {!servicesLoading && !servicesError && (
-              <>
-                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {filteredServices.map((service) => (
-                    <ServiceCard
-                      key={service.id}
-                      service={transformService(service)}
-                      onHire={handleHire}
-                    />
-                  ))}
+              {/* Loading State */}
+              {servicesLoading && (
+                <div className="flex items-center justify-center py-20">
+                  <Loader2 className="w-10 h-10 animate-spin" style={{ color: '#00F5FF' }} />
+                  <span className="ml-3" style={{ color: '#6b6b7b' }}>Loading services...</span>
                 </div>
+              )}
 
-                {filteredServices.length === 0 && (
-                  <div className="text-center py-16 text-text-secondary">
-                    {services.length === 0 
-                      ? 'No services available yet. Be the first to list!'
-                      : 'No services found matching your criteria.'}
+              {/* Error State */}
+              {servicesError && (
+                <div 
+                  className="p-8 text-center rounded-2xl"
+                  style={{
+                    background: 'rgba(255, 50, 50, 0.05)',
+                    border: '1px solid rgba(255, 50, 50, 0.2)',
+                  }}
+                >
+                  <AlertCircle className="w-12 h-12 mx-auto mb-4" style={{ color: '#ff5050' }} />
+                  <h3 className="text-lg font-semibold mb-2">Failed to load services</h3>
+                  <p className="mb-4" style={{ color: '#6b6b7b' }}>{servicesError}</p>
+                  <button
+                    onClick={refetchServices}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all"
+                    style={{
+                      background: 'rgba(0, 245, 255, 0.1)',
+                      border: '1px solid rgba(0, 245, 255, 0.3)',
+                      color: '#00F5FF',
+                    }}
+                  >
+                    <RefreshCw size={16} />
+                    Retry
+                  </button>
+                </div>
+              )}
+
+              {/* Services Grid */}
+              {!servicesLoading && !servicesError && (
+                <>
+                  <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 lg:gap-7">
+                    {filteredServices.map((service) => (
+                      <ServiceCard
+                        key={service.id}
+                        service={transformService(service)}
+                        onHire={handleHire}
+                      />
+                    ))}
                   </div>
-                )}
-              </>
-            )}
+
+                  {filteredServices.length === 0 && (
+                    <div 
+                      className="text-center py-20 rounded-2xl"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.02)',
+                        border: '1px solid rgba(255, 255, 255, 0.05)',
+                      }}
+                    >
+                      <p style={{ color: '#6b6b7b' }}>
+                        {services.length === 0 
+                          ? 'No services available yet. Be the first to list!'
+                          : 'No services found matching your criteria.'}
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </section>
