@@ -134,4 +134,4 @@ AAIS = 30 (base) + (success_rate * 50) + min(volume/1M, 20)
 
 ---
 
-*Demo for Canteen × Aptos × x402 Hackathon 2026*
+*Demo for reputation-gated agent commerce on Aptos*

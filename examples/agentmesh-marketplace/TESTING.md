@@ -26,7 +26,7 @@ npm --version
 ### Step 2: Install Ascent CLI Globally
 
 ```bash
-cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli
+cd <ascent-cli-path>
 npm install -g .
 ```
 
@@ -55,7 +55,7 @@ You'll need Aptos testnet wallets with USDC. For the demo, we'll use:
 ### Step 1: Navigate to Ascent CLI Directory
 
 ```bash
-cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli
+cd <ascent-cli-path>
 ```
 
 ### Step 2: Start Development Environment
@@ -75,7 +75,7 @@ If no facilitator is running (or if it's hung), you can start a fresh facilitato
 
 **First, configure fee payer (optional but recommended):**
 ```bash
-cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli
+cd <ascent-cli-path>
 
 # Create .env.local if it doesn't exist
 if [ ! -f .env.local ]; then
@@ -96,13 +96,13 @@ lsof -i :4022 | grep LISTEN | awk '{print $2}' | xargs kill -9 2>/dev/null
 
 **Option B1: Using the helper script (Easiest - loads .env.local automatically)**
 ```bash
-cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli/examples/agentmesh-marketplace
+cd <ascent-cli-path>/examples/agentmesh-marketplace
 ./start-facilitator.sh
 ```
 
 **Option B2: Using Node.js directly (with environment variable)**
 ```bash
-cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli
+cd <ascent-cli-path>
 
 # Load .env.local if it exists
 export $(grep -v '^#' .env.local | xargs 2>/dev/null)
@@ -138,7 +138,7 @@ If you want to start the full dev environment (facilitator + example agent serve
 
 ```bash
 # Create a test project first
-cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli
+cd <ascent-cli-path>
 ascent init test-agent --template express
 cd test-agent
 npm install
@@ -170,7 +170,7 @@ ascent dev
 
 **Open Terminal 2:**
 ```bash
-cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli/examples/agentmesh-marketplace
+cd <ascent-cli-path>/examples/agentmesh-marketplace
 ```
 
 ### Step 2: Install Dependencies
@@ -510,7 +510,7 @@ curl -X POST http://localhost:3007/services/1/hire \
 
 ```bash
 # From ascent-cli directory
-cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli
+cd <ascent-cli-path>
 
 # Test the payment flow
 ./bin/cli.js test --endpoint http://localhost:3007/services/1/hire \
@@ -551,7 +551,7 @@ curl -X POST http://localhost:3007/transactions/1/confirm \
 **If you don't have wallet signing set up, simulate the payment:**
 
 ```bash
-cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli/examples/agentmesh-marketplace
+cd <ascent-cli-path>/examples/agentmesh-marketplace
 
 node -e "
 const Database = require('better-sqlite3');
@@ -725,7 +725,7 @@ curl http://localhost:4022/health
 
 **Option 2: Start facilitator only (No project needed)**
 ```bash
-cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli
+cd <ascent-cli-path>
 node -e "
 const facilitator = require('./lib/facilitator');
 facilitator.start({ port: 4022 }).then(() => {
@@ -745,14 +745,14 @@ netstat -tlnp | grep 4022
 kill -9 <PID>
 
 # Then start facilitator only
-cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli
+cd <ascent-cli-path>
 node -e "require('./lib/facilitator').start({ port: 4022 });"
 ```
 
 **Option 4: Use a different facilitator port**
 ```bash
 # Start facilitator on different port
-cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli
+cd <ascent-cli-path>
 node -e "require('./lib/facilitator').start({ port: 4023 });"
 
 # Then update AgentMesh .env.local:
@@ -769,7 +769,7 @@ node -e "require('./lib/facilitator').start({ port: 4023 });"
 lsof -i :4022 | grep LISTEN | awk '{print $2}' | xargs kill -9 2>/dev/null
 
 # 2. Start a fresh facilitator
-cd /home/hebx/clawd/hackathons/canteen-x402/ascent-cli/examples/agentmesh-marketplace
+cd <ascent-cli-path>/examples/agentmesh-marketplace
 ./start-facilitator.sh
 
 # 3. Verify it responds (should return immediately)
@@ -855,4 +855,4 @@ PORT=3008
 
 ---
 
-**Built for Canteen × Aptos × x402 Hackathon 2026**
+*Built for production-grade agent commerce on Aptos*
