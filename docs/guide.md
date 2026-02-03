@@ -156,4 +156,4 @@ The Ascent ecosystem is rigorously tested using a complete End-to-End (E2E) vali
 3. **Protocol Handshake**: Validates the `402 Payment Required` challenge/response flow.
 4. **Stress Test**: Simulates multi-agent commerce using diverse wallet profiles.
 
-Built for the **Canteen x Aptos x402 Hackathon 2026**
+Built for production-grade agent commerce on Aptos

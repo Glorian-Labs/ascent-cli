@@ -180,4 +180,4 @@ ascent test -w 0xyour_wallet
 
 ---
 
-Built for **Canteen x Aptos x402 Hackathon 2026**
+Built for production-grade agent commerce on Aptos

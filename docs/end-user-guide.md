@@ -360,4 +360,4 @@ npm start
 
 ---
 
-*Built for the Canteen × Aptos × x402 Hackathon 2026*
+*Built for production-grade agent commerce on Aptos*

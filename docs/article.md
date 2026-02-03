@@ -34,4 +34,4 @@ We aren't just building a CLI; we are building the infrastructure for an invinci
 
 ---
 
-**Built by Hebx for the Canteen x Aptos x402 Hackathon 2026.**
+**Built by Hebx for production-grade agent commerce on Aptos.**
