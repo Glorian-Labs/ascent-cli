@@ -40,7 +40,7 @@ ascent test --all-wallets --endpoint http://localhost:3006/api/paid
 
 If the facilitator or server is not reachable, the test exits with code 1 and tells you to start with `ascent dev`.
 
-## Payment verify (aligned with fortune-cookie and canteen-x402)
+## Payment verify (aligned with x402 standard)
 
 - **Server** uses `HTTPFacilitatorClient` from `@rvk_rishikesh/core/server`: `facilitator.verify(...)` then `facilitator.settle(...)` with a 15s timeout. Facilitator URL is used without a trailing slash so `/verify` and `/settle` paths are correct.
 - **Local facilitator**: When you run `ascent dev` from **this project directory**, the CLI starts the local facilitator and then this API; the server will use the local facilitator so verify/settle succeed. Set `APTOS_PRIVATE_KEY` in this project’s `.env.local` so the facilitator has a fee payer and settle succeeds.
