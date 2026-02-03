@@ -193,7 +193,7 @@ program
   .option('-a, --amount <amount>', 'Payment amount in USDC', '0.01')
   .option('-e, --endpoint <url>', 'API endpoint to test', 'http://localhost:3006/api/paid')
   .option('-f, --facilitator <url>', 'Facilitator URL')
-  .option('--all-wallets', 'Stress test with all 5 hackathon wallets')
+  .option('--all-wallets', 'Stress test with all 5 test wallets')
   .action(async (options) => {
     console.log(`\n🧪 ${brandGradient('Running payment simulation...')}\n`);
     
