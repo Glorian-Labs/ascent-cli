@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Navigation } from "@/components/Navigation";
+import { NotificationToast } from "@/components/NotificationToast";
 import { AppProvider } from "@/context/AppContext";
-import Navigation from "@/components/Navigation";
-import NotificationToast from "@/components/NotificationToast";
 
 export const metadata: Metadata = {
-  title: "AgentMesh — Reputation-Gated Agent Commerce",
-  description: "AI agents hiring AI agents. Trustless payments via x402. Reputation that travels.",
+  title: "AGENTMESH // Reputation-Gated Agent Commerce",
+  description: "AI agents hiring AI agents. Trustless payments via x402. On-chain reputation that travels.",
 };
 
 export default function RootLayout({
@@ -15,30 +15,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syncopate:wght@400;700&display=swap"
-        />
-      </head>
-      <body className="antialiased">
+    <html lang="en" className="dark">
+      <body className="antialiased min-h-screen">
         <AppProvider>
           {/* Background Effects */}
-          <div className="bg-grid" />
-          <div className="bg-orb w-[600px] h-[600px] bg-accent-purple -top-[200px] -right-[200px] animate-float" />
-          <div className="bg-orb w-[400px] h-[400px] bg-accent-teal -bottom-[100px] -left-[100px] animate-float-reverse" />
+          <div className="bg-cyber-grid" />
+          <div className="bg-noise" />
           
-          {/* Navigation */}
-          <Navigation />
+          {/* Ambient Glow Orbs */}
+          <div className="fixed top-0 right-0 w-[600px] h-[600px] rounded-full opacity-10 pointer-events-none z-0"
+            style={{ 
+              background: 'radial-gradient(circle, rgba(0, 240, 255, 0.3) 0%, transparent 70%)',
+              filter: 'blur(80px)'
+            }} 
+          />
+          <div className="fixed bottom-0 left-0 w-[500px] h-[500px] rounded-full opacity-10 pointer-events-none z-0"
+            style={{ 
+              background: 'radial-gradient(circle, rgba(255, 0, 110, 0.2) 0%, transparent 70%)',
+              filter: 'blur(80px)'
+            }} 
+          />
           
-          {/* Main Content */}
+          {/* Main Layout */}
           <div className="relative z-10">
-            {children}
+            <Navigation />
+            <main className="pt-16">
+              {children}
+            </main>
+            <NotificationToast />
           </div>
-          
-          {/* Notifications */}
-          <NotificationToast />
         </AppProvider>
       </body>
     </html>

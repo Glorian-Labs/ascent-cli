@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Wallet, LayoutDashboard, Activity, Users, Zap } from 'lucide-react';
+import { Wallet, LayoutDashboard, Activity, Users, Zap, Menu, X } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
-import HealthCheck from './HealthCheck';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -13,62 +14,65 @@ const navLinks = [
   { href: '/agents', label: 'Agents', icon: Users },
 ];
 
-export default function Navigation() {
+export function Navigation() {
   const pathname = usePathname();
   const { wallet, connectWallet, disconnectWallet } = useApp();
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <header 
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-      style={{
-        background: scrolled 
-          ? 'rgba(8, 8, 12, 0.95)' 
-          : 'rgba(8, 8, 12, 0.8)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-        boxShadow: scrolled ? '0 4px 30px rgba(0, 0, 0, 0.3)' : 'none',
-      }}
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
+        scrolled 
+          ? "bg-[#020204]/90 backdrop-blur-xl border-[rgba(255,255,255,0.08)]" 
+          : "bg-transparent border-transparent"
+      )}
     >
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div 
-              className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-105"
-              style={{ 
-                background: 'linear-gradient(135deg, #9A4DFF, #00F5FF)',
-                boxShadow: '0 4px 20px rgba(154, 77, 255, 0.4)',
-              }}
-            >
-              <Zap size={20} className="text-black" />
+            <div className="relative">
+              <div 
+                className="w-10 h-10 flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                style={{ 
+                  background: 'linear-gradient(135deg, #00f0ff, #b829dd)',
+                  clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)'
+                }}
+              >
+                <Zap size={20} className="text-black" strokeWidth={2.5} />
+              </div>
+              {/* Glow effect */}
+              <div 
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"
+                style={{
+                  background: 'linear-gradient(135deg, #00f0ff, #b829dd)',
+                  filter: 'blur(15px)',
+                  clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)'
+                }}
+              />
             </div>
-            <span 
-              className="text-xl font-bold tracking-tight"
-              style={{ fontFamily: 'Syncopate, sans-serif' }}
-            >
-              <span className="text-white">Agent</span>
-              <span style={{ color: '#00F5FF' }}>Mesh</span>
-            </span>
+            <div className="flex flex-col">
+              <span className="font-display text-lg font-bold tracking-wider leading-none">
+                <span className="text-white">AGENT</span>
+                <span className="text-[#00f0ff]">MESH</span>
+              </span>
+              <span className="text-[0.6rem] text-[#5a5a6a] tracking-[0.3em] font-mono-alt uppercase">
+                v2.0.1-alpha
+              </span>
+            </div>
           </Link>
 
-          {/* Center Navigation */}
-          <nav 
-            className="flex items-center gap-1 px-2 py-1.5 rounded-2xl"
-            style={{ 
-              background: 'rgba(255, 255, 255, 0.03)',
-              border: '1px solid rgba(255, 255, 255, 0.06)',
-            }}
-          >
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => {
               const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
               const Icon = link.icon;
@@ -76,51 +80,103 @@ export default function Navigation() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="relative flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
-                  style={{
-                    background: isActive ? 'rgba(0, 245, 255, 0.1)' : 'transparent',
-                    color: isActive ? '#00F5FF' : '#9b9ba8',
-                  }}
+                  className={cn(
+                    "relative flex items-center gap-2 px-5 py-2.5 text-sm font-mono font-medium transition-all duration-200",
+                    "uppercase tracking-wider",
+                    isActive 
+                      ? "text-[#00f0ff]" 
+                      : "text-[#8a8a9a] hover:text-white"
+                  )}
                 >
-                  <Icon size={18} />
+                  <Icon size={16} strokeWidth={1.5} />
                   <span>{link.label}</span>
                   {isActive && (
-                    <div 
-                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
-                      style={{ background: '#00F5FF', boxShadow: '0 0 8px #00F5FF' }}
-                    />
+                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#00f0ff]" />
                   )}
                 </Link>
               );
             })}
           </nav>
 
-          {/* Status */}
-          <div className="hidden lg:block">
-            <HealthCheck />
-          </div>
+          {/* Right Section */}
+          <div className="flex items-center gap-4">
+            {/* Status Indicator */}
+            <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-[#141419] border border-[rgba(255,255,255,0.06)]">
+              <div className="relative flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[#39ff14] animate-pulse" />
+                <span className="text-[0.65rem] text-[#8a8a9a] font-mono uppercase tracking-wider">Live</span>
+              </div>
+            </div>
 
-          {/* Wallet Button */}
-          <button
-            onClick={() => wallet.isConnected ? disconnectWallet() : connectWallet()}
-            className="flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-[1.02]"
-            style={{
-              background: wallet.isConnected 
-                ? 'rgba(0, 230, 118, 0.1)' 
-                : 'linear-gradient(135deg, rgba(154, 77, 255, 0.15), rgba(0, 245, 255, 0.15))',
-              border: wallet.isConnected 
-                ? '1px solid rgba(0, 230, 118, 0.3)' 
-                : '1px solid rgba(0, 245, 255, 0.2)',
-              color: wallet.isConnected ? '#00E676' : '#00F5FF',
-            }}
-          >
-            <Wallet size={18} />
-            <span>{wallet.isConnected ? 'Connected' : 'Connect Wallet'}</span>
-            {wallet.isConnected && (
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            )}
-          </button>
+            {/* Wallet Button */}
+            <Button
+              onClick={() => wallet.isConnected ? disconnectWallet() : connectWallet()}
+              className={cn(
+                "hidden sm:flex items-center gap-2 px-5 py-2 text-xs font-mono font-semibold uppercase tracking-wider",
+                "transition-all duration-300 border",
+                wallet.isConnected 
+                  ? "bg-[#39ff14]/10 border-[#39ff14]/30 text-[#39ff14] hover:bg-[#39ff14]/20" 
+                  : "bg-transparent border-[#00f0ff] text-[#00f0ff] hover:bg-[#00f0ff] hover:text-black"
+              )}
+            >
+              <Wallet size={14} strokeWidth={1.5} />
+              <span>{wallet.isConnected ? wallet.address?.slice(0, 6) + '...' + wallet.address?.slice(-4) : 'Connect'}</span>
+            </Button>
+
+            {/* Mobile Menu Toggle */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-[#8a8a9a] hover:text-white transition-colors"
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-[rgba(255,255,255,0.08)] py-4">
+            <nav className="flex flex-col gap-2">
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href;
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 font-mono text-sm uppercase tracking-wider transition-colors",
+                      isActive 
+                        ? "bg-[#00f0ff]/10 text-[#00f0ff] border-l-2 border-[#00f0ff]" 
+                        : "text-[#8a8a9a] hover:text-white hover:bg-[rgba(255,255,255,0.02)]"
+                    )}
+                  >
+                    <Icon size={18} strokeWidth={1.5} />
+                    <span>{link.label}</span>
+                  </Link>
+                );
+              })}
+              <div className="mt-2 pt-2 border-t border-[rgba(255,255,255,0.06)]">
+                <Button
+                  onClick={() => {
+                    wallet.isConnected ? disconnectWallet() : connectWallet();
+                    setMobileMenuOpen(false);
+                  }}
+                  className={cn(
+                    "w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-mono font-semibold uppercase tracking-wider",
+                    wallet.isConnected 
+                      ? "bg-[#39ff14]/10 text-[#39ff14]" 
+                      : "bg-[#00f0ff] text-black"
+                  )}
+                >
+                  <Wallet size={16} strokeWidth={1.5} />
+                  <span>{wallet.isConnected ? 'Disconnect' : 'Connect Wallet'}</span>
+                </Button>
+              </div>
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );
