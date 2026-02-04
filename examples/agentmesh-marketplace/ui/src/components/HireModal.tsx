@@ -13,7 +13,7 @@ interface HireModalProps {
   isOpen: boolean;
   onClose: () => void;
   agent: {
-    id: string;
+    id: string | number;
     name: string;
     aa_score: number;
     reputation_tier: string;

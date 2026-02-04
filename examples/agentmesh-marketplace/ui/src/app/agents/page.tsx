@@ -43,12 +43,12 @@ export default function AgentsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen pt-24 px-6 lg:px-12">
+      <div className="min-h-screen pt-20 sm:pt-24 px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-[1600px] mx-auto">
-          <div className="p-12 text-center bg-[#141419] border border-[#ff006e]/30">
-            <Users className="w-16 h-16 mx-auto mb-4 text-[#ff006e]" />
-            <h2 className="font-display text-xl font-bold mb-2">Connection Error</h2>
-            <p className="text-[#8a8a9a] font-mono mb-6">{error}</p>
+          <div className="p-8 sm:p-12 text-center bg-[#141419] border border-[#ff006e]/30">
+            <Users className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-[#ff006e]" />
+            <h2 className="font-display text-lg sm:text-xl font-bold mb-2">Connection Error</h2>
+            <p className="text-sm text-[#8a8a9a] font-mono mb-6">{error}</p>
             <Button
               onClick={refetch}
               className="bg-[#00f0ff]/10 border border-[#00f0ff]/30 text-[#00f0ff] hover:bg-[#00f0ff]/20"
@@ -63,25 +63,25 @@ export default function AgentsPage() {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-6 lg:px-12">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-8 sm:pb-12 px-4 sm:px-6 lg:px-8 xl:px-12">
       <div className="max-w-[1600px] mx-auto">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6 mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
           <div>
-            <div className="flex items-center gap-3 mb-1">
-              <Terminal size={16} className="text-[#00f0ff]" />
-              <span className="text-[0.65rem] text-[#5a5a6a] font-mono uppercase tracking-wider">Registry</span>
+            <div className="flex items-center gap-2 sm:gap-3 mb-1">
+              <Terminal size={14} className="sm:w-4 sm:h-4 text-[#00f0ff]" />
+              <span className="text-[10px] sm:text-[0.65rem] text-[#5a5a6a] font-mono uppercase tracking-wider">Registry</span>
             </div>
-            <h1 className="font-display text-3xl lg:text-4xl font-bold mb-2">
+            <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2">
               Agent <span className="text-[#00f0ff]">Directory</span>
             </h1>
-            <p className="text-[#8a8a9a] font-mono">
+            <p className="text-xs sm:text-sm text-[#8a8a9a] font-mono">
               {data?.count || 0} AI agents in the network
             </p>
           </div>
           
-          {/* Tier Stats */}
-          <div className="flex items-center gap-4">
+          {/* Tier Stats - Stack on mobile, horizontal on larger screens */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
             <TierStatBadge 
               icon={Crown} 
               label="Elite" 
@@ -104,8 +104,8 @@ export default function AgentsPage() {
         </div>
 
         {/* Filters Bar */}
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 p-4 mb-8 bg-[#141419] border border-[rgba(255,255,255,0.06)]">
-          {/* Tier Filter Pills */}
+        <div className="flex flex-col gap-3 sm:gap-4 p-3 sm:p-4 mb-6 sm:mb-8 bg-[#141419] border border-[rgba(255,255,255,0.06)]">
+          {/* Tier Filter Pills - Horizontal scroll on mobile */}
           <div className="flex flex-wrap gap-2">
             {[
               { id: 'all', label: 'All', count: agents.length, color: '#8a8a9a' },
@@ -118,15 +118,15 @@ export default function AgentsPage() {
                 <button
                   key={filter.id}
                   onClick={() => setTierFilter(filter.id)}
-                  className="flex items-center gap-2 px-4 py-2 font-mono text-xs uppercase tracking-wider transition-all"
+                  className="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 font-mono text-[10px] sm:text-xs uppercase tracking-wider transition-all"
                   style={{
                     background: isActive ? `${filter.color}20` : 'transparent',
                     border: `1px solid ${isActive ? filter.color : 'rgba(255,255,255,0.1)'}`,
                     color: isActive ? filter.color : '#8a8a9a',
                   }}
                 >
-                  {filter.label}
-                  <span className="px-1.5 py-0.5 text-[0.6rem] bg-[rgba(255,255,255,0.08)]">
+                  <span className="truncate">{filter.label}</span>
+                  <span className="px-1 py-0.5 text-[10px] bg-[rgba(255,255,255,0.08)]">
                     {filter.count}
                   </span>
                 </button>
@@ -134,9 +134,10 @@ export default function AgentsPage() {
             })}
           </div>
 
-          <div className="flex gap-3 w-full lg:w-auto">
+          {/* Search and Sort - Stack on mobile */}
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             {/* Search */}
-            <div className="relative flex-1 lg:w-64">
+            <div className="relative flex-1">
               <Search 
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5a5a6a]" 
                 size={16} 
@@ -146,14 +147,14 @@ export default function AgentsPage() {
                 placeholder="Search agents..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-[#0a0a0f] border-[rgba(255,255,255,0.08)] text-white font-mono text-sm
-                  focus:border-[#00f0ff] focus:ring-[#00f0ff]/20"
+                className="pl-10 bg-[#0a0a0f] border-[rgba(255,255,255,0.08)] text-white font-mono text-xs sm:text-sm
+                  focus:border-[#00f0ff] focus:ring-[#00f0ff]/20 h-9 sm:h-10"
               />
             </div>
             
             {/* Sort */}
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as 'score' | 'earnings')}>
-              <SelectTrigger className="w-40 bg-[#0a0a0f] border-[rgba(255,255,255,0.08)] font-mono text-xs">
+              <SelectTrigger className="w-full sm:w-40 bg-[#0a0a0f] border-[rgba(255,255,255,0.08)] font-mono text-xs h-9 sm:h-10">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent className="bg-[#141419] border-[rgba(255,255,255,0.1)]">
@@ -176,22 +177,22 @@ export default function AgentsPage() {
 
         {/* Agents Grid */}
         {loading && !agents.length ? (
-          <div className="flex items-center justify-center h-[40vh]">
+          <div className="flex items-center justify-center h-[30vh] sm:h-[40vh]">
             <div className="text-center">
-              <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-[#00f0ff]" />
-              <p className="text-[#8a8a9a] font-mono">Loading agents...</p>
+              <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 animate-spin mx-auto mb-4 text-[#00f0ff]" />
+              <p className="text-sm text-[#8a8a9a] font-mono">Loading agents...</p>
             </div>
           </div>
         ) : filteredAgents.length === 0 ? (
-          <div className="p-16 text-center bg-[#141419] border border-[rgba(255,255,255,0.06)]">
-            <Users className="w-16 h-16 mx-auto mb-4 text-[#5a5a6a]" />
-            <h2 className="font-display text-xl font-bold mb-2">No Agents Found</h2>
-            <p className="text-[#8a8a9a] font-mono">
+          <div className="p-8 sm:p-16 text-center bg-[#141419] border border-[rgba(255,255,255,0.06)]">
+            <Users className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-[#5a5a6a]" />
+            <h2 className="font-display text-lg sm:text-xl font-bold mb-2">No Agents Found</h2>
+            <p className="text-sm text-[#8a8a9a] font-mono">
               {searchQuery ? 'Try a different search term' : 'No agents match your filters'}
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {filteredAgents.map((agent, index) => {
               const tier = agent.aa_score >= 90 ? 'Elite' : agent.aa_score >= 70 ? 'Verified' : 'Standard';
               const tierColor = tier === 'Elite' ? '#ffaa00' : tier === 'Verified' ? '#00f0ff' : '#b829dd';
@@ -206,14 +207,14 @@ export default function AgentsPage() {
                     transition-all duration-300 cursor-pointer h-full"
                     style={{ '--tier-color': tierColor } as React.CSSProperties}
                   >
-                    <CardContent className="p-5">
+                    <CardContent className="p-4 sm:p-5">
                       {/* Header */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
+                      <div className="flex items-start justify-between mb-3 sm:mb-4">
+                        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                           {/* Rank Badge */}
                           {sortBy === 'score' && tierFilter === 'all' && !searchQuery && (
                             <div 
-                              className="w-7 h-7 flex items-center justify-center font-mono font-bold text-xs"
+                              className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center font-mono font-bold text-xs flex-shrink-0"
                               style={{ 
                                 background: index === 0 ? '#ffaa0020' :
                                            index === 1 ? '#c0c0c020' :
@@ -230,9 +231,9 @@ export default function AgentsPage() {
                           )}
                           
                           {/* Avatar */}
-                          <Avatar className="w-12 h-12 rounded-none">
+                          <Avatar className="w-10 h-10 sm:w-12 sm:h-12 rounded-none flex-shrink-0">
                             <AvatarFallback 
-                              className="rounded-none font-bold text-lg"
+                              className="rounded-none font-bold text-sm sm:text-lg"
                               style={{ 
                                 background: `linear-gradient(135deg, ${tierColor}40, ${tierColor}20)`,
                                 color: tierColor
@@ -246,7 +247,7 @@ export default function AgentsPage() {
                         {/* Tier Badge */}
                         <Badge 
                           variant="outline"
-                          className="font-mono text-[0.65rem] uppercase tracking-wider"
+                          className="font-mono text-[10px] sm:text-[0.65rem] uppercase tracking-wider flex-shrink-0"
                           style={{ 
                             background: `${tierColor}15`,
                             borderColor: `${tierColor}40`,
@@ -258,42 +259,42 @@ export default function AgentsPage() {
                       </div>
 
                       {/* Name & Score */}
-                      <div className="mb-4">
-                        <h3 className="font-mono text-lg font-semibold mb-1 group-hover:text-white transition-colors">
+                      <div className="mb-3 sm:mb-4">
+                        <h3 className="font-mono text-base sm:text-lg font-semibold mb-1 group-hover:text-white transition-colors truncate">
                           {agent.name}
                         </h3>
                         <div className="flex items-baseline gap-2">
                           <span 
-                            className="font-display text-3xl font-black"
+                            className="font-display text-2xl sm:text-3xl font-black"
                             style={{ color: tierColor }}
                           >
                             {agent.aa_score}
                           </span>
-                          <span className="text-[0.7rem] text-[#5a5a6a] font-mono uppercase">AAIS</span>
+                          <span className="text-[10px] sm:text-[0.7rem] text-[#5a5a6a] font-mono uppercase">AAIS</span>
                         </div>
                       </div>
 
                       {/* Stats */}
-                      <div className="grid grid-cols-3 gap-2 mb-4">
-                        <div className="text-center p-2 bg-[#0a0a0f] border border-[rgba(255,255,255,0.04)]">
-                          <div className="font-mono text-sm font-bold">{agent.total_transactions}</div>
-                          <div className="text-[0.6rem] text-[#5a5a6a] font-mono uppercase">TXs</div>
+                      <div className="grid grid-cols-3 gap-2 mb-3 sm:mb-4">
+                        <div className="text-center p-1.5 sm:p-2 bg-[#0a0a0f] border border-[rgba(255,255,255,0.04)]">
+                          <div className="font-mono text-xs sm:text-sm font-bold">{agent.total_transactions}</div>
+                          <div className="text-[10px] sm:text-[0.6rem] text-[#5a5a6a] font-mono uppercase">TXs</div>
                         </div>
-                        <div className="text-center p-2 bg-[#0a0a0f] border border-[rgba(255,255,255,0.04)]">
-                          <div className="font-mono text-sm font-bold text-[#39ff14]">{successRate}%</div>
-                          <div className="text-[0.6rem] text-[#5a5a6a] font-mono uppercase">Success</div>
+                        <div className="text-center p-1.5 sm:p-2 bg-[#0a0a0f] border border-[rgba(255,255,255,0.04)]">
+                          <div className="font-mono text-xs sm:text-sm font-bold text-[#39ff14]">{successRate}%</div>
+                          <div className="text-[10px] sm:text-[0.6rem] text-[#5a5a6a] font-mono uppercase">Success</div>
                         </div>
-                        <div className="text-center p-2 bg-[#39ff14]/5 border border-[#39ff14]/10">
-                          <div className="font-mono text-sm font-bold text-[#39ff14]">${earnings}</div>
-                          <div className="text-[0.6rem] text-[#5a5a6a] font-mono uppercase">Earned</div>
+                        <div className="text-center p-1.5 sm:p-2 bg-[#39ff14]/5 border border-[#39ff14]/10">
+                          <div className="font-mono text-xs sm:text-sm font-bold text-[#39ff14]">${earnings}</div>
+                          <div className="text-[10px] sm:text-[0.6rem] text-[#5a5a6a] font-mono uppercase">Earned</div>
                         </div>
                       </div>
 
                       {/* View Profile */}
-                      <div className="flex items-center justify-center gap-2 py-2.5 bg-[#00f0ff]/5 border border-[#00f0ff]/10
+                      <div className="flex items-center justify-center gap-2 py-2 sm:py-2.5 bg-[#00f0ff]/5 border border-[#00f0ff]/10
                         group-hover:bg-[#00f0ff]/10 group-hover:border-[#00f0ff]/30 transition-all">
-                        <span className="text-xs font-mono text-[#00f0ff]">View Profile</span>
-                        <ArrowRight size={14} className="text-[#00f0ff] group-hover:translate-x-1 transition-transform" />
+                        <span className="text-[10px] sm:text-xs font-mono text-[#00f0ff]">View Profile</span>
+                        <ArrowRight size={12} className="sm:w-[14px] sm:h-[14px] text-[#00f0ff] group-hover:translate-x-1 transition-transform" />
                       </div>
                     </CardContent>
                   </Card>
@@ -319,10 +320,10 @@ function TierStatBadge({
   color: string;
 }) {
   return (
-    <div className="flex items-center gap-2 px-3 py-2 bg-[#141419] border border-[rgba(255,255,255,0.06)]">
-      <Icon size={16} style={{ color }} />
+    <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-3 sm:py-2 bg-[#141419] border border-[rgba(255,255,255,0.06)]">
+      <Icon size={14} className="sm:w-4 sm:h-4" style={{ color }} />
       <span className="font-mono font-bold text-sm" style={{ color }}>{count}</span>
-      <span className="text-[0.65rem] text-[#5a5a6a] font-mono uppercase">{label}</span>
+      <span className="text-[10px] sm:text-[0.65rem] text-[#5a5a6a] font-mono uppercase hidden sm:inline">{label}</span>
     </div>
   );
 }
