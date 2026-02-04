@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useLiveHealth, useLiveTransactions } from '@/lib/hooks';
+import { useLiveHealth, useLiveTransactions } from '@/lib/hooks-v2';
 import { 
   Activity, Server, CheckCircle, AlertCircle, Clock, 
   RefreshCw, Search, Shield, Zap, Database, Loader2

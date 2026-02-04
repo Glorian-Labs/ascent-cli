@@ -190,8 +190,6 @@ export async function listService(data: {
 // Hiring & Transactions (x402 payments)
 export async function hireService(serviceId: number, consumerName: string): Promise<{
   success: boolean;
-  transaction_id: number;
-  service: Service;
   payment_required: { 
     amount: string; 
     asset: string; 
@@ -199,11 +197,29 @@ export async function hireService(serviceId: number, consumerName: string): Prom
     payTo: string;
     extra?: { sponsored: boolean; service_id: number; service_title: string };
   };
+  raw_header?: string;
 }> {
-  return fetchJSON(`/api/services/${serviceId}/pay`, {
+  const res = await fetch(`${API_BASE}/api/services/${serviceId}/pay`, {
     method: 'GET',
     headers: { 'X-Consumer-Name': consumerName },
   });
+
+  if (res.status === 402) {
+    const header = res.headers.get('x-payment-required') || res.headers.get('X-PAYMENT-REQUIRED');
+    const json = await res.json().catch(() => ({}));
+    return {
+      success: true,
+      payment_required: json.requirements || {},
+      raw_header: header || undefined,
+    };
+  }
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ error: 'Request failed' }));
+    throw new Error(error.error || `HTTP ${res.status}`);
+  }
+
+  return res.json();
 }
 
 export async function callServiceWithPayment(

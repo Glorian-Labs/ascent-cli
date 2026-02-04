@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Wallet, LayoutDashboard, Activity, Users, Zap } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import HealthCheck from './HealthCheck';
 
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -93,6 +94,11 @@ export default function Navigation() {
               );
             })}
           </nav>
+
+          {/* Status */}
+          <div className="hidden lg:block">
+            <HealthCheck />
+          </div>
 
           {/* Wallet Button */}
           <button

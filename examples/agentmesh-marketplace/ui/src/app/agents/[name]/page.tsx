@@ -1,6 +1,6 @@
 'use client';
 
-import { useAgent } from '@/lib/hooks';
+import { useAgent } from '@/lib/hooks-v2';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { 

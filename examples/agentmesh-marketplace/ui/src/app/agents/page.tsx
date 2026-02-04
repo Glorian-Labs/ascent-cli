@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAgents } from '@/lib/hooks';
+import { useAgents } from '@/lib/hooks-v2';
 import { Users, Search, Star, TrendingUp, Loader2, RefreshCw, Crown, Shield, Zap, ArrowRight } from 'lucide-react';
 
 export default function AgentsPage() {

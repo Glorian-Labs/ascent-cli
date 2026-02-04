@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { X, Loader2, CheckCircle, AlertCircle, Wallet, Shield } from 'lucide-react';
-import { hireService, type Service } from '@/lib/api';
+import { hireService, type Service } from '@/lib/api-v2';
 import { useApp } from '@/context/AppContext';
 
 interface HireModalProps {
@@ -16,8 +16,8 @@ export default function HireModal({ service, onClose }: HireModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<{
     success: boolean;
-    transaction_id?: number;
     payment_required?: { amount: string; asset: string; network: string };
+    raw_header?: string;
     error?: string;
   } | null>(null);
 
@@ -34,12 +34,12 @@ export default function HireModal({ service, onClose }: HireModalProps) {
       const response = await hireService(service.id, consumerName);
       setResult({
         success: true,
-        transaction_id: response.transaction_id,
         payment_required: response.payment_required,
+        raw_header: response.raw_header,
       });
       addNotification({ 
         type: 'success', 
-        message: `Transaction #${response.transaction_id} created! Payment required.` 
+        message: `Payment requirements generated. Ready to sign.` 
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to initiate hire';
@@ -167,17 +167,26 @@ export default function HireModal({ service, onClose }: HireModalProps) {
             {result.success ? (
               <>
                 <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
-                <h2 className="font-display text-xl font-bold mb-2">Transaction Created!</h2>
+                <h2 className="font-display text-xl font-bold mb-2">Payment Required</h2>
                 <p className="text-text-secondary mb-6">
-                  Transaction #{result.transaction_id} is pending payment confirmation.
+                  Sign and submit the x402 payment to complete this hire.
                 </p>
                 
                 <div className="p-4 bg-white/5 rounded-lg mb-6 text-left">
-                  <h3 className="text-sm font-semibold mb-2">Payment Required:</h3>
+                  <h3 className="text-sm font-semibold mb-2">Payment Details:</h3>
                   <div className="space-y-1 text-sm text-text-secondary">
                     <p>Amount: <span className="text-white">{(parseInt(result.payment_required?.amount || '0') / 1000000).toFixed(2)} USDC</span></p>
                     <p>Network: <span className="text-white">{result.payment_required?.network}</span></p>
+                    <p>Asset: <span className="text-white">{result.payment_required?.asset?.slice(0, 12)}…</span></p>
                   </div>
+                  {result.raw_header && (
+                    <div className="mt-3">
+                      <div className="text-xs text-text-secondary mb-1">PAYMENT-REQUIRED header (base64):</div>
+                      <div className="text-xs font-mono break-all p-2 rounded bg-black/30 border border-white/10">
+                        {result.raw_header}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <button

@@ -1,90 +1,129 @@
-// React hooks for AgentMesh API v2 (AAIS Integration)
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import * as api from './api-v2';
 
-// Generic hook for API calls
-function useApiCall<T>(fetchFn: () => Promise<T>) {
+// Generic hook for data fetching
+function useAsyncData<T>(
+  fetcher: () => Promise<T>,
+  deps: React.DependencyList = []
+): { data: T | null; loading: boolean; error: string | null; refetch: () => void } {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refetch = useCallback(async () => {
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      setError(null);
-      const result = await fetchFn();
+      const result = await fetcher();
       setData(result);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
-  }, [fetchFn]);
+  }, deps);
 
   useEffect(() => {
-    refetch();
-  }, [refetch]);
+    fetchData();
+  }, [fetchData]);
 
-  return { data, loading, error, refetch };
+  return { data, loading, error, refetch: fetchData };
+}
+
+// Polling hook for real-time updates
+export function usePolling<T>(
+  fetcher: () => Promise<T>,
+  intervalMs: number = 5000
+): { data: T | null; loading: boolean; error: string | null } {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const fetcherRef = useRef(fetcher);
+
+  useEffect(() => {
+    fetcherRef.current = fetcher;
+  }, [fetcher]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchData = async () => {
+      try {
+        const result = await fetcherRef.current();
+        if (mounted) {
+          setData(result);
+          setError(null);
+          setLoading(false);
+        }
+      } catch (err) {
+        if (mounted) {
+          setError(err instanceof Error ? err.message : 'An error occurred');
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+    const interval = setInterval(fetchData, intervalMs);
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, [intervalMs]);
+
+  return { data, loading, error };
 }
 
 // Health check hook
 export function useHealth() {
-  return useApiCall(api.getHealth);
+  return useAsyncData(() => api.getHealth(), []);
 }
 
 // Dashboard stats hook
 export function useDashboardStats() {
-  return useApiCall(api.getDashboardStats);
+  return useAsyncData(() => api.getDashboardStats(), []);
 }
 
-// Agents list hook
+// Agents hooks
 export function useAgents(params?: { min_aais?: number; sort?: 'score' | 'earnings' }) {
-  return useApiCall(() => api.getAgents(params));
+  return useAsyncData(() => api.getAgents(params), [params?.min_aais, params?.sort]);
 }
 
-// Single agent hook
 export function useAgent(name: string) {
-  return useApiCall(() => api.getAgent(name));
+  return useAsyncData(() => api.getAgent(name), [name]);
 }
 
-// Services list hook
+// Services hook
 export function useServices(params?: { min_aais?: number; category?: string; agent?: string }) {
-  return useApiCall(() => api.getServices(params));
+  return useAsyncData(() => api.getServices(params), [params?.min_aais, params?.category, params?.agent]);
 }
 
 // Transactions hook
 export function useTransactions(params?: { status?: string; limit?: number }) {
-  return useApiCall(() => api.getTransactions(params));
+  return useAsyncData(() => api.getTransactions(params), [params?.status, params?.limit]);
 }
 
 // On-chain reputation hook
 export function useOnChainReputation(agentId: string) {
-  const [data, setData] = useState<(api.OnChainReputation & { trust_level_label: string }) | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  return useAsyncData(() => api.getOnChainReputation(agentId), [agentId]);
+}
 
-  const refetch = useCallback(async () => {
-    if (!agentId) return;
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await api.getOnChainReputation(agentId);
-      setData(result);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch on-chain reputation');
-    } finally {
-      setLoading(false);
-    }
-  }, [agentId]);
+// Real-time dashboard stats (polls every 5s)
+export function useLiveDashboardStats() {
+  return usePolling(() => api.getDashboardStats(), 5000);
+}
 
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
+// Real-time transactions (polls every 3s)
+export function useLiveTransactions(limit: number = 20) {
+  return usePolling(() => api.getTransactions({ limit }), 3000);
+}
 
-  return { data, loading, error, refetch };
+// Real-time health (polls every 10s)
+export function useLiveHealth() {
+  return usePolling(() => api.getHealth(), 10000);
 }
 
 // Export all API functions for direct use

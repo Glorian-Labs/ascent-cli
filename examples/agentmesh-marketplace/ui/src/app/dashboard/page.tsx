@@ -1,6 +1,6 @@
 'use client';
 
-import { useLiveDashboardStats } from '@/lib/hooks';
+import { useLiveDashboardStats } from '@/lib/hooks-v2';
 import { TrendingUp, Users, Package, DollarSign, Activity, Star, ArrowUpRight, ArrowDownRight, Loader2 } from 'lucide-react';
 
 export default function DashboardPage() {

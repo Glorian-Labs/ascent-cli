@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Shield, Zap, TrendingUp, Users, Bot, Coins, Activity, ChevronRight, Star } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
-import * as api from '@/lib/api';
+import * as api from '@/lib/api-v2';
 
 export default function LandingPage() {
   const { wallet, connectWallet } = useApp();
