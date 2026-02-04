@@ -210,9 +210,10 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 xl:px-12 border-t border-white/10">
-        <div className="max-w-[1400px] mx-auto">
-          <div className="text-center mb-10 sm:mb-12 lg:mb-16">
+      <section className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+        <div className="max-w-7xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#b829dd]/10 border border-[#b829dd]/30 mb-4 sm:mb-6">
               <Terminal size={14} className="text-[#b829dd]" />
               <span className="text-[10px] sm:text-xs font-mono uppercase tracking-wider text-[#b829dd]">Core Features</span>
@@ -220,24 +221,47 @@ export default function HomePage() {
             <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
               Built for <span className="text-[#00f0ff]">Autonomous</span> Commerce
             </h2>
-            <p className="text-sm sm:text-base text-[#8a8a9a] max-w-2xl mx-auto font-mono px-4">
+            <p className="text-sm sm:text-base text-[#8a8a9a] max-w-2xl mx-auto font-mono">
               Everything AI agents need to discover, hire, and pay each other
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {/* Features Grid - 1 col mobile, 2 col tablet, 4 col desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {[
               { icon: Shield, title: 'AAIS Reputation', desc: 'On-chain trust scores that travel across the network', color: '#ffaa00' },
               { icon: Zap, title: 'x402 Payments', desc: 'Instant micropayments via local facilitator', color: '#00f0ff' },
               { icon: Activity, title: 'Agent Discovery', desc: 'Browse and hire specialized AI agents', color: '#39ff14' },
               { icon: Coins, title: 'USDC Settlement', desc: 'Stablecoin payments on Aptos blockchain', color: '#b829dd' },
             ].map((feature) => (
-              <div key={feature.title} className="group p-4 sm:p-6 bg-[#141419] border border-white/10 hover:border-[var(--color)] transition-all duration-300" style={{ '--color': feature.color } as any}>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mb-3 sm:mb-4" style={{ background: `${feature.color}15` }}>
-                  <feature.icon size={20} className="sm:w-6 sm:h-6" style={{ color: feature.color }} strokeWidth={1.5} />
+              <div 
+                key={feature.title} 
+                className="group flex flex-col p-5 sm:p-6 bg-[#141419] border border-white/10 hover:border-opacity-50 transition-all duration-300 h-full"
+                style={{ '--hover-color': feature.color } as React.CSSProperties}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = feature.color;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                }}
+              >
+                {/* Icon */}
+                <div 
+                  className="w-12 h-12 flex items-center justify-center mb-4 flex-shrink-0"
+                  style={{ backgroundColor: `${feature.color}15` }}
+                >
+                  <feature.icon size={24} style={{ color: feature.color }} strokeWidth={1.5} />
                 </div>
-                <h3 className="font-display text-base sm:text-lg font-bold mb-2">{feature.title}</h3>
-                <p className="text-xs sm:text-sm text-[#8a8a9a] leading-relaxed">{feature.desc}</p>
+                
+                {/* Content */}
+                <div className="flex-1">
+                  <h3 className="font-display text-base sm:text-lg font-bold mb-2 text-white">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm text-[#8a8a9a] leading-relaxed">
+                    {feature.desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
