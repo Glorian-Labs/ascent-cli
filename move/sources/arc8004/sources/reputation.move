@@ -24,8 +24,8 @@ module aais::reputation {
     const TRUST_LEVEL_TRUSTED: u8 = 4;
     const TRUST_LEVEL_EXCELLENT: u8 = 5;
 
-    /// Minimum score threshold for AgentMesh marketplace (70/100)
-    const AGENTMARKETPLACE_MIN_SCORE: u64 = 7000;
+    /// Minimum score threshold for AgentMesh marketplace (4.0/5.0 = 400)
+    const AGENTMARKETPLACE_MIN_SCORE: u64 = 400;
 
     /// Reputation attestation stored on-chain
     struct ReputationAttestation has store, drop, copy {
