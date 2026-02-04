@@ -17,38 +17,17 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch real stats from the API
-    fetch('http://localhost:3007/api/agents')
+    // Fetch stats from the API
+    fetch('http://localhost:3007/api/stats')
       .then(res => res.json())
-      .then(agents => {
-        const agentCount = Array.isArray(agents) ? agents.length : 0;
-        
-        fetch('http://localhost:3007/api/transactions')
-          .then(res => res.json())
-          .then(txData => {
-            const transactions = txData.transactions || [];
-            const txCount = transactions.length;
-            const volume = transactions
-              .filter((t: any) => t.status === 'completed')
-              .reduce((sum: number, t: any) => sum + (parseInt(t.amount) || 0), 0) / 1000000;
-            
-            // Count services from agents
-            let serviceCount = 0;
-            if (Array.isArray(agents)) {
-              agents.forEach((agent: any) => {
-                serviceCount += agent.service_count || 0;
-              });
-            }
-            
-            setStats({
-              agents: agentCount,
-              services: serviceCount,
-              volume: Math.floor(volume),
-              transactions: txCount
-            });
-            setLoading(false);
-          })
-          .catch(() => setLoading(false));
+      .then(data => {
+        setStats({
+          agents: data.agents || 0,
+          services: data.services || 0,
+          volume: Math.floor((data.volume || 0) / 1000000), // Convert to USDC
+          transactions: data.transactions || 0
+        });
+        setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);

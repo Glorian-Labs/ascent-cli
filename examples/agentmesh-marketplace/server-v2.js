@@ -159,16 +159,40 @@ app.get('/api/health', (req, res) => {
 // Get all agents with AAIS scores
 app.get('/api/agents', async (req, res) => {
   try {
-    const agents = db.prepare(`
+    const { min_aais, sort } = req.query;
+    
+    let query = `
       SELECT a.*, 
         COUNT(DISTINCT s.id) as service_count,
-        COUNT(DISTINCT t.id) as transaction_count
+        COUNT(DISTINCT t.id) as transaction_count,
+        CASE 
+          WHEN a.aa_score >= 90 THEN 'Elite'
+          WHEN a.aa_score >= 70 THEN 'Verified'
+          ELSE 'Standard'
+        END as reputation_tier
       FROM agents a
       LEFT JOIN services s ON a.name = s.agent_name AND s.active = 1
       LEFT JOIN transactions t ON a.name = t.provider_name
-      GROUP BY a.name
-      ORDER BY a.aa_score DESC
-    `).all();
+    `;
+    
+    const whereClauses = [];
+    if (min_aais) {
+      whereClauses.push(`a.aa_score >= ${parseFloat(min_aais)}`);
+    }
+    if (whereClauses.length > 0) {
+      query += ' WHERE ' + whereClauses.join(' AND ');
+    }
+    
+    query += ' GROUP BY a.name';
+    
+    // Sort
+    if (sort === 'earnings') {
+      query += ' ORDER BY CAST(a.total_earned AS INTEGER) DESC';
+    } else {
+      query += ' ORDER BY a.aa_score DESC';
+    }
+    
+    const agents = db.prepare(query).all();
 
     // Enrich with on-chain data if available
     const enrichedAgents = await Promise.all(agents.map(async (agent) => {
@@ -185,7 +209,10 @@ app.get('/api/agents', async (req, res) => {
       return agent;
     }));
 
-    res.json(enrichedAgents);
+    res.json({
+      count: enrichedAgents.length,
+      agents: enrichedAgents
+    });
   } catch (error) {
     console.error('Error fetching agents:', error);
     res.status(500).json({ error: 'Failed to fetch agents' });
@@ -195,10 +222,42 @@ app.get('/api/agents', async (req, res) => {
 // Get agent details with full AAIS data
 app.get('/api/agents/:name', async (req, res) => {
   try {
-    const agent = db.prepare('SELECT * FROM agents WHERE name = ?').get(req.params.name);
+    const agent = db.prepare(`
+      SELECT a.*,
+        CASE 
+          WHEN a.aa_score >= 90 THEN 'Elite'
+          WHEN a.aa_score >= 70 THEN 'Verified'
+          ELSE 'Standard'
+        END as reputation_tier
+      FROM agents a
+      WHERE a.name = ?
+    `).get(req.params.name);
     if (!agent) return res.status(404).json({ error: 'Agent not found' });
 
     const services = db.prepare('SELECT * FROM services WHERE agent_name = ? AND active = 1').all(req.params.name);
+    
+    // Get recent transactions for this agent
+    const recent_transactions = db.prepare(`
+      SELECT 
+        t.id,
+        t.service_id,
+        t.provider_name,
+        t.consumer_name,
+        t.amount,
+        t.status,
+        t.rating,
+        t.review,
+        t.tx_hash,
+        t.payment_hash,
+        t.created_at,
+        s.title as service_title,
+        s.category
+      FROM transactions t
+      LEFT JOIN services s ON t.service_id = s.id
+      WHERE t.provider_name = ?
+      ORDER BY t.created_at DESC
+      LIMIT 10
+    `).all(req.params.name);
     
     // Fetch on-chain reputation
     let onChainRep = null;
@@ -209,6 +268,7 @@ app.get('/api/agents/:name', async (req, res) => {
     res.json({
       ...agent,
       services,
+      recent_transactions,
       on_chain_reputation: onChainRep,
       trust_level_label: onChainRep ? getTrustLevelLabel(onChainRep.trustLevel) : 'Unknown',
     });
@@ -611,6 +671,112 @@ app.get('/api/aait/reputation/:agent_id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching AAIS reputation:', error);
     res.status(500).json({ error: 'Failed to fetch reputation' });
+  }
+});
+
+// Get all transactions
+app.get('/api/transactions', (req, res) => {
+  try {
+    const { status, limit = 100 } = req.query;
+    
+    let query = `
+      SELECT t.*, s.title as service_title, s.category
+      FROM transactions t
+      LEFT JOIN services s ON t.service_id = s.id
+    `;
+    const params = [];
+
+    if (status) {
+      query += ' WHERE t.status = ?';
+      params.push(status);
+    }
+
+    query += ' ORDER BY t.created_at DESC LIMIT ?';
+    params.push(parseInt(limit));
+
+    const transactions = db.prepare(query).all(...params);
+    res.json({ transactions });
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ error: 'Failed to fetch transactions' });
+  }
+});
+
+// Get dashboard stats
+app.get('/api/stats', (req, res) => {
+  try {
+    const agentCount = db.prepare('SELECT COUNT(*) as count FROM agents').get();
+    const serviceCount = db.prepare('SELECT COUNT(*) as count FROM services WHERE active = 1').get();
+    const txCount = db.prepare('SELECT COUNT(*) as count FROM transactions').get();
+    const completedTxCount = db.prepare("SELECT COUNT(*) as count FROM transactions WHERE status = 'completed'").get();
+    const pendingTxCount = db.prepare("SELECT COUNT(*) as count FROM transactions WHERE status = 'pending'").get();
+    const volume = db.prepare(`
+      SELECT COALESCE(SUM(CAST(amount AS INTEGER)), 0) as total 
+      FROM transactions 
+      WHERE status = 'completed'
+    `).get();
+
+    // Get top 5 agents by AAIS score
+    const topAgents = db.prepare(`
+      SELECT 
+        id,
+        name,
+        address,
+        agent_id,
+        aa_score,
+        on_chain_score,
+        trust_level,
+        total_transactions,
+        successful_transactions,
+        total_earned,
+        created_at,
+        CASE 
+          WHEN aa_score >= 90 THEN 'Elite'
+          WHEN aa_score >= 70 THEN 'Verified'
+          ELSE 'Standard'
+        END as reputation_tier
+      FROM agents 
+      ORDER BY aa_score DESC 
+      LIMIT 5
+    `).all();
+
+    // Get recent 10 transactions with service details
+    const recentTransactions = db.prepare(`
+      SELECT 
+        t.id,
+        t.service_id,
+        t.provider_name,
+        t.consumer_name,
+        t.amount,
+        t.status,
+        t.rating,
+        t.review,
+        t.tx_hash,
+        t.payment_hash,
+        t.created_at,
+        s.title as service_title,
+        s.category
+      FROM transactions t
+      LEFT JOIN services s ON t.service_id = s.id
+      ORDER BY t.created_at DESC 
+      LIMIT 10
+    `).all();
+
+    res.json({
+      overview: {
+        activeAgents: agentCount.count,
+        servicesListed: serviceCount.count,
+        totalTransactions: txCount.count,
+        completedTransactions: completedTxCount.count,
+        pendingTransactions: pendingTxCount.count,
+        totalVolumeUSDC: parseInt(volume.total) / 1000000, // Convert to USDC
+      },
+      topAgents: topAgents,
+      recentTransactions: recentTransactions,
+    });
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    res.status(500).json({ error: 'Failed to fetch stats' });
   }
 });
 
