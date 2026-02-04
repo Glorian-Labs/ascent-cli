@@ -52,7 +52,7 @@ export function Navigation() {
               </div>
               {/* Glow effect */}
               <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 pointer-events-none"
                 style={{
                   background: 'linear-gradient(135deg, #00f0ff, #b829dd)',
                   filter: 'blur(15px)',
@@ -135,7 +135,7 @@ export function Navigation() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-[rgba(255,255,255,0.08)] py-4">
+          <div className="md:hidden border-t border-[rgba(255,255,255,0.08)] py-4 bg-[#020204]/95 backdrop-blur-xl">
             <nav className="flex flex-col gap-2">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;
