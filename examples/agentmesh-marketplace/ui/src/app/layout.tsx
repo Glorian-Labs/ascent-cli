@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Navigation } from "@/components/Navigation";
-import { NotificationToast } from "@/components/NotificationToast";
+import NotificationToast from "@/components/NotificationToast";
 import { AppProvider } from "@/context/AppContext";
 
 export const metadata: Metadata = {
@@ -16,6 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+      </head>
       <body className="antialiased min-h-screen">
         <AppProvider>
           {/* Background Effects */}

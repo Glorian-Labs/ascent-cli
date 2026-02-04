@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { HireModal } from '@/components/HireModal';
+import HireModal from '@/components/HireModal';
 
 export default function AgentDetailPage() {
   const params = useParams();
