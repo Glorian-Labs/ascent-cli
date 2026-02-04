@@ -2,7 +2,7 @@
 /// 
 /// Provides on-chain task validation attestations.
 /// Supports multiple validation types including manual, zkProof, TEE, and oracle.
-module aaas::validation {
+module aais::validation {
     use std::string::String;
     use std::signer;
     use std::vector;

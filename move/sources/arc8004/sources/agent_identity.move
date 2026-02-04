@@ -2,7 +2,7 @@
 /// 
 /// An Aptos-native implementation of ARC-8004, providing on-chain identity
 /// management for AI agents using Aptos Digital Assets (NFTs).
-module aaas::agent_identity {
+module aais::agent_identity {
     use std::string::{Self, String};
     use std::signer;
     use std::vector;

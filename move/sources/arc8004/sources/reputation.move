@@ -2,7 +2,7 @@
 /// 
 /// Provides on-chain reputation attestations for AI agents.
 /// Stores feedback and trust scores with x402 payment proofs.
-module aaas::reputation {
+module aais::reputation {
     use std::string::String;
     use std::signer;
     use std::vector;
