@@ -22,6 +22,7 @@ const PORT = process.env.PORT || 3007;
 const DB_PATH = process.env.DB_PATH || './agentmesh.db';
 const PAY_TO_ADDRESS = process.env.PAYMENT_RECIPIENT_ADDRESS;
 const FACILITATOR_URL = process.env.FACILITATOR_URL || 'https://x402-navy.vercel.app/facilitator/';
+const FACILITATOR_BASE = FACILITATOR_URL.endsWith('/') ? FACILITATOR_URL : `${FACILITATOR_URL}/`;
 const USDC_ASSET = "0x69091fbab5f7d635ee7ac5098cf0c1efbe31d68fec0f2cd565e8d168daf52832";
 const MIN_AAIS_TO_LIST = 70;
 
@@ -360,7 +361,7 @@ app.get('/api/services/:id/pay', (req, res) => {
       payTo: service.provider_address || PAY_TO_ADDRESS,
       maxTimeoutSeconds: 60,
       extra: {
-        sponsored: true,
+        sponsored: false,
         service_id: service.id,
         service_title: service.title,
       }
@@ -380,7 +381,7 @@ app.get('/api/services/:id/pay', (req, res) => {
 // Submit payment and call service
 app.post('/api/services/:id/call', async (req, res) => {
   try {
-    const { payment_payload, consumer_name } = req.body;
+    let { payment_payload, consumer_name } = req.body || {};
     const service_id = req.params.id;
 
     const service = db.prepare(`
@@ -392,19 +393,56 @@ app.post('/api/services/:id/call', async (req, res) => {
 
     if (!service) return res.status(404).json({ error: 'Service not found' });
 
+    // Build payment requirements
+    const paymentRequirements = {
+      scheme: "exact",
+      network: APTOS_NETWORK === Network.MAINNET ? "aptos:1" : "aptos:2",
+      amount: service.price,
+      asset: USDC_ASSET,
+      payTo: service.provider_address || PAY_TO_ADDRESS,
+      maxTimeoutSeconds: 60,
+      extra: { sponsored: false, service_id: service.id }
+    };
+
+    // If no payment provided, return 402 with requirements
+    if (!payment_payload && !req.headers['payment-signature']) {
+      const headerValue = Buffer.from(JSON.stringify({
+        x402Version: 2,
+        resource: { url: req.originalUrl, mimeType: 'application/json' },
+        accepts: [paymentRequirements]
+      })).toString('base64');
+
+      res.setHeader('PAYMENT-REQUIRED', headerValue);
+      res.setHeader('X-PAYMENT-REQUIRED', headerValue);
+      return res.status(402).json({
+        error: 'Payment required',
+        requirements: paymentRequirements
+      });
+    }
+
+    // Parse PAYMENT-SIGNATURE header if present
+    if (!payment_payload && req.headers['payment-signature']) {
+      try {
+        payment_payload = JSON.parse(req.headers['payment-signature']);
+      } catch (e) {
+        return res.status(400).json({ error: 'Invalid PAYMENT-SIGNATURE header' });
+      }
+    }
+
     // Verify payment with facilitator
-    const verifyResponse = await fetch(`${FACILITATOR_URL}verify`, {
+    const verifyResponse = await fetch(`${FACILITATOR_BASE}verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         x402Version: 2,
         paymentPayload: payment_payload,
+        paymentRequirements,
       }),
     });
 
     const verifyResult = await verifyResponse.json();
 
-    if (!verifyResult.valid) {
+    if (!verifyResult.isValid) {
       return res.status(400).json({ error: 'Invalid payment', details: verifyResult });
     }
 
@@ -413,7 +451,13 @@ app.post('/api/services/:id/call', async (req, res) => {
       INSERT INTO transactions (service_id, provider_name, consumer_name, amount, status, payment_hash)
       VALUES (?, ?, ?, ?, 'pending', ?)
     `);
-    const txResult = txStmt.run(service_id, service.agent_name, consumer_name || 'anonymous', service.price, payment_payload);
+    const txResult = txStmt.run(
+      service_id,
+      service.agent_name,
+      consumer_name || 'anonymous',
+      service.price,
+      JSON.stringify(payment_payload)
+    );
 
     // Call the actual service endpoint if provided
     let serviceResult = null;
@@ -435,12 +479,13 @@ app.post('/api/services/:id/call', async (req, res) => {
     }
 
     // Settle payment
-    const settleResponse = await fetch(`${FACILITATOR_URL}settle`, {
+    const settleResponse = await fetch(`${FACILITATOR_BASE}settle`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         x402Version: 2,
         paymentPayload: payment_payload,
+        paymentRequirements,
       }),
     });
 
