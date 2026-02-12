@@ -1,163 +1,206 @@
-# 📖 Ascent CLI - Usage Guide
+# Ascent CLI — Usage Guide
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Installation
+
 ```bash
-npm install -g ascent-cli
+npm install -g @ascent/cli
 ```
 
 ### 2. Scaffold a Project
-Choose between Express (default) or Next.js:
+
+Choose between Express (default), Next.js, or Hono:
+
 ```bash
 ascent init my-agent-api --template express
 cd my-agent-api
 ```
 
 ### 3. Configuration
+
 Edit `.env.local` with your wallet details:
+
 ```env
 PAYMENT_RECIPIENT_ADDRESS=0xyour_address
 APTOS_PRIVATE_KEY=0xyour_private_key
 ```
 
 ### 4. Local Development
+
 Start your server and a local facilitator:
+
 ```bash
 ascent dev
 ```
-- Server: `http://localhost:3000`
+
+- Server: `http://localhost:3006`
 - Facilitator: `http://localhost:4022`
 
 ### 5. Test Payment Flow
+
 ```bash
 ascent test -w 0xyour_wallet
 ```
 
 ---
 
-## 🎭 Agent Identity & Reputation
+## Agent Identity & Reputation
 
-### 1. Register Agent Identity
-Link your wallet to a human-readable name for the global dashboard.
+### Register Agent Identity
+
+Link your wallet to a human-readable name for the local registry:
+
 ```bash
-ascent identity register --address 0x489... --name "Hebx-Security-Bot"
+ascent identity register --address 0x489... --name "Security-Bot"
 ```
 
-### 2. Check Reputation & Metrics
-View real-time trust scores and payment history.
+### Check Reputation & Metrics
+
+View trust scores and payment history for a specific agent:
+
 ```bash
 ascent identity show --address 0x489...
 ```
 
-### 3. List Registry
-See all indexed agents ranked by their reputation score.
+### List Registry
+
+See all indexed agents ranked by reputation score:
+
 ```bash
 ascent identity list
 ```
 
 ---
 
-## 🛠️ Commands
+## Command Reference
 
-### `init <project-name>`
+### `ascent init <project-name>`
+
 Scaffold a new x402 project.
 
 Options:
-- `-t, --template <type>`: Template type (`express`, `next`, `hono`)
+- `-t, --template <type>`: Template type (`express`, `next`, `hono`). Default: `express`
+- `--no-interactive`: Disable interactive setup (use defaults)
 
 Example:
+
 ```bash
 ascent init my-api --template next
 ```
 
-### `dev`
-Start development server with local facilitator.
+### `ascent dev`
+
+Start development server with local facilitator. Run from inside a project directory.
 
 Options:
-- `-p, --port <port>`: Server port (default: 3000)
+- `-p, --port <port>`: Server port (default: 3006)
 - `-f, --facilitator-port <port>`: Facilitator port (default: 4022)
 - `--no-facilitator`: Use public facilitator instead of local
 
 Example:
+
 ```bash
 ascent dev --port 8080
 ```
 
-### `test`
-Test payment flow with test wallet.
+### `ascent test`
+
+Test x402 payment flow with simulated wallets.
 
 Options:
 - `-w, --wallet <address>`: Test wallet address
-- `-a, --amount <amount>`: Payment amount (default: 0.01)
+- `-p, --private-key <key>`: Wallet private key
+- `-a, --amount <amount>`: Payment amount in USDC (default: 0.01)
+- `-e, --endpoint <url>`: API endpoint to test (default: `http://localhost:3006/api/paid`)
+- `-f, --facilitator <url>`: Facilitator URL
+- `--all-wallets`: Stress test with all 5 built-in test wallets
 
 Example:
+
 ```bash
-ascent test -w 0x489cbd8ade2279edc20ef18a52b894d5a983575c1c0979e901be60b73741fe5d
+ascent test --all-wallets
+ascent test -w 0x489cbd...
 ```
 
-### `monitor`
-Monitor payment flows in real-time.
+### `ascent monitor`
+
+Real-time terminal monitoring of payment flows.
 
 Options:
-- `-i, --interval <ms>`: Update interval (default: 3000)
+- `-i, --interval <ms>`: Refresh rate in milliseconds (default: 3000)
 
-### `dashboard`
+### `ascent dashboard`
+
 Start web analytics dashboard.
 
 Options:
 - `-p, --port <port>`: Dashboard port (default: 3456)
-- `-d, --db <path>`: Database path (default: ./payments.db)
+- `-d, --db <path>`: Database path (default: `./payments.db`)
 
-### `identity <action>`
-Manage agent identity and reputation.
+### `ascent identity <action>`
 
-Actions:
-- `register`: Link address to name
-- `list`: Show all agents
-- `show`: Detailed metrics for one agent
-
-### `move <action>`
-Aptos Move language agent helpers.
+Manage agent identity and reputation (local SQLite registry).
 
 Actions:
-- `init`: Initialize Move project
-- `inject`: Add payment verification module
+- `register` — Register an agent identity (`--address`, `--name` required)
+- `list` — Show all agents ranked by reputation
+- `show` — Detailed metrics for one agent (`--address` required)
 
-### `config`
-Show current configuration.
+Options:
+- `-a, --address <address>`: Agent wallet address
+- `-n, --name <name>`: Display name
+- `-d, --db <path>`: Database path (default: `./payments.db`)
+
+### `ascent move <action>`
+
+Aptos Move language helpers.
+
+Actions:
+- `init` — Initialize a Move project structure
+- `inject` — Add payment verification module to existing Move project
+
+### `ascent kill`
+
+Kill stuck Ascent server processes.
+
+Options:
+- `-p, --port <port>`: Kill process on a specific port only
+
+Without options, kills processes on ports 3006, 4022, 3007, 3003, 3000.
+
+### `ascent logs`
+
+Show guidance on where dev server and facilitator logs appear. All output streams to the terminal where `ascent dev` is running.
 
 ---
 
-## 💰 Resources
+## Network Resources
 
-- **Network:** `aptos:2` (Testnet)
-- **USDC Asset:** `0x69091fbab5f7d635ee7ac5098cf0c1efbe31d68fec0f2cd565e8d168daf52832`
-- **Facilitator:** `https://x402-navy.vercel.app/facilitator/`
-- **Explorer:** `https://explorer.aptoslabs.com/?network=testnet`
+| Resource | Value |
+|---|---|
+| Network | `aptos:2` (Testnet) |
+| USDC Asset | `0x69091fbab5f7d635ee7ac5098cf0c1efbe31d68fec0f2cd565e8d168daf52832` |
+| Facilitator (hosted) | `https://x402-navy.vercel.app/facilitator/` |
+| Facilitator (local) | `http://localhost:4022` |
+| Explorer | [Aptos Explorer (testnet)](https://explorer.aptoslabs.com/?network=testnet) |
 
 ---
 
-## 🔧 Technical Details
+## x402 Protocol Flow
 
-### x402 Protocol Flow
 ```
-Request → 402 + PAYMENT-REQUIRED (base64 requirements)
-    ↓
-Client builds transaction (0.01 USDC)
-    ↓
-Client signs, sends PAYMENT-SIGNATURE header
-    ↓
-Server verifies with facilitator /verify
-    ↓
-Server settles with facilitator /settle
-    ↓
-200 OK + PAYMENT-RESPONSE + content
+Request ──▶ 402 + PAYMENT-REQUIRED (base64 requirements)
+        ──▶ Client builds Aptos tx (0.01 USDC)
+        ──▶ Client signs tx
+        ──▶ Facilitator /verify
+        ──▶ Facilitator /settle
+        ──▶ 200 OK + PAYMENT-RESPONSE + content
 ```
 
 ---
 
-## 🎯 Example: Complete Setup
+## Complete Example
 
 ```bash
 # 1. Create project
@@ -167,17 +210,19 @@ cd fortune-api
 # 2. Install dependencies
 npm install
 
-# 3. Configure
-export PAYMENT_RECIPIENT_ADDRESS="0xyour_address"
-export APTOS_PRIVATE_KEY="0xyour_private_key"
+# 3. Configure (edit .env.local)
+# PAYMENT_RECIPIENT_ADDRESS=0xyour_address
+# APTOS_PRIVATE_KEY=0xyour_private_key
 
 # 4. Start dev environment
 ascent dev
 
 # 5. In another terminal, test
 ascent test -w 0xyour_wallet
+
+# 6. Monitor transactions
+ascent monitor
+
+# 7. View analytics
+ascent dashboard
 ```
-
----
-
-Built for **Canteen x Aptos x402 Hackathon 2026**
