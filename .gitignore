@@ -13,4 +13,5 @@ dist/
 build/
 coverage/
 *.db
-payments.db
+.next/
+*.tsbuildinfo

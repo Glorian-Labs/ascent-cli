@@ -1,7 +1,7 @@
 {
   "name": "@ascent/cli",
   "version": "1.0.0",
-  "description": "The elite toolkit for x402 payments on Aptos",
+  "description": "Agentic commerce toolkit on Aptos — x402 payments, identity/reputation, and developer workflow",
   "main": "bin/cli.js",
   "bin": {
     "ascent": "./bin/cli.js"
