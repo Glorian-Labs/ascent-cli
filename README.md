@@ -279,7 +279,9 @@ If you discover a security vulnerability, do **not** open a public issue. Email 
 
 ## License
 
-MIT — see [LICENSE](./LICENSE) for details.
+MIT — see [LICENSE](./LICENSE).
+
+Copyright (c) 2026 Glorian Labs LTD
 
 ---
 

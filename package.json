@@ -18,8 +18,16 @@
     "agentic-commerce",
     "web3"
   ],
-  "author": "Hebx",
+  "author": "Glorian Labs LTD",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/glorian-labs/ascent-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/glorian-labs/ascent-cli/issues"
+  },
+  "homepage": "https://github.com/glorian-labs/ascent-cli#readme",
   "dependencies": {
     "@aptos-labs/ts-sdk": "^6.0.0",
     "@rvk_rishikesh/aptos": "^2.1.0",
