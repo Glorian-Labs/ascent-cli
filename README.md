@@ -1,49 +1,120 @@
 # Ascent CLI
 
-**Agentic commerce toolkit on Aptos — x402 payments, identity/reputation, and developer workflow.**
+## Verifiable Agentic Commerce on Aptos
 
-Built by [Glorian Labs](https://github.com/glorian-labs).
+**By [Glorian Labs](https://github.com/Glorian-Labs)**
+
+Ascent CLI is a developer toolkit for building **trust-minimized, verifiable agent commerce systems** on Aptos.
+
+It enables autonomous agents to:
+
+- Negotiate and transact using **x402** payment flows
+- Execute **deterministic on-chain settlement**
+- Generate **verifiable receipts**
+- Attach **identity and reputation** signals (AAIS / ARC-8004)
+- Scaffold **Move modules** and commerce primitives
+
+Ascent is not a bot framework. It is infrastructure for **trusted autonomous economic coordination**.
 
 ---
 
 ## Why Ascent
 
-- **Verifiable agent payments.** x402 gives autonomous agents HTTP-native payment capabilities. Ascent provides the full stack: client, local facilitator, and Express/Next.js/Hono middleware.
-- **Trust before transactions.** On-chain identity and reputation (AAIS/ARC-8004) let agents prove reliability before they earn. Reputation scores, attestations, and trust tiers — all on Aptos.
-- **Dev-first workflow.** One command scaffolds a monetized API. Another spins up a local facilitator for offline testing. No billing infrastructure to build.
-- **Working code, not whitepapers.** Every feature listed below is backed by code you can run. What's planned is labeled Planned.
+The agent economy requires more than APIs.
+
+Autonomous agents must:
+
+- **Pay and get paid** programmatically — no API keys, no OAuth, just cryptographic signatures
+- **Prove settlement** deterministically — every payment produces an on-chain receipt
+- **Establish identity and reputation** — trust scores, attestations, and tiered access
+- **Leave auditable economic trails** — verifiable transaction history on Aptos
+- **Operate without centralized trust assumptions** — facilitator-mediated, chain-settled
+
+Ascent provides the primitives to make this possible.
+
+---
+
+## Agentic Commerce Flow
+
+```
++-------------------+       +-------------------+       +----------------------+
+|   Buyer Agent     |       |   Seller Agent    |       |   Trust Layer        |
+|   (requester)     |       |   (provider)      |       |   (AAIS / policy)    |
++---------+---------+       +---------+---------+       +----------+-----------+
+          |                           |                            |
+          | 1. Request service        |                            |
+          +-------------------------->|                            |
+          |                           |                            |
+          | 2. 402 + payment terms    |                            |
+          |<--------------------------+                            |
+          |                           |                            |
+          | 3. x402 payment intent    |                            |
+          +-------------------------->|                            |
+          |                           |                            |
+          |                  4. Validate identity / reputation     |
+          |                           +---------------------------->
+          |                           |                            |
+          |                           |<----------------------------+
+          |                           |   (permit / deny / limits) |
+          |                           |                            |
+          | 5. Settlement request     |                            |
+          +-------------------------->+----------------------------+
+                                      |   Facilitator              |
+                                      +--------------+-------------+
+                                                     |
+                                                     | 6. On-chain tx (Aptos)
+                                                     v
+                                      +------------------------------+
+                                      |        Aptos Chain           |
+                                      |  Move modules · USDC settle  |
+                                      |  Receipt · state updates     |
+                                      +--------------+---------------+
+                                                     |
+                                                     | 7. Tx result + proof
+                                                     v
+                                      +------------------------------+
+                                      |   Verifiable Receipt         |
+                                      |   (tx hash, events, state)   |
+                                      +--------------+---------------+
+                                                     |
+          | 8. Receipt delivered      |              |
+          |<--------------------------+--------------+
+          |
+          | 9. Service delivered
+          +-------------------------->  Seller Agent
+```
 
 ---
 
 ## Features
 
-### Core
+### Agentic Payment Layer (x402)
 
 | Feature | Description | Status |
 |---|---|---|
-| x402 Payment Client | Sign, verify, and settle payments via Aptos USDC and a facilitator | Implemented |
-| Local Facilitator | Express server on `:4022` for offline payment verification/settlement | Implemented |
-| Project Scaffolding | `ascent init` generates Express, Next.js, or Hono x402 projects | Implemented |
-| Multi-Wallet Stress Test | `ascent test --all-wallets` runs payment simulations across 5 wallets | Implemented |
+| x402 Payment Client | Sign, verify, and settle payments via Aptos USDC | Implemented |
+| Local Facilitator | Express server on `:4022` for offline verification/settlement | Implemented |
+| Deterministic Receipts | Every payment returns a verifiable tx hash and proof | Implemented |
+| Multi-Wallet Stress Test | `ascent test --all-wallets` simulates payments across 5 wallets | Implemented |
 
-### Trust Layer (AAIS / ARC-8004)
+### Identity & Trust Layer (AAIS / ARC-8004)
 
 | Feature | Description | Status |
 |---|---|---|
-| Agent Identity (Move) | On-chain NFT-based identity registry on Aptos | Implemented |
-| Reputation Scoring (Move) | On-chain feedback attestation and trust scoring (0–100) | Implemented |
+| Agent Identity (Move) | On-chain NFT-based identity registry | Implemented |
+| Reputation Scoring (Move) | Feedback attestation and trust scoring (0–100) | Implemented |
 | Validation Registry (Move) | Validator network with task validation and proof types | Implemented |
-| AAIS TypeScript SDK | `AAISClient` class: mint, verify, attest, query from Node.js | Implemented |
-| CLI Identity Commands | `ascent identity register/list/show` for local SQLite registry | Implemented |
+| AAIS TypeScript SDK | `AAISClient` class: mint, verify, attest, query | Implemented |
+| CLI Identity Commands | `ascent identity register/list/show` (local SQLite) | Implemented |
 
 ### Developer Experience
 
 | Feature | Description | Status |
 |---|---|---|
-| `ascent dev` | Starts agent server + local facilitator together; loads `.env.local` | Implemented |
-| `ascent move init/inject` | Initialize Move project; inject payment verification module | Implemented |
+| `ascent dev` | Starts agent server + local facilitator; loads `.env.local` | Implemented |
+| `ascent init` | Scaffolds Express, Next.js, or Hono x402 projects | Implemented |
+| `ascent move init/inject` | Move project setup; payment verification module injection | Implemented |
 | `ascent kill` | Kill stuck processes on common Ascent ports | Implemented |
-| Interactive Setup | `ascent init` with guided prompts for network, price, endpoint | Implemented |
 | Templates | Express (full), Next.js (middleware), Hono (scaffold) | Implemented |
 
 ### Observability
@@ -51,18 +122,18 @@ Built by [Glorian Labs](https://github.com/glorian-labs).
 | Feature | Description | Status |
 |---|---|---|
 | `ascent monitor` | Real-time terminal payment flow monitoring | Implemented |
-| `ascent dashboard` | Web analytics dashboard on `:3456` backed by SQLite | Implemented |
-| `ascent logs` | Guidance on where dev/facilitator output appears | Implemented |
+| `ascent dashboard` | Web analytics dashboard on `:3456` (SQLite-backed) | Implemented |
+| `ascent logs` | Log output guidance for dev/facilitator | Implemented |
 
 ### Planned
 
-| Feature | Target | Branch/Notes |
+| Feature | Target | Notes |
 |---|---|---|
-| MCP Server (Claude Desktop) | Phase 4 | `feat/mcp-server` (name only — not yet implemented) |
+| MCP Server (Claude Desktop) | Phase 4 | Not yet implemented |
 | A2A Protocol (Google) | Phase 4 | Design stage |
 | Self-hosted Facilitator | Phase 2 | Local mock exists; production deploy pending |
 | Multi-chain (Mainnet, Base, Solana) | Phase 2–3 | Testnet only today |
-| CI/CD Pipeline | Phase 5 | No `.github/` yet |
+| CI/CD Pipeline | Phase 5 | Not yet configured |
 
 See [ROADMAP.md](./ROADMAP.md) for the full production roadmap.
 
@@ -70,24 +141,32 @@ See [ROADMAP.md](./ROADMAP.md) for the full production roadmap.
 
 ## Quickstart
 
+### Install
+
 ```bash
-# Install globally
+# Global install
 npm install -g @ascent/cli
 
-# Scaffold a new x402 project
-ascent init my-agent-api --template express
+# Or clone for local development
+git clone https://github.com/Glorian-Labs/ascent-cli
+cd ascent-cli && npm install
+```
 
-# Enter the project
+### Create and run a project
+
+```bash
+# Scaffold
+ascent init my-agent-api --template express
 cd my-agent-api && npm install
 
-# Configure wallet (edit .env.local with your keys)
+# Configure wallet (edit .env.local)
 # PAYMENT_RECIPIENT_ADDRESS=0x...
 # APTOS_PRIVATE_KEY=0x...
 
 # Start dev server + local facilitator
 ascent dev
 
-# In another terminal — test payment flow
+# Test payment flow (separate terminal)
 ascent test --all-wallets
 ```
 
@@ -95,13 +174,13 @@ ascent test --all-wallets
 
 | Command | Description |
 |---|---|
-| `ascent init <name>` | Scaffold x402 project (express/next/hono) |
+| `ascent init <name>` | Scaffold x402 project (express / next / hono) |
 | `ascent dev` | Start dev server + local facilitator |
 | `ascent test` | Test x402 payment flow |
 | `ascent monitor` | Real-time payment monitoring |
 | `ascent dashboard` | Web analytics dashboard |
-| `ascent identity <action>` | Agent identity management (register/list/show) |
-| `ascent move <action>` | Move language helpers (init/inject) |
+| `ascent identity <action>` | Agent identity management (register / list / show) |
+| `ascent move <action>` | Move language helpers (init / inject) |
 | `ascent kill` | Kill stuck Ascent processes |
 | `ascent logs` | Log output guidance |
 
@@ -118,82 +197,49 @@ A reputation-gated agent commerce platform demonstrating the full Ascent stack:
 - Consumers browse by tier and pay per call via x402
 - Ratings update AAIS scores — a self-reinforcing trust economy
 
-### Run the Backend
-
 ```bash
+# Backend (port 3007)
 cd examples/agentmesh-marketplace
-npm install
+npm install && node seed-demo.js && node server.js
 
-# Seed demo data
-node seed-demo.js
-
-# Start the API server (port 3007)
-node server.js
-```
-
-### Run the UI
-
-```bash
+# UI (port 3003)
 cd examples/agentmesh-marketplace/ui
-npm install
-npm run dev
-# Open http://localhost:3003
+npm install && npm run dev
 ```
 
-Backend API: `http://localhost:3007`
-UI: `http://localhost:3003`
+See [examples/agentmesh-marketplace/](./examples/agentmesh-marketplace/) for full setup and testing.
 
-See [examples/agentmesh-marketplace/README.md](./examples/agentmesh-marketplace/README.md) for full setup and testing instructions.
+---
+
+## Trust & Verifiability
+
+> Autonomous agents must operate within verifiable economic constraints.
+
+- Payments must be **deterministic**
+- Receipts must be **provable**
+- Identity must be **attestable**
+- Settlement must be **auditable**
+- Policies must be **enforceable**
+
+Without these primitives, the agent economy collapses into blind trust. Ascent builds the rails for verifiable coordination.
 
 ---
 
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│                      ASCENT STACK                        │
-├──────────────────────────────────────────────────────────┤
-│                                                          │
-│  CLI (bin/cli.js)                                        │
-│    ├─ init / dev / test / monitor / dashboard / kill     │
-│    ├─ identity register / list / show                    │
-│    └─ move init / inject                                 │
-│                                                          │
-│  Core Libraries (lib/)                                   │
-│    ├─ x402-client.js     x402 payment client (Aptos)     │
-│    ├─ facilitator.js     Local facilitator (:4022)        │
-│    ├─ arc8004/index.js   AAIS TypeScript SDK              │
-│    ├─ multi-wallet-tester.js  Payment stress testing      │
-│    ├─ monitor.js         Terminal payment monitoring       │
-│    └─ dashboard.js       Web analytics                    │
-│                                                          │
-│  Move Contracts (move/sources/arc8004/)                  │
-│    ├─ agent_identity.move    NFT identity registry        │
-│    ├─ reputation.move        On-chain scoring             │
-│    └─ validation.move        Validator network            │
-│                                                          │
-│  Templates (templates/)                                  │
-│    ├─ express/   Full Express x402 server                 │
-│    ├─ next/      Next.js middleware scaffold               │
-│    └─ hono/      Hono scaffold                            │
-│                                                          │
-│  Demo (examples/agentmesh-marketplace/)                  │
-│    ├─ server.js      Backend API + SQLite + x402          │
-│    └─ ui/            Next.js + shadcn/ui dashboard         │
-│                                                          │
-├──────────────────────────────────────────────────────────┤
-│  Payment Flow                                            │
-│                                                          │
-│  Request ──▶ 402 + PAYMENT-REQUIRED (base64)             │
-│          ──▶ Client signs Aptos tx                        │
-│          ──▶ Facilitator /verify                          │
-│          ──▶ Facilitator /settle                          │
-│          ──▶ 200 OK + PAYMENT-RESPONSE + content          │
-│                                                          │
-│  External                                                │
-│    Aptos Testnet (aptos:2) ◀──▶ USDC Settlement           │
-│    Facilitator: localhost:4022 (dev) or hosted             │
-└──────────────────────────────────────────────────────────┘
+bin/        CLI entry points
+lib/        Core SDK and utilities
+  ├── x402-client.js        Payment client (Aptos USDC)
+  ├── facilitator.js        Local facilitator server (:4022)
+  ├── arc8004/index.js      AAIS TypeScript SDK
+  ├── multi-wallet-tester.js
+  ├── monitor.js            Terminal monitoring
+  └── dashboard.js          Web analytics
+move/       Move smart contracts (identity, reputation, validation)
+templates/  Scaffolding templates (Express, Next.js, Hono)
+examples/   Demo implementations (AgentMesh marketplace)
+docs/       Documentation
 ```
 
 ---
@@ -202,80 +248,35 @@ See [examples/agentmesh-marketplace/README.md](./examples/agentmesh-marketplace/
 
 | Document | Description |
 |---|---|
-| [docs/README.md](./docs/README.md) | Documentation index |
-| [USAGE.md](./USAGE.md) | CLI command reference and setup guide |
-| [docs/guide.md](./docs/guide.md) | Complete technical manual |
+| [docs/](./docs/README.md) | Documentation index |
+| [USAGE.md](./USAGE.md) | CLI command reference |
+| [docs/guide.md](./docs/guide.md) | Technical manual |
+| [docs/concepts.md](./docs/concepts.md) | x402, facilitators, AAIS concepts |
 | [docs/end-user-guide.md](./docs/end-user-guide.md) | Developer walkthrough |
-| [docs/use-cases.md](./docs/use-cases.md) | Strategic use case scenarios |
-| [docs/concepts.md](./docs/concepts.md) | x402, facilitators, AAIS/ARC-8004 concepts |
-| [docs/RESEARCH_X402_AAIS.md](./docs/RESEARCH_X402_AAIS.md) | x402 & AAIS protocol research |
-| [ROADMAP.md](./ROADMAP.md) | Production roadmap and milestones |
-| [examples/agentmesh-marketplace/](./examples/agentmesh-marketplace/) | AgentMesh demo (backend + UI) |
+| [docs/use-cases.md](./docs/use-cases.md) | Strategic use cases |
+| [ROADMAP.md](./ROADMAP.md) | Production roadmap |
 
 ---
 
 ## Project Status
 
-### Stable (master)
+**Stable** — CLI commands, x402 payment client, local facilitator, AAIS Move contracts + SDK, AgentMesh demo, Express template.
 
-- CLI commands: `init`, `dev`, `test`, `monitor`, `dashboard`, `identity`, `move`, `kill`, `logs`
-- x402 payment client with Aptos testnet support
-- Local facilitator for offline development
-- AAIS Move contracts (compiled, deployed to testnet)
-- AAIS TypeScript SDK
-- AgentMesh marketplace demo (backend + UI)
-- Express project template
+**Experimental** — Next.js/Hono templates (scaffold-level). Facilitator settlement is mock (simulated tx hashes — real on-chain submission pending).
 
-### Experimental
-
-- Next.js and Hono templates (scaffold-level, not full-featured)
-- Facilitator settlement is mock (returns simulated tx hashes — real on-chain submission pending)
-
-### Planned
-
-- MCP Server for Claude Desktop integration
-- A2A Protocol for agent-to-agent negotiation
-- Self-hosted production facilitator
-- Mainnet deployment
-- CI/CD pipeline
-- Smart contract audit
-
-See [ROADMAP.md](./ROADMAP.md) for timeline and details.
-
----
-
-## Network Configuration
-
-| Resource | Testnet | Mainnet |
-|---|---|---|
-| Network | `aptos:2` | `aptos:1` (planned) |
-| USDC Asset | `0x69091f...af52832` | TBD |
-| Facilitator | `localhost:4022` (dev) / `x402-navy.vercel.app` (hosted) | TBD |
-| Explorer | [Aptos Explorer (testnet)](https://explorer.aptoslabs.com/?network=testnet) | — |
+**Planned** — MCP Server, A2A Protocol, self-hosted facilitator, mainnet, CI/CD, contract audit. See [ROADMAP.md](./ROADMAP.md).
 
 ---
 
 ## Contributing
 
-We welcome contributions. See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feat/your-feature`)
-3. Commit changes (`git commit -m 'feat: description'`)
-4. Push to the branch (`git push origin feat/your-feature`)
-5. Open a Pull Request
-
-Use [conventional commits](https://www.conventionalcommits.org/). Prefix: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`.
-
----
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Security
 
-If you discover a security vulnerability, do **not** open a public issue. Email security concerns privately. See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
+If you discover a vulnerability, do **not** open a public issue.
 
-**Important:** Never commit private keys or `.env.local` files. The `.gitignore` is configured to exclude them.
-
----
+Contact: **security@glorianlabs.com**
 
 ## License
 
@@ -288,7 +289,7 @@ Copyright (c) 2026 Glorian Labs LTD
 <p align="center">
   <strong>Ascent CLI</strong> — verifiable agent commerce on Aptos<br>
   <em>x402 payments · ARC-8004 reputation · Developer workflow</em><br>
-  <a href="https://github.com/glorian-labs/ascent-cli">GitHub</a> ·
+  <a href="https://github.com/Glorian-Labs/ascent-cli">GitHub</a> ·
   <a href="./ROADMAP.md">Roadmap</a> ·
   <a href="./docs/README.md">Docs</a>
 </p>
